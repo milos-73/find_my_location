@@ -79,7 +79,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         .then((List<Placemark> placemarks) {
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
-      currentStreet = '${place.street}'; currentTown = '${place.subLocality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
+      currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
       });
     }).catchError((e) {
       debugPrint(e);
@@ -147,11 +147,15 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                     Text('${currentLocation?.longitude}'),
                                     Text('${currentLocation?.altitude}'),
                                     Text('${currentLocation?.accuracy}'),
-                                    Text('${currentStreet}'),
-                                    Text('${currentTown}'),
-                                    Text('${currentCounty}'),
-                                    Text('${currentState}'),
-                                    Text('${currentPostalCode}'),
+                                    Text('$currentStreet'),
+                                    Text('$currentTown'),
+                                    Text('$currentCounty'),
+                                    Text('$currentState'),
+                                    Text('$currentPostalCode'),
+                                    Text('$latDms'),
+                                    Text('$longDms'),
+                                    Text('${latDms![0]}'),
+                                    Text('${longDms![0]}'),
                                   ],),
                                   actions: <Widget>[
                                     TextButton(onPressed: (){
@@ -239,7 +243,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                 child: Stack(children: [Padding(
                                   padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [const Text('Lng', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
+                                    children: [const Text('Long', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
                                       const Padding(
                                         padding: EdgeInsets.only(left: 3, right: 3),
                                         child: VerticalDivider(color: Colors.black, thickness: 1,),
