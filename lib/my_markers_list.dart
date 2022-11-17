@@ -34,10 +34,12 @@ class _MyMarkersListState extends State<MyMarkersList> {
               final latDms = converter.getDegreeFromDecimal(marker.lat!);
               final longDms = converter.getDegreeFromDecimal(marker.long!);
 
+              print(latDms);
+              print(longDms);
+
 
               return Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 4,
                 margin: EdgeInsets.all(10),
                 color: HexColor('#733439'),
@@ -66,8 +68,10 @@ class _MyMarkersListState extends State<MyMarkersList> {
                          Column(
                             children: [
                                 Column(crossAxisAlignment:CrossAxisAlignment.start ,children: [
-                                Text("Lat: ${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\"",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),),
-                                Text('DD: ${marker.lat}',style: TextStyle(fontSize: 13,color: HexColor('#ADD4D9').withAlpha(180)),),
+                                  latDms?[0] > 0 
+                                      ? Text("Lat: ${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),)
+                                      : Text("Lat: ${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),),
+                                Text('DD: ${marker.lat?.abs().toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#ADD4D9').withAlpha(180)),),
                                                            ],),],
                           ),
                           Column(children: [
@@ -89,10 +93,12 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                 Column(
                                   children: [
                                     Column(crossAxisAlignment:CrossAxisAlignment.start ,children: [
-                                      Text("Long: ${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\"",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),),
+                                      longDms?[0] > 0 
+                                          ? Text("Long: ${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${marker.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),)
+                                          : Text("Long: ${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${marker.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#F2C36B')),),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 3),
-                                        child: Text('DD: ${marker.long}',style: TextStyle(fontSize: 13,color: HexColor('#ADD4D9').withAlpha(180)),),
+                                        child: Text('DD: ${marker.long?.abs().toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#ADD4D9').withAlpha(180)),),
                                       ),
                                     ],),
                                   ],

@@ -44,6 +44,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   List<num>? latDms;
   List<num>? longDms;
 
+  bool isLoading = false;
+
 
   int interActiveFlags = InteractiveFlag.all;
 
@@ -55,6 +57,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   @override
   void initState() {
     super.initState();
+    setState((){isLoading = true;});
     _mapController = MapController();
     _mapController2 = MapController();
     getCurrentLocationGlobal(context)
@@ -63,7 +66,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => _getAddressFromLatLng(currentLocation!))
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-    .then((value) =>  initLocationService());
+    .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}));
 
   }
 
@@ -104,7 +107,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       currentLatLng = LatLng(0, 0);
     }
 
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       //appBar: AppBar(title: const Text('Home')),
@@ -141,7 +143,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
-                                  title: Text('add the Point to My List'),
+                                  title: const Text('add the Point to My List'),
                                   content: Column(children: [
                                     Text('${currentLocation?.latitude}'),
                                     Text('${currentLocation?.longitude}'),
@@ -162,7 +164,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                       final newMarker = MyMarkers(dateTime: DateTime.now(), name: '$currentTown', description: 'description', lat: currentLocation?.latitude, long: currentLocation?.longitude, altitude: currentLocation?.altitude, accuracy: currentLocation?.accuracy, street: '$currentStreet', city: '$currentTown', county: '$currentCounty', state: '$currentState',zip: '$currentPostalCode');
                                       addMyMarker(newMarker);
                                       Navigator.of(ctx).pop();
-                                      }, child: Container(color: Colors.green, padding: EdgeInsets.all(14), child: Text('OK'),)),
+                                      }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
 
                                     
                                   ],
@@ -180,7 +182,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                 }, child: Column(children: const [FaIcon(FontAwesomeIcons.heartCirclePlus, color: Colors.red,size: 40,), Text('Save Position')],)),
                                 TextButton(onPressed: (){}, child: Column(children: const [FaIcon(FontAwesomeIcons.shareNodes, color: Colors.red,size: 40,), Text('Share Current')],)),
                                 TextButton(onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyMarkersList()));
 
 
                                 }, child: Column(children: const [FaIcon(FontAwesomeIcons.bars, color: Colors.red,size: 40,), Text('My List')],)),
@@ -195,82 +197,110 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(width: MediaQuery.of(context).size.width*0.8, alignment: Alignment.topLeft, height: 65, margin: EdgeInsets.only(bottom: 10),
+                            Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
                               decoration: BoxDecoration(color: Colors.amber,border: Border.all(color: Colors.green,width: 4, style: BorderStyle.solid),
                                   borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                child: Stack(children: [
-                                  Padding(
+                                child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                  child: Stack(children: [Padding(
                                     padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                                     child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                      children: [
-                                        const Text('Lat', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
+                                      children: [const SizedBox(width: 45,child: Text('Lat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
                                         const Padding(
                                           padding: EdgeInsets.only(left: 3, right: 3),
                                           child: VerticalDivider(color: Colors.black, thickness: 1,),
                                         ),
-                                        Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\"",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                            Text('${currentLocation?.latitude ?? 0.0}',style: const TextStyle(fontSize: 14),),
-                                          ],
+
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(minWidth: 180),
+                                          child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              isLoading == true
+                                                  ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
+
+                                                  : latDms![0] > 0
+                                                  ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                  : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                              Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+
+                                            ],
+                                          ),
                                         ),
-                                        const SizedBox(width: 20,),
+
                                         Padding(
-                                          padding: const EdgeInsets.only(right: 12),
-                                          child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,  children: [
+                                          padding: const EdgeInsets.only(left: 5, right: 10),
+                                          child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [
                                             const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
                                             Padding(
                                               padding: const EdgeInsets.only(top: 4),
-                                              child: Text('${currentLocation?.altitude}'),
-                                            )],),
+                                              child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                            ),
+                                          ],
+                                          ),
                                         )
                                       ],
                                     ),
-                                  ),]),
-                              ),),
+                                  ),
+                                  ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
 
 
 
+
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Container(width: MediaQuery.of(context).size.width*0.8, alignment: Alignment.topLeft, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                            Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
                               decoration: BoxDecoration(color: Colors.amber,border: Border.all(color: Colors.green,width: 4, style: BorderStyle.solid),
                                   borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                child: Stack(children: [Padding(
-                                  padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
-                                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [const Text('Long', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
-                                      const Padding(
-                                        padding: EdgeInsets.only(left: 3, right: 3),
-                                        child: VerticalDivider(color: Colors.black, thickness: 1,),
-                                      ),
-                                      Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\"",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                          Text('${currentLocation?.longitude ?? 0.0}',style: const TextStyle(fontSize: 14),),
-
-                                        ],
-                                      ),
-                                      const SizedBox(width: 20,),
-                                      Padding(
-                                        padding: const EdgeInsets.only(right: 12),
-                                        child: Column(mainAxisAlignment: MainAxisAlignment.center,  children: [
-                                          const Center(child: FaIcon(FontAwesomeIcons.rulerHorizontal)),
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 4),
-                                            child: Text('${currentLocation?.accuracy}'),
+                                child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                  child: Stack(children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
+                                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                          const Padding(
+                                            padding: EdgeInsets.only(left: 3, right: 3),
+                                            child: VerticalDivider(color: Colors.black, thickness: 1,),
                                           ),
+
+                                          ConstrainedBox(
+                                            constraints: const BoxConstraints(minWidth: 180),
+                                            child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                isLoading == true
+                                                    ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
+
+                                                    : longDms![0] > 0
+                                                    ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                    : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                                Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+
+                                              ],
+                                            ),
+                                          ),
+
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 5,right: 10),
+                                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                              const Center(child: FaIcon(FontAwesomeIcons.ruler)),
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 4),
+                                                child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                              ),
+                                            ],
+                                            ),
+                                          )
                                         ],
-                                        ),
-                                      )
-                                    ],
+                                      ),
+                                    ),
+                                  ],
                                   ),
-                                ),
-                                ],
                                 ),
                               ),
                             ),
@@ -316,7 +346,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                           Column(
                            children: [
                              Text('$currentStreet',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                             Text('$currentPostalCode ${currentTown}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                             Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                              Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
                              // Text('$currentCounty',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
                              // Text('$currentState',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
