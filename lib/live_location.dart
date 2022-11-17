@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
@@ -168,13 +169,13 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                   ],
                                 ),
                                 );
-                                  }, child: Column(children: const [FaIcon(FontAwesomeIcons.heartCirclePlus, color: Colors.red,size: 40,), Text('Save Position')],)),
-                                TextButton(onPressed: (){}, child: Column(children: const [FaIcon(FontAwesomeIcons.shareNodes, color: Colors.red,size: 40,), Text('Share Current')],)),
+                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 40,), Text('Save Position', style: TextStyle(color: HexColor('#0468BF')),)],)),
+                                TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 40,), Text('Share Current', style: TextStyle(color: HexColor('#0468BF')))],)),
                                 TextButton(onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
 
-                                }, child: Column(children: const [FaIcon(FontAwesomeIcons.bars, color: Colors.red,size: 40,), Text('My List')],)),
+                                }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 40,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
                                 ],
                             ),
                           ),
@@ -183,7 +184,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: Colors.amber,border: Border.all(color: Colors.green,width: 4, style: BorderStyle.solid),
+                              decoration: BoxDecoration(color: HexColor('#D99E6A'),border: Border.all(color:HexColor('#3B592D'),width: 4, style: BorderStyle.solid),
                                   borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
                                 child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
@@ -236,7 +237,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: Colors.amber,border: Border.all(color: Colors.green,width: 4, style: BorderStyle.solid),
+                              decoration: BoxDecoration(color: HexColor('#D99E6A'),border: Border.all(color: HexColor('#3B592D'),width: 4, style: BorderStyle.solid),
                                   borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
                                 child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
@@ -307,8 +308,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                           userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                                         ),
-                                        const FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,),
-                                        CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation),
+                                        FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
+                                        CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
                                         Consumer<MarkerProvider>(builder: (context,value,child){ return MarkerLayer(markers: [Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => Icon(Icons.location_pin, color: Colors.red,))]);}),
                                       ],
                                     ),
@@ -334,18 +335,18 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width,alignment: Alignment.center, height: 80, margin: const EdgeInsets.only(bottom: 25),
-                                decoration: const ShapeDecoration(
-                                    shadows: [
+                                decoration: ShapeDecoration(
+                                    shadows: const [
                                       BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
                                     ],
                                     shape: CircleBorder(
-                                        side: BorderSide(width: 7, color: Colors.lightGreen)),
-                                    color: Colors.red),
+                                        side: BorderSide(width: 7, color: HexColor('#3B592D'))),
+                                    color: HexColor('#D99E6A')),
                                 child: Stack(alignment: Alignment.center, children: [
                                   Column(mainAxisAlignment: MainAxisAlignment.center,
                                   children: const [
-                                    Text('SEND',style: TextStyle(color: Colors.white, fontSize: 20),),
-                                    Text('sms',style: TextStyle(color: Colors.white70),),
+                                    Text('SEND',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),),
+                                    Text('sms',style: TextStyle(color: Colors.black45),),
                                   ],
                                 ),],)),
                           ],

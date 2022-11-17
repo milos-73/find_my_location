@@ -14,12 +14,9 @@ class CenterMapButtons extends StatefulWidget {
   final bool mini;
   final double padding;
   final Alignment alignment;
-  final Color? zoomInColor;
-  final Color? zoomInColorIcon;
-  final Color? zoomOutColor;
-  final Color? zoomOutColorIcon;
-  final IconData zoomInIcon;
-  final IconData zoomOutIcon;
+  final Color? centerColor;
+  final Color? centerColorIcon;
+  final IconData centerIcon;
   final MapController mapControler;
   final Position? currentLocation;
 
@@ -30,12 +27,9 @@ class CenterMapButtons extends StatefulWidget {
     this.mini = true,
     this.padding = 2.0,
     this.alignment = Alignment.topRight,
-    this.zoomInColor,
-    this.zoomInColorIcon,
-    this.zoomInIcon = Icons.center_focus_strong_outlined,
-    this.zoomOutColor,
-    this.zoomOutColorIcon,
-    this.zoomOutIcon = Icons.zoom_out,
+    this.centerColor,
+    this.centerColorIcon,
+    this.centerIcon = Icons.center_focus_strong_outlined,
     required this.mapControler,
     this.currentLocation,
   });
@@ -70,7 +64,7 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
             child: FloatingActionButton(
               heroTag: 'centerButton',
               mini: widget.mini,
-              backgroundColor: widget.zoomOutColor ?? Theme.of(context).primaryColor,
+              backgroundColor: widget.centerColor ?? Theme.of(context).primaryColor,
               onPressed: () {
                 getCurrentLocationGlobal(context)
                     .then((value) => setState((){currentLocation = value;}))
@@ -79,7 +73,7 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
                 //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  LiveLocationPage()),);
                },
               child: FaIcon(FontAwesomeIcons.arrowsToDot,
-                  color: widget.zoomOutColorIcon ?? IconTheme.of(context).color),
+                  color: widget.centerColorIcon ?? IconTheme.of(context).color),
             ),
           ),
         ],
