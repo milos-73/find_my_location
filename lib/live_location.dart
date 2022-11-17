@@ -165,33 +165,18 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                       addMyMarker(newMarker);
                                       Navigator.of(ctx).pop();
                                       }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
-
-                                    
                                   ],
-                                ));
-
-                                  
-
-
-
-
-
-
-
-
-                                }, child: Column(children: const [FaIcon(FontAwesomeIcons.heartCirclePlus, color: Colors.red,size: 40,), Text('Save Position')],)),
+                                ),
+                                );
+                                  }, child: Column(children: const [FaIcon(FontAwesomeIcons.heartCirclePlus, color: Colors.red,size: 40,), Text('Save Position')],)),
                                 TextButton(onPressed: (){}, child: Column(children: const [FaIcon(FontAwesomeIcons.shareNodes, color: Colors.red,size: 40,), Text('Share Current')],)),
                                 TextButton(onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MyMarkersList()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude)));
 
 
                                 }, child: Column(children: const [FaIcon(FontAwesomeIcons.bars, color: Colors.red,size: 40,), Text('My List')],)),
-                                //ElevatedButton.icon(  label: const Text('Uložiť polohu'), icon: const FaIcon(FontAwesomeIcons.plus, size: 30,), onPressed: () {  }, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent ) ,),
-                                //ElevatedButton.icon(  label: const Text('Uložiť polohu'), icon: const FaIcon(FontAwesomeIcons.heartCirclePlus,color: Colors.red, size: 25,), onPressed: () {  }, style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent ))
-
-
-
-                            ],),
+                                ],
+                            ),
                           ),
                         ),
 
@@ -248,10 +233,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                             ),
                           ],
                         ),
-
-
-
-
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
@@ -280,7 +261,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                                     ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
                                                     : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
                                                 Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
-
                                               ],
                                             ),
                                           ),
@@ -306,9 +286,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                             ),
                           ],
                         ),
-
-
-
                         Row(
                           children: [
                             Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
@@ -354,9 +331,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                            ],
                          ),
                          )],),
-
-
-
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width,alignment: Alignment.center, height: 80, margin: const EdgeInsets.only(bottom: 25),
@@ -378,29 +352,13 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                         ),
                       ],
                     ),
-
-
-
                 ) ,
-
-
-
-
-
-
-
-
-
-
                     ],),
           ),
         ),
                   ),
                 ),
                 )
-
-
-
               ],
               children: [
                 TileLayer(
