@@ -35,6 +35,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   //LocationData? _currentLocation;
   late final MapController _mapController;
   late final MapController _mapController2;
+  late Box<MyMarkers> myMarkersBox;
   Position? currentLocation;
   String? currentAddress;
   String? currentStreet;
@@ -47,18 +48,31 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   bool isLoading = false;
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController latitudeController = TextEditingController();
+  TextEditingController longitudeController = TextEditingController();
+  TextEditingController altitudeController = TextEditingController();
+  TextEditingController accuracyController = TextEditingController();
+  TextEditingController streetController = TextEditingController();
+  TextEditingController townController = TextEditingController();
+  TextEditingController countyController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
+  TextEditingController zipController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
 
-  int interActiveFlags = InteractiveFlag.all;
+      int interActiveFlags = InteractiveFlag.all;
 
 
   //final Location _locationService = Location();
-  LatLongConverter converter = LatLongConverter();
 
+  LatLongConverter converter = LatLongConverter();
 
   @override
   void initState() {
     super.initState();
-    setState((){isLoading = true;});
+    myMarkersBox = Hive.box('myMarkersBox');
+        setState((){isLoading = true;});
+
     _mapController = MapController();
     _mapController2 = MapController();
     getCurrentLocationGlobal(context)
@@ -67,9 +81,28 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => _getAddressFromLatLng(currentLocation!))
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-    .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}));
-
+    .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}))
+        .then((value) => setState((){nameController.text = currentTown!;}))
+        .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
+        .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
+        .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
+        .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
+        .then((value) => setState((){streetController.text = currentStreet!;}))
+        .then((value) => setState((){townController.text = currentTown!;}))
+        .then((value) => setState((){countyController.text = currentCounty!;}))
+        .then((value) => setState((){stateController.text = currentState!;}))
+        .then((value) => setState((){zipController.text = currentPostalCode!;}))
+        .then((value) => setState((){descriptionController.text = '';}));
   }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    nameController.dispose();
+    super.dispose();
+  }
+
 
   void initLocationService() async {
 
@@ -90,13 +123,9 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
     });
   }
 
-
   void addMyMarker(MyMarkers myMarker) {
-    final myMarkersBox = Hive.box('myMarkersBox');
-    myMarkersBox.add(myMarker);
-
+       myMarkersBox.add(myMarker);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -145,24 +174,27 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                               children: [
                                 TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
                                   title: const Text('add the Point to My List'),
-                                  content: Column(children: [
-                                    Text('${currentLocation?.latitude}'),
-                                    Text('${currentLocation?.longitude}'),
-                                    Text('${currentLocation?.altitude}'),
-                                    Text('${currentLocation?.accuracy}'),
-                                    Text('$currentStreet'),
-                                    Text('$currentTown'),
-                                    Text('$currentCounty'),
-                                    Text('$currentState'),
-                                    Text('$currentPostalCode'),
-                                    Text('$latDms'),
-                                    Text('$longDms'),
-                                    Text('${latDms![0]}'),
-                                    Text('${longDms![0]}'),
-                                  ],),
+                                  content: SingleChildScrollView(
+                                    child: Column(children: [
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                                      TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+
+
+
+                                    ],),
+                                  ),
                                   actions: <Widget>[
                                     TextButton(onPressed: (){
-                                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: '$currentTown', description: 'description', lat: currentLocation?.latitude, long: currentLocation?.longitude, altitude: currentLocation?.altitude, accuracy: currentLocation?.accuracy, street: '$currentStreet', city: '$currentTown', county: '$currentCounty', state: '$currentState',zip: '$currentPostalCode');
+                                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
                                       addMyMarker(newMarker);
                                       Navigator.of(ctx).pop();
                                       }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
@@ -184,8 +216,10 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: HexColor('#D99E6A'),border: Border.all(color:HexColor('#3B592D'),width: 4, style: BorderStyle.solid),
-                                  borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
+                              decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color:HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                  borderRadius: BorderRadius.circular(15),
+                                  //boxShadow: [BoxShadow (color: Colors.black45, offset: const Offset(1, 1), blurRadius: 2, spreadRadius: 1)]
+                              ),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
                                 child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
                                   child: Stack(children: [Padding(
@@ -198,7 +232,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                         ),
 
                                         ConstrainedBox(
-                                          constraints: BoxConstraints(minWidth: 180),
+                                          constraints: const BoxConstraints(minWidth: 180),
                                           child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               isLoading == true
@@ -219,7 +253,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                             const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
                                             Padding(
                                               padding: const EdgeInsets.only(top: 4),
-                                              child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                              child: Text('${currentLocation?.altitude.toStringAsFixed(2)}'),
                                             ),
                                           ],
                                           ),
@@ -231,14 +265,15 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            )],
                         ),
                         Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: HexColor('#D99E6A'),border: Border.all(color: HexColor('#3B592D'),width: 4, style: BorderStyle.solid),
-                                  borderRadius: BorderRadius.circular(15),boxShadow: const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]),
+                              decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                  borderRadius: BorderRadius.circular(15),
+                                  //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
+                              ),
                               child: SingleChildScrollView(scrollDirection: Axis.horizontal,
                                 child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
                                   child: Stack(children: [

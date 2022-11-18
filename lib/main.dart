@@ -14,7 +14,7 @@ late Box box;
 Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(MyMarkersAdapter());
-  box = await Hive.openBox('myMarkersBox');
+  box = await Hive.openBox<MyMarkers>('myMarkersBox');
 
   
   runApp(
