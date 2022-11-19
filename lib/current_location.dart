@@ -54,7 +54,7 @@ Future<Position?> getCurrentLocationGlobal(BuildContext context) async {
     Position? position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
         forceAndroidLocationManager: true,
-        timeLimit: Duration(seconds: 10));
+        timeLimit: Duration(seconds: 30));
     print('POZÍCIA: ${position}');
     return position;
   } on Exception catch (e) {

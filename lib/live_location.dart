@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:find_me/marker_provider.dart';
@@ -17,6 +18,8 @@ import 'package:geocoding/geocoding.dart';
 
 import 'center_button.dart';
 import 'current_location.dart';
+import 'geo_location.dart';
+import 'location_provider.dart';
 import 'markers_model.dart';
 import 'my_markers_list.dart';
 
@@ -66,6 +69,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   //final Location _locationService = Location();
 
   LatLongConverter converter = LatLongConverter();
+  GeoLocations geolocations = GeoLocations();
 
   @override
   void initState() {
@@ -75,7 +79,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
     _mapController = MapController();
     _mapController2 = MapController();
-    getCurrentLocationGlobal(context)
+    geolocations.getCurrentPosition()
+    //getCurrentLocationGlobal(context)
         .then((value) => setState((){currentLocation = value;}))
         .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => _getAddressFromLatLng(currentLocation!))
@@ -101,6 +106,14 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
     // widget tree.
     nameController.dispose();
     super.dispose();
+  }
+
+  void locationUpdate(){
+
+    StreamSubscription<ServiceStatus> serviceStatusStream = Geolocator.getServiceStatusStream().listen(
+            (ServiceStatus status) {
+          print(status);
+        });
   }
 
 
@@ -162,125 +175,71 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                 child:
 
 
-                    Column(mainAxisSize: MainAxisSize.min
-                      ,
-                      children: [
+                    Consumer<LocationProvider>(builder: (context,value,child) {return
+                      Column(mainAxisSize: MainAxisSize.min
+                        ,
+                        children: [
 
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 20,right: 20),
-                            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
-                                  title: const Text('add the Point to My List'),
-                                  content: SingleChildScrollView(
-                                    child: Column(children: [
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
-                                      TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 15),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 20,right: 20),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
+                                    title: const Text('add the Point to My List'),
+                                    content: SingleChildScrollView(
+                                      child: Column(children: [
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
 
 
-                                    ],),
+                                      ],),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(onPressed: (){
+                                        final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+                                        addMyMarker(newMarker);
+                                        Navigator.of(ctx).pop();
+                                        }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+                                    ],
                                   ),
-                                  actions: <Widget>[
-                                    TextButton(onPressed: (){
-                                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
-                                      addMyMarker(newMarker);
-                                      Navigator.of(ctx).pop();
-                                      }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+                                  );
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 40,), Text('Save Position', style: TextStyle(color: HexColor('#0468BF')),)],)),
+                                  TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 40,), Text('Share Current', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                  TextButton(onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+
+
+                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 40,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
                                   ],
-                                ),
-                                );
-                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 40,), Text('Save Position', style: TextStyle(color: HexColor('#0468BF')),)],)),
-                                TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 40,), Text('Share Current', style: TextStyle(color: HexColor('#0468BF')))],)),
-                                TextButton(onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
-
-
-                                }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 40,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
-                                ],
+                              ),
                             ),
                           ),
-                        ),
 
-                        Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color:HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
-                                  borderRadius: BorderRadius.circular(15),
-                                  //boxShadow: [BoxShadow (color: Colors.black45, offset: const Offset(1, 1), blurRadius: 2, spreadRadius: 1)]
-                              ),
-                              child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
-                                  child: Stack(children: [Padding(
-                                    padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
-                                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                      children: [const SizedBox(width: 45,child: Text('Lat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
-                                        const Padding(
-                                          padding: EdgeInsets.only(left: 3, right: 3),
-                                          child: VerticalDivider(color: Colors.black, thickness: 1,),
-                                        ),
-
-                                        ConstrainedBox(
-                                          constraints: const BoxConstraints(minWidth: 180),
-                                          child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              isLoading == true
-                                                  ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
-
-                                                  : latDms![0] > 0
-                                                  ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
-                                                  : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                              Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
-
-                                            ],
-                                          ),
-                                        ),
-
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 5, right: 10),
-                                          child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [
-                                            const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4),
-                                              child: Text('${currentLocation?.altitude.toStringAsFixed(2)}'),
-                                            ),
-                                          ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  ],
-                                  ),
+                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                                decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color:HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(15),
+                                    //boxShadow: [BoxShadow (color: Colors.black45, offset: const Offset(1, 1), blurRadius: 2, spreadRadius: 1)]
                                 ),
-                              ),
-                            )],
-                        ),
-                        Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
-                                  borderRadius: BorderRadius.circular(15),
-                                  //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
-                              ),
-                              child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
-                                  child: Stack(children: [
-                                    Padding(
+                                child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                    child: Stack(children: [Padding(
                                       padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                        children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                        children: [const SizedBox(width: 45,child: Text('Lat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
                                           const Padding(
                                             padding: EdgeInsets.only(left: 3, right: 3),
                                             child: VerticalDivider(color: Colors.black, thickness: 1,),
@@ -293,21 +252,22 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                                 isLoading == true
                                                     ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
 
-                                                    : longDms![0] > 0
-                                                    ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
-                                                    : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                                Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                    : latDms![0] > 0
+                                                    ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                    : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                                Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+
                                               ],
                                             ),
                                           ),
 
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 5,right: 10),
-                                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                              const Center(child: FaIcon(FontAwesomeIcons.ruler)),
+                                            padding: const EdgeInsets.only(left: 5, right: 10),
+                                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [
+                                              const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
                                               Padding(
                                                 padding: const EdgeInsets.only(top: 4),
-                                                child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                                child: Text('${currentLocation?.altitude.toStringAsFixed(2)}'),
                                               ),
                                             ],
                                             ),
@@ -315,78 +275,141 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                         ],
                                       ),
                                     ),
-                                  ],
+                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Card(elevation: 3, color: Colors.black.withAlpha(140), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: FlutterMap(
-                                      mapController: _mapController2,
-                                      options: MapOptions(
-                                        center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
-                                        zoom: 12,
-                                        interactiveFlags: InteractiveFlag.all,
-                                      ),
-                                      children: [
-                                        TileLayer(
-                                          urlTemplate:
-                                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                          userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                              )],
+                          ),
+                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                                decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                    borderRadius: BorderRadius.circular(15),
+                                    //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
+                                ),
+                                child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                    child: Stack(children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
+                                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                            const Padding(
+                                              padding: EdgeInsets.only(left: 3, right: 3),
+                                              child: VerticalDivider(color: Colors.black, thickness: 1,),
+                                            ),
+
+                                            ConstrainedBox(
+                                              constraints: const BoxConstraints(minWidth: 180),
+                                              child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  isLoading == true
+                                                      ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
+
+                                                      : longDms![0] > 0
+                                                      ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                      : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                                  Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                ],
+                                              ),
+                                            ),
+
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 5,right: 10),
+                                              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                                const Center(child: FaIcon(FontAwesomeIcons.ruler)),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(top: 4),
+                                                  child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                                ),
+                                              ],
+                                              ),
+                                            )
+                                          ],
                                         ),
-                                        FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
-                                        CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
-                                        Consumer<MarkerProvider>(builder: (context,value,child){ return MarkerLayer(markers: [Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => Icon(Icons.location_pin, color: Colors.red,))]);}),
-                                      ],
+                                      ),
+                                    ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                       Row(mainAxisAlignment: MainAxisAlignment.center, children: [ Container(margin: const EdgeInsets.only(bottom: 25),
-                         child:
-                          Column(
-                           children: [
-                             Text('$currentStreet',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                             Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                             Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
-                             // Text('$currentCounty',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-                             // Text('$currentState',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(elevation: 3, color: Colors.black.withAlpha(140), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5),
+                                      child: FlutterMap(
+                                        mapController: _mapController2,
+                                        options: MapOptions(
+                                          center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
+                                          zoom: 12,
+                                          interactiveFlags: InteractiveFlag.all,
+                                        ),
+                                        children: [
+                                          TileLayer(
+                                            urlTemplate:
+                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                                          ),
+                                          FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
+                                          CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
+                                          Consumer<MarkerProvider>(builder: (context,value,child){ return MarkerLayer(markers: [Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => Icon(Icons.location_pin, color: Colors.red,))]);}),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [ Container(margin: const EdgeInsets.only(bottom: 25),
+                           child:
+                            Column(
+                             children: [
+                               Text('$currentStreet',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                               Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                               Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                               // Text('$currentCounty',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
+                               // Text('$currentState',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
 
-                           ],
-                         ),
-                         )],),
-                        Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(width: MediaQuery.of(context).size.width,alignment: Alignment.center, height: 80, margin: const EdgeInsets.only(bottom: 25),
-                                decoration: ShapeDecoration(
-                                    shadows: const [
-                                      BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
+                             ],
+                           ),
+                           )],),
+                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(width: MediaQuery.of(context).size.width,alignment: Alignment.center, height: 80, margin: const EdgeInsets.only(bottom: 25),
+                                  decoration: ShapeDecoration(
+                                      shadows: const [
+                                        BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
+                                      ],
+                                      shape: CircleBorder(
+                                          side: BorderSide(width: 7, color: HexColor('#3B592D'))),
+                                      color: HexColor('#D99E6A')),
+                                  child: Stack(alignment: Alignment.center, children: [
+                                    Column(mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Text('SEND',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),),
+                                      Text('sms',style: TextStyle(color: Colors.black45),),
                                     ],
-                                    shape: CircleBorder(
-                                        side: BorderSide(width: 7, color: HexColor('#3B592D'))),
-                                    color: HexColor('#D99E6A')),
-                                child: Stack(alignment: Alignment.center, children: [
-                                  Column(mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text('SEND',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),),
-                                    Text('sms',style: TextStyle(color: Colors.black45),),
-                                  ],
-                                ),],)),
-                          ],
-                        ),
-                      ],
+                                  ),],)),
+                            ],
+                          ),
+                          IconButton(onPressed: () {
+                            geolocations.getCurrentPosition()
+                                .then((value) => setState((){currentLocation = value;})).then((value) => print(currentLocation?.altitude))
+                                .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation)).then((value) => _getAddressFromLatLng(currentLocation!))
+                                .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
+                                .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom));
+                            ;
+                            }, icon: const FaIcon(FontAwesomeIcons.handPointer),),
+                        ],
+                      );}
                     ),
                 ) ,
                     ],),

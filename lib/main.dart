@@ -4,6 +4,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'home.dart';
 import 'live_location.dart';
+import 'location_provider.dart';
 import 'marker_provider.dart';
 import 'markers_model.dart';
 import 'network_tile_provider.dart';
@@ -20,8 +21,8 @@ Future<void> main() async {
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider<MarkerProvider>(create:(context) => MarkerProvider()),
+      ChangeNotifierProvider<LocationProvider>(create:(context) => LocationProvider()),
     ],
-
 
      child: FindMeApp()));
 

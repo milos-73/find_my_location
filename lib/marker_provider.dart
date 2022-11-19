@@ -12,11 +12,5 @@ class MarkerProvider with ChangeNotifier{
     currentLatLng = LatLng(currentLocation!.latitude, currentLocation.longitude);
 
     notifyListeners();
-
   }
-
-
-
-
-
 }

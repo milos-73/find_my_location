@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import 'current_location.dart';
+import 'geo_location.dart';
 import 'live_location.dart';
 import 'marker_provider.dart';
 
@@ -40,7 +41,9 @@ class CenterMapButtons extends StatefulWidget {
 
 class _CenterMapButtonsState extends State<CenterMapButtons> {
   final FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12));
+
   Position? currentLocation;
+  GeoLocations geolocations = GeoLocations();
 
 
 
@@ -66,7 +69,7 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
               mini: widget.mini,
               backgroundColor: widget.centerColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                getCurrentLocationGlobal(context)
+                geolocations.getCurrentPosition()
                     .then((value) => setState((){currentLocation = value;}))
                     .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                     .then((value) => widget.mapControler.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),widget.mapControler.zoom));
