@@ -215,13 +215,13 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                     ],
                                   ),
                                   );
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 40,), Text('Save Position', style: TextStyle(color: HexColor('#0468BF')),)],)),
-                                  TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 40,), Text('Share Current', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF')),)],)),
+                                  TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 30,), Text('Share', style: TextStyle(color: HexColor('#0468BF')))],)),
                                   TextButton(onPressed: (){
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
 
-                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 40,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
                                   ],
                               ),
                             ),
@@ -368,7 +368,9 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                               ),
                             ],
                           ),
-                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [ Container(margin: const EdgeInsets.only(bottom: 25),
+                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                           Container(margin: const EdgeInsets.only(bottom: 25),
                            child:
                             Column(
                              children: [
@@ -380,34 +382,72 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
                              ],
                            ),
-                           )],),
-                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(width: MediaQuery.of(context).size.width,alignment: Alignment.center, height: 80, margin: const EdgeInsets.only(bottom: 25),
-                                  decoration: ShapeDecoration(
-                                      shadows: const [
-                                        BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
-                                      ],
-                                      shape: CircleBorder(
-                                          side: BorderSide(width: 7, color: HexColor('#3B592D'))),
-                                      color: HexColor('#D99E6A')),
-                                  child: Stack(alignment: Alignment.center, children: [
-                                    Column(mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Text('SEND',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w600),),
-                                      Text('sms',style: TextStyle(color: Colors.black45),),
-                                    ],
-                                  ),],)),
-                            ],
+                           ),
+
+                         ],),
+                          Container(width: MediaQuery.of(context).size.width, height: 110, child:
+
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20),
+                                child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(width: 70,height: 70,
+                                      child:TextButton(onPressed: () {
+                                        geolocations.getCurrentPosition()
+                                            .then((value) => setState((){currentLocation = value;})).then((value) => print(currentLocation?.altitude))
+                                            .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation)).then((value) => _getAddressFromLatLng(currentLocation!))
+                                            .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
+                                            .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
+                                            .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
+                                            .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}));},
+                              child: Column(
+                                children: [
+                            FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 15,height: 1.4))
+                          ],),),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  Container(height: 80, margin: const EdgeInsets.only(bottom: 5),
+                                      decoration: ShapeDecoration(
+                                          shadows: const [
+                                            BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
+                                          ],
+                                          shape: CircleBorder(
+                                              side: BorderSide(width: 7, color: HexColor('#3B592D'))),
+                                          color: HexColor('#D99E6A')),
+                                      child: Stack(alignment: Alignment.center, children: [
+                                        Column(mainAxisAlignment: MainAxisAlignment.center,
+                                          children: const [
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 6,right: 6,top: 6),
+                                              child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
+                                            ),
+                                            Text('sms',style: TextStyle(color: Colors.black45),),
+                                          ],
+                                        ),],)),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 20),
+                                child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [
+                                  SizedBox(height: 70,  width: 70,child:
+                                  Column(
+                                  children: [
+                                    Switch(value: false, activeColor: HexColor('#8C4332'),onChanged: (bool value) {  },),
+                                  Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 15))
+                                  ],
+                                ),)],),
+                              )
+                            ],),
                           ),
-                          IconButton(onPressed: () {
-                            geolocations.getCurrentPosition()
-                                .then((value) => setState((){currentLocation = value;})).then((value) => print(currentLocation?.altitude))
-                                .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation)).then((value) => _getAddressFromLatLng(currentLocation!))
-                                .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
-                                .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom));
-                            ;
-                            }, icon: const FaIcon(FontAwesomeIcons.handPointer),),
+                          ),
+
                         ],
                       );}
                     ),
