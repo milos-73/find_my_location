@@ -14,6 +14,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 import 'center_button.dart';
@@ -413,24 +414,31 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                               ),
                               Column(
                                 children: [
-                                  Container(height: 80, margin: const EdgeInsets.only(bottom: 5),
-                                      decoration: ShapeDecoration(
-                                          shadows: const [
-                                            BoxShadow (color: Colors.black54, offset: Offset(2, 0), blurRadius: 3, spreadRadius: 2)
-                                          ],
-                                          shape: CircleBorder(
-                                              side: BorderSide(width: 7, color: HexColor('#3B592D'))),
-                                          color: HexColor('#D99E6A')),
-                                      child: Stack(alignment: Alignment.center, children: [
-                                        Column(mainAxisAlignment: MainAxisAlignment.center,
-                                          children: const [
-                                            Padding(
-                                              padding: EdgeInsets.only(left: 6,right: 6,top: 6),
-                                              child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
-                                            ),
-                                            Text('sms',style: TextStyle(color: Colors.black45),),
-                                          ],
-                                        ),],)),
+                           OutlinedButton(onPressed: () async {
+
+                            Uri smsLaunchUri = Uri(
+                                 scheme: 'sms',
+                                 path: '+412911962817',
+                                 queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
+                            launchUrl(smsLaunchUri);
+                            },
+
+
+
+                           style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.all(15) ), child:
+
+                              Stack(alignment: Alignment.center, children: [
+                                Column(mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 6,right: 6,top: 6),
+                                      child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
+                                    ),
+                                    Text('sms',style: TextStyle(color: Colors.black45),),
+                                  ],
+                                ),],),
+
+                           )
                                 ],
                               ),
                               Padding(

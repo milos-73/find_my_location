@@ -3,7 +3,6 @@ import 'package:geolocator/geolocator.dart';
 
 class LocationProvider with ChangeNotifier{
 
-  //Position? currentLocation;
   Position? currentPosition;
 
   void setLocation(Position? value){
