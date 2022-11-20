@@ -8,17 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
 
 import 'center_button.dart';
-import 'current_location.dart';
 import 'geo_location.dart';
 import 'location_provider.dart';
 import 'markers_model.dart';
@@ -64,7 +64,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   TextEditingController zipController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
-      int interActiveFlags = InteractiveFlag.all;
+  int interActiveFlags = InteractiveFlag.all;
 
 
   //final Location _locationService = Location();
@@ -155,7 +155,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       resizeToAvoidBottomInset: false,
       //appBar: AppBar(title: const Text('Home')),
       drawer: buildDrawer(context, LiveLocationPage.route),
-      body: Container(height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
+      body: SizedBox(height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
@@ -216,13 +216,14 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                     ],
                                   ),
                                   );
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF')),)],)),
-                                  TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 30,), Text('Share', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
+                                  //TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 30,), Text('Share', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                  Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
                                   TextButton(onPressed: (){
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
 
-                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
                                   ],
                               ),
                             ),
@@ -398,12 +399,27 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                     SizedBox(width: 70,height: 70,
                                       child:TextButton(onPressed: () {
                                         geolocations.getCurrentPosition()
-                                            .then((value) => setState((){currentLocation = value;})).then((value) => print(currentLocation?.altitude))
-                                            .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation)).then((value) => _getAddressFromLatLng(currentLocation!))
+                                            .then((value) => setState((){currentLocation = value;}))
+                                            .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
+                                            .then((value) => _getAddressFromLatLng(currentLocation!))
                                             .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                                             .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                             .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
-                                            .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}));},
+                                            .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
+                                            .then((value) => setState((){nameController.text = currentTown!;}))
+                                            .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
+                                            .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
+                                            .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
+                                            .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
+                                            .then((value) => setState((){streetController.text = currentStreet!;}))
+                                            .then((value) => setState((){townController.text = currentTown!;}))
+                                            .then((value) => setState((){countyController.text = currentCounty!;}))
+                                            .then((value) => setState((){stateController.text = currentState!;}))
+                                            .then((value) => setState((){zipController.text = currentPostalCode!;}))
+                                            .then((value) => setState((){descriptionController.text = '';}))
+
+                                        ;},
+
                               child: Column(
                                 children: [
                             FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 15,height: 1.4))
@@ -415,12 +431,16 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                               Column(
                                 children: [
                            OutlinedButton(onPressed: () async {
+                             final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
+                             await Share.share(locationUrl);
 
-                            Uri smsLaunchUri = Uri(
-                                 scheme: 'sms',
-                                 path: '+412911962817',
-                                 queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
-                            launchUrl(smsLaunchUri);
+
+
+                            // Uri smsLaunchUri = Uri(
+                            //      scheme: 'sms',
+                            //       path: '',
+                            //      queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
+                            // launchUrl(smsLaunchUri);
                             },
 
 
