@@ -20,6 +20,7 @@ import 'package:share_plus/share_plus.dart';
 
 import 'center_button.dart';
 import 'geo_location.dart';
+import 'get_address.dart';
 import 'location_provider.dart';
 import 'markers_model.dart';
 import 'my_markers_list.dart';
@@ -31,10 +32,10 @@ class LiveLocationPage extends StatefulWidget {
   const LiveLocationPage({Key? key}) : super(key: key);
 
   @override
-  _LiveLocationPageState createState() => _LiveLocationPageState();
+  LiveLocationPageState createState() => LiveLocationPageState();
 }
 
-class _LiveLocationPageState extends State<LiveLocationPage> {
+class LiveLocationPageState extends State<LiveLocationPage> {
 
   //LocationData? _currentLocation;
   late final MapController _mapController;
@@ -47,10 +48,18 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   String? currentCounty;
   String? currentPostalCode;
   String? currentState;
+  double? accuracy;
+  double? altitude;
   List<num>? latDms;
   List<num>? longDms;
 
+  var currentLatLng = LatLng(0, 0);
+
   bool isLoading = false;
+
+  StreamSubscription<Position>? _positionStreamSubscription;
+  StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
+  bool positionStreamStarted = false;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
@@ -71,12 +80,15 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   LatLongConverter converter = LatLongConverter();
   GeoLocations geolocations = GeoLocations();
+  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+  MarkerAddress markerAddress = MarkerAddress();
 
   @override
   void initState() {
     super.initState();
     myMarkersBox = Hive.box('myMarkersBox');
-        setState((){isLoading = true;});
+    _toggleServiceStatusStream();
+    setState((){isLoading = true;});
 
     _mapController = MapController();
     _mapController2 = MapController();
@@ -85,9 +97,12 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){currentLocation = value;}))
         .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => _getAddressFromLatLng(currentLocation!))
+        .then((value) => setState((){accuracy = currentLocation?.accuracy;}))
+        .then((value) => setState((){accuracy = currentLocation?.altitude;}))
+
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-    .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}))
+        .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}))
         .then((value) => setState((){nameController.text = currentTown!;}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
         .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
@@ -98,24 +113,94 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){countyController.text = currentCounty!;}))
         .then((value) => setState((){stateController.text = currentState!;}))
         .then((value) => setState((){zipController.text = currentPostalCode!;}))
-        .then((value) => setState((){descriptionController.text = '';}));
+        .then((value) => setState((){descriptionController.text = '';}))
+    ;
   }
 
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
-    nameController.dispose();
-    super.dispose();
+  void _toggleServiceStatusStream() {
+    if (_serviceStatusStreamSubscription == null) {
+      final serviceStatusStream = _geolocatorPlatform.getServiceStatusStream();
+      _serviceStatusStreamSubscription = serviceStatusStream.handleError((error) {
+        _serviceStatusStreamSubscription?.cancel();
+        _serviceStatusStreamSubscription = null; }).listen((serviceStatus) {
+        String serviceStatusValue;
+        if (serviceStatus == ServiceStatus.enabled) {
+          if (positionStreamStarted) {_toggleListening();}
+          print('enabled');
+        } else {
+          if (_positionStreamSubscription != null) {
+            setState(() { _positionStreamSubscription?.cancel();
+            _positionStreamSubscription = null;
+              //_updatePositionList(_PositionItemType.log, 'Position Stream has been canceled');
+            });
+          }
+          print('disabled');
+        }
+        // _updatePositionList(
+        //   _PositionItemType.log,
+        //   'Location service has been $serviceStatusValue',
+        // );
+      });
+    }
   }
 
-  void locationUpdate(){
+  void _updatePositionList(Position displayValue) {
 
-    StreamSubscription<ServiceStatus> serviceStatusStream = Geolocator.getServiceStatusStream().listen(
-            (ServiceStatus status) {
-          print(status);
-        });
+    currentLocation = displayValue;
+    latDms = converter.getDegreeFromDecimal(displayValue.latitude);
+    longDms = converter.getDegreeFromDecimal(displayValue.longitude);
+    accuracy = displayValue.accuracy;
+    altitude = displayValue.altitude;
+    latitudeController.text = '${displayValue.latitude}';
+    longitudeController.text= '${displayValue.longitude}';
+    accuracyController.text= '${displayValue.accuracy}';
+    altitudeController.text= '${displayValue.altitude}';
+    currentLatLng = LatLng(displayValue.latitude, displayValue.longitude);
+
+    _mapController2.move(LatLng(displayValue.latitude,displayValue.longitude),_mapController2.zoom);
+    _mapController.move(LatLng(displayValue.latitude,displayValue.longitude),_mapController.zoom);
+    markerAddress.getStreet(displayValue).then((value) => currentStreet = value).then((value) =>streetController.text = value!);
+    markerAddress.getTown(displayValue).then((value) => currentTown = value).then((value) =>townController.text = value!).then((value) =>nameController.text = value);
+    markerAddress.getCounty(displayValue).then((value) => currentCounty = value).then((value) =>countyController.text = value!);
+    markerAddress.getState(displayValue).then((value) => currentState = value).then((value) =>stateController.text = value!);
+    markerAddress.getZip(displayValue).then((value) => currentPostalCode = value).then((value) =>zipController.text = value!);
+    setState(() {});
   }
+
+  void _toggleListening() {
+    if (_positionStreamSubscription == null) {final positionStream = _geolocatorPlatform.getPositionStream();
+    _positionStreamSubscription = positionStream.handleError((error) {_positionStreamSubscription?.cancel();
+    _positionStreamSubscription = null;}).listen((position) => _updatePositionList(position));
+    _positionStreamSubscription?.pause();
+    }
+
+    setState(() {
+      if (_positionStreamSubscription == null) {
+        return;
+      }
+
+      String statusDisplayValue;
+      if (_positionStreamSubscription!.isPaused) {
+        _positionStreamSubscription!.resume();
+        statusDisplayValue = 'resumed';
+      } else {
+        _positionStreamSubscription!.pause();
+        statusDisplayValue = 'paused';
+      }
+
+      // _updatePositionList(
+      //   _PositionItemType.log,
+      //   'Listening for position updates $statusDisplayValue',
+      // );
+    });
+  }
+  // void locationUpdate(){
+  //
+  //   StreamSubscription<ServiceStatus> serviceStatusStream = Geolocator.getServiceStatusStream().listen(
+  //           (ServiceStatus status) {
+  //         print(status);
+  //       });
+  // }
 
 
   void initLocationService() async {
@@ -124,10 +209,11 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   }
 
+
+
+
   Future<void> _getAddressFromLatLng(Position position) async {
-    await placemarkFromCoordinates(
-        currentLocation!.latitude, currentLocation!.longitude)
-        .then((List<Placemark> placemarks) {
+    await placemarkFromCoordinates(currentLocation!.latitude, currentLocation!.longitude).then((List<Placemark> placemarks) {
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
@@ -143,13 +229,13 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   @override
   Widget build(BuildContext context) {
-    LatLng currentLatLng;
 
-    if (currentLocation != null) {
-      currentLatLng = LatLng(currentLocation!.latitude, currentLocation!.longitude);
-    } else {
-      currentLatLng = LatLng(0, 0);
-    }
+
+    // if (currentLocation != null) {
+    //   currentLatLng = LatLng(currentLocation!.latitude, currentLocation!.longitude);
+    // } else {
+    //   currentLatLng = LatLng(0, 0);
+    // }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -159,7 +245,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
+                center: currentLatLng,
                 zoom: 12,
                 interactiveFlags: InteractiveFlag.none,
               ),
@@ -168,135 +254,80 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                   child: Container(color: Colors.white.withOpacity(0.3), height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
         child: Center(
           child: SingleChildScrollView(
-            child: Stack(alignment: Alignment.topCenter,children: [
+            child: Padding(
+              padding: const EdgeInsets.only(top: 25),
+              child: Stack(alignment: Alignment.topCenter,children: [
 
 
-              Container(
-                alignment: const Alignment(0,1),
-                child:
+                Container(
+                  alignment: const Alignment(0,1),
+                  child:
 
 
-                    Consumer<LocationProvider>(builder: (context,value,child) {return
-                      Column(mainAxisSize: MainAxisSize.min
-                        ,
-                        children: [
+                      Consumer<LocationProvider>(builder: (context,value,child) {return
+                        Column(mainAxisSize: MainAxisSize.min
+                          ,
+                          children: [
 
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 15),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 20,right: 20),
-                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
-                                    title: const Text('add the Point to My List'),
-                                    content: SingleChildScrollView(
-                                      child: Column(children: [
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
-                                        TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 15),
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 20,right: 20),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
+                                      title: const Text('add the Point to My List'),
+                                      content: SingleChildScrollView(
+                                        child: Column(children: [
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
-
-
-                                      ],),
+                                        ],),
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(onPressed: (){
+                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+                                          addMyMarker(newMarker);
+                                          Navigator.of(ctx).pop();
+                                          }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+                                      ],
                                     ),
-                                    actions: <Widget>[
-                                      TextButton(onPressed: (){
-                                        final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
-                                        addMyMarker(newMarker);
-                                        Navigator.of(ctx).pop();
-                                        }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+                                    );
+                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
+                                    //TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 30,), Text('Share', style: TextStyle(color: HexColor('#0468BF')))],)),
+                                    Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
+                                    TextButton(onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+
+
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
                                     ],
-                                  ),
-                                  );
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
-                                  //TextButton(onPressed: (){}, child: Column(children: [FaIcon(FontAwesomeIcons.shareNodes, color: HexColor('#8C4332'),size: 30,), Text('Share', style: TextStyle(color: HexColor('#0468BF')))],)),
-                                  Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
-                                  TextButton(onPressed: (){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
-
-
-                                  }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
-                                  ],
+                                ),
                               ),
                             ),
-                          ),
 
-                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                                decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color:HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
-                                    borderRadius: BorderRadius.circular(15),
-                                    //boxShadow: [BoxShadow (color: Colors.black45, offset: const Offset(1, 1), blurRadius: 2, spreadRadius: 1)]
-                                ),
-                                child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
-                                    child: Stack(children: [Padding(
-                                      padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
-                                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                        children: [const SizedBox(width: 45,child: Text('Lat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 3, right: 3),
-                                            child: VerticalDivider(color: Colors.black, thickness: 1,),
-                                          ),
-
-                                          ConstrainedBox(
-                                            constraints: const BoxConstraints(minWidth: 180),
-                                            child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                isLoading == true
-                                                    ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
-
-                                                    : latDms![0] > 0
-                                                    ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
-                                                    : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                                Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
-
-                                              ],
-                                            ),
-                                          ),
-
-                                          Padding(
-                                            padding: const EdgeInsets.only(left: 5, right: 10),
-                                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [
-                                              const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 4),
-                                                child: Text('${currentLocation?.altitude.toStringAsFixed(2)}'),
-                                              ),
-                                            ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    ],
-                                    ),
+                            Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                                  decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color:HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                      borderRadius: BorderRadius.circular(15),
+                                      //boxShadow: [BoxShadow (color: Colors.black45, offset: const Offset(1, 1), blurRadius: 2, spreadRadius: 1)]
                                   ),
-                                ),
-                              )],
-                          ),
-                          Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
-                                decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
-                                    borderRadius: BorderRadius.circular(15),
-                                    //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
-                                ),
-                                child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-                                  child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
-                                    child: Stack(children: [
-                                      Padding(
+                                  child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                      child: Stack(children: [Padding(
                                         padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                                         child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                          children: [const SizedBox(width: 45,child: Text('Lat', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
                                             const Padding(
                                               padding: EdgeInsets.only(left: 3, right: 3),
                                               child: VerticalDivider(color: Colors.black, thickness: 1,),
@@ -309,21 +340,22 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                                   isLoading == true
                                                       ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
 
-                                                      : longDms![0] > 0
-                                                      ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
-                                                      : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                                  Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                      : latDms![0] > 0
+                                                      ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                      : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                                  Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+
                                                 ],
                                               ),
                                             ),
 
                                             Padding(
-                                              padding: const EdgeInsets.only(left: 5,right: 10),
-                                              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                                const Center(child: FaIcon(FontAwesomeIcons.ruler)),
+                                              padding: const EdgeInsets.only(left: 5, right: 10),
+                                              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,  children: [
+                                                const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
                                                 Padding(
                                                   padding: const EdgeInsets.only(top: 4),
-                                                  child: Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
+                                                  child: Text('${altitude?.toStringAsFixed(2)}'),
                                                 ),
                                               ],
                                               ),
@@ -331,156 +363,221 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                                           ],
                                         ),
                                       ),
-                                    ],
+                                      ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Card(elevation: 3, color: Colors.black.withAlpha(140), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5),
-                                      child: FlutterMap(
-                                        mapController: _mapController2,
-                                        options: MapOptions(
-                                          center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
-                                          zoom: 12,
-                                          interactiveFlags: InteractiveFlag.all,
-                                        ),
-                                        children: [
-                                          TileLayer(
-                                            urlTemplate:
-                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                                )],
+                            ),
+                            Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                                  decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
+                                      borderRadius: BorderRadius.circular(15),
+                                      //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
+                                  ),
+                                  child: SingleChildScrollView(scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width*0.7),
+                                      child: Stack(children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
+                                          child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                              const Padding(
+                                                padding: EdgeInsets.only(left: 3, right: 3),
+                                                child: VerticalDivider(color: Colors.black, thickness: 1,),
+                                              ),
+
+                                              ConstrainedBox(
+                                                constraints: const BoxConstraints(minWidth: 180),
+                                                child: Column (mainAxisAlignment: MainAxisAlignment.spaceAround, crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    isLoading == true
+                                                        ? const SizedBox(width: 10, height: 10,child: CircularProgressIndicator())
+
+                                                        : longDms![0] > 0
+                                                        ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
+                                                        : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
+                                                    Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              Padding(
+                                                padding: const EdgeInsets.only(left: 5,right: 10),
+                                                child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                                  const Center(child: FaIcon(FontAwesomeIcons.ruler)),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 4),
+                                                    child: Text('${accuracy?.toStringAsFixed(2)}'),
+                                                  ),
+                                                ],
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
-                                          CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
-                                          Consumer<MarkerProvider>(builder: (context,value,child){ return MarkerLayer(markers: [Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => Icon(Icons.location_pin, color: Colors.red,))]);}),
-                                        ],
+                                        ),
+                                      ],
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                           Container(margin: const EdgeInsets.only(bottom: 25),
-                           child:
-                            Column(
-                             children: [
-                               Text('$currentStreet',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                               Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                               Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
-                               // Text('$currentCounty',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-                               // Text('$currentState',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300)),
-
-                             ],
-                           ),
-                           ),
-
-                         ],),
-                          Container(width: MediaQuery.of(context).size.width, height: 110, child:
-
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: Column(mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(width: 70,height: 70,
-                                      child:TextButton(onPressed: () {
-                                        geolocations.getCurrentPosition()
-                                            .then((value) => setState((){currentLocation = value;}))
-                                            .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
-                                            .then((value) => _getAddressFromLatLng(currentLocation!))
-                                            .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
-                                            .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
-                                            .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
-                                            .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-                                            .then((value) => setState((){nameController.text = currentTown!;}))
-                                            .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
-                                            .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
-                                            .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
-                                            .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
-                                            .then((value) => setState((){streetController.text = currentStreet!;}))
-                                            .then((value) => setState((){townController.text = currentTown!;}))
-                                            .then((value) => setState((){countyController.text = currentCounty!;}))
-                                            .then((value) => setState((){stateController.text = currentState!;}))
-                                            .then((value) => setState((){zipController.text = currentPostalCode!;}))
-                                            .then((value) => setState((){descriptionController.text = '';}))
-
-                                        ;},
-
-                              child: Column(
-                                children: [
-                            FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 15,height: 1.4))
-                          ],),),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(elevation: 3, color: Colors.black.withAlpha(140), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: FlutterMap(
+                                          mapController: _mapController2,
+                                          options: MapOptions(
+                                            center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
+                                            zoom: 12,
+                                            interactiveFlags: InteractiveFlag.pinchZoom,
+                                          ),
+                                          children: [
+                                            TileLayer(
+                                              urlTemplate:
+                                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                                            ),
+                                            FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
+                                            CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
+                                            Consumer<MarkerProvider>(builder: (context,value,child){
+                                              return MarkerLayer(markers: [positionStreamStarted == false
+                                                ? Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => const Icon(Icons.location_pin, color: Colors.red,))
+                                              : Marker(width: 150, height: 150,point: currentLatLng, builder: (ctx) => const Icon(Icons.location_pin, color: Colors.red,))
+                                              ]);}),
+                                          ],
+                                        ),
+                                      ),
                                     ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                             Container(margin: const EdgeInsets.only(bottom: 25),
+                             child:
+                              Column(
+                               children: [
+                                 Text('${currentStreet}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                 Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                                 Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+
+                               ],
+                             ),
+                             ),
+
+                           ],),
+                            SizedBox(width: MediaQuery.of(context).size.width, height: 110, child:
+
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: Row( mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(width: 70,height: 70,
+                                        child:TextButton(onPressed: () {
+                                          geolocations.getCurrentPosition()
+                                              .then((value) => setState((){currentLocation = value;}))
+                                              .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
+                                              .then((value) => _getAddressFromLatLng(currentLocation!))
+                                              .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
+                                              .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
+                                              .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
+                                              .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
+                                              .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
+                                              .then((value) => setState((){nameController.text = currentTown!;}))
+                                              .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
+                                              .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
+                                              .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
+                                              .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
+                                              .then((value) => setState((){streetController.text = currentStreet!;}))
+                                              .then((value) => setState((){townController.text = currentTown!;}))
+                                              .then((value) => setState((){countyController.text = currentCounty!;}))
+                                              .then((value) => setState((){stateController.text = currentState!;}))
+                                              .then((value) => setState((){zipController.text = currentPostalCode!;}))
+                                              .then((value) => setState((){descriptionController.text = '';}))
+                                          ;},
+
+                                child: Column(
+                                  children: [
+                              FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 15,height: 1.4))
+                            ],),),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  children: [
+                             OutlinedButton(onPressed: () async {
+                               final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
+                               await Share.share(locationUrl);
+
+
+
+                              // Uri smsLaunchUri = Uri(
+                              //      scheme: 'sms',
+                              //       path: '',
+                              //      queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
+                              // launchUrl(smsLaunchUri);
+                              },
+
+
+
+                             style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.all(15) ), child:
+
+                                Stack(alignment: Alignment.center, children: [
+                                  Column(mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 6,right: 6,top: 6),
+                                        child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
+                                      ),
+                                      Text('sms',style: TextStyle(color: Colors.black45),),
+                                    ],
+                                  ),],),
+
+                             )
                                   ],
                                 ),
-                              ),
-                              Column(
-                                children: [
-                           OutlinedButton(onPressed: () async {
-                             final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
-                             await Share.share(locationUrl);
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 20),
+                                  child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [
+                                    SizedBox(height: 70,  width: 70,child:
+                                    Column(
+                                    children: [
+                                      Switch(value: positionStreamStarted, activeColor: HexColor('#8C4332'),onChanged: (value) {
 
+                                        setState(() => positionStreamStarted = value);
+                                        _toggleListening();
+                                        print(value);
 
+                                        //positionStreamStarted = !positionStreamStarted;
+                                      },),
+//TextButton(onPressed: (){positionStreamStarted = !positionStreamStarted; _toggleListening();}, child: Text('STREAM')),
+                                    Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 15))
+                                    ],
+                                  ),)],),
+                                )
+                              ],),
+                            ),
+                            ),
 
-                            // Uri smsLaunchUri = Uri(
-                            //      scheme: 'sms',
-                            //       path: '',
-                            //      queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
-                            // launchUrl(smsLaunchUri);
-                            },
-
-
-
-                           style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.all(15) ), child:
-
-                              Stack(alignment: Alignment.center, children: [
-                                Column(mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 6,right: 6,top: 6),
-                                      child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
-                                    ),
-                                    Text('sms',style: TextStyle(color: Colors.black45),),
-                                  ],
-                                ),],),
-
-                           )
-                                ],
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 20),
-                                child: Column(mainAxisAlignment: MainAxisAlignment.center,children: [
-                                  SizedBox(height: 70,  width: 70,child:
-                                  Column(
-                                  children: [
-                                    Switch(value: false, activeColor: HexColor('#8C4332'),onChanged: (bool value) {  },),
-                                  Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 15))
-                                  ],
-                                ),)],),
-                              )
-                            ],),
-                          ),
-                          ),
-
-                        ],
-                      );}
-                    ),
-                ) ,
-                    ],),
+                          ],
+                        );}
+                      ),
+                  ) ,
+                      ],),
+            ),
           ),
         ),
                   ),
@@ -500,4 +597,18 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
     );
   }
+  @override
+  void dispose() {
+    if (_positionStreamSubscription != null) {
+      _positionStreamSubscription!.cancel();
+      _positionStreamSubscription = null;
+    }
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    nameController.dispose();
+    super.dispose();
+  }
+
 }
+
+
