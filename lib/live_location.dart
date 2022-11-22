@@ -275,50 +275,21 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                 padding: const EdgeInsets.only(left: 20,right: 20),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    TextButton(onPressed: (){
+                                    positionStreamStarted == true ?  TextButton(onPressed: (){
                                       setState(() => positionStreamStarted = false); _toggleListening();
                                          print('STREAM start: $positionStreamStarted');
                                          showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
-                                           child: AlertDialog(
-                                      title: const Text('Add this point to My List'),
-                                      content: SingleChildScrollView(
-                                        child: Column(children: [
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
-                                            TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
-
-                                        ],),
-                                      ),
-                                      actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
-                                        TextButton(onPressed: (){
-                                            setState(() => positionStreamStarted = true); _toggleListening();
-                                            print('STREAM: $positionStreamStarted');
-                                            Navigator.of(ctx).pop();
-                                        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: const Text('Cancel'),)),
-
-                                        TextButton(onPressed: (){
-                                            final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
-                                            addMyMarker(newMarker);
-                                            setState(() => positionStreamStarted = true); _toggleListening();
-                                            print('STREAM: $positionStreamStarted');
-                                            Navigator.of(ctx).pop();
-                                        }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
-
-                                      ],)
-
-                                      ],
-                                    ),
+                                           child: saveAndEditLocationAlertDialogStreamOn(ctx),
                                          ),
                                     );
-                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
+                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
+                                    : TextButton(onPressed: (){
+                                      print('STREAM start: $positionStreamStarted');
+                                      showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                        child: saveAndEditLocationAlertDialogStreamOff(ctx),
+                                      ),
+                                      );
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
 
                                     Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
                                     TextButton(onPressed: (){
@@ -612,6 +583,88 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
     );
   }
+
+  AlertDialog saveAndEditLocationAlertDialogStreamOn(BuildContext ctx) {
+    return AlertDialog(
+                                    title: const Text('Add this point to My List'),
+                                    content: SingleChildScrollView(
+                                      child: Column(children: [
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                                          TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+
+                                      ],),
+                                    ),
+                                    actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
+                                      TextButton(onPressed: (){
+                                          setState(() => positionStreamStarted = true); _toggleListening();
+                                          print('STREAM: $positionStreamStarted');
+                                          Navigator.of(ctx).pop();
+                                      }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: const Text('Cancel'),)),
+
+                                      TextButton(onPressed: (){
+                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+                                          addMyMarker(newMarker);
+                                          setState(() => positionStreamStarted = true); _toggleListening();
+                                          print('STREAM: $positionStreamStarted');
+                                          Navigator.of(ctx).pop();
+                                      }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+
+                                    ],)
+
+                                    ],
+                                  );
+  }
+
+  AlertDialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
+    return AlertDialog(
+      title: const Text('Add this point to My List'),
+      content: SingleChildScrollView(
+        child: Column(children: [
+          TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+          TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+          TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
+          TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+
+        ],),
+      ),
+      actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
+        TextButton(onPressed: (){
+          print('STREAM: $positionStreamStarted');
+          Navigator.of(ctx).pop();
+        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: const Text('Cancel'),)),
+
+        TextButton(onPressed: (){
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+          addMyMarker(newMarker);
+          print('STREAM: $positionStreamStarted');
+          Navigator.of(ctx).pop();
+        }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+
+      ],)
+
+      ],
+    );
+  }
+
+
+
+
   @override
   void dispose() {
     if (_positionStreamSubscription != null) {
