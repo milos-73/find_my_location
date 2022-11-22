@@ -123,7 +123,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                             children: [
                                               Column(crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: [
-                                                  IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: marker, currentLat: marker.lat,currentLong: marker.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                                                  IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: marker, markerLat: marker.lat,markerLong: marker.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
                                                 ],
                                               ),
                                               Column(crossAxisAlignment: CrossAxisAlignment.center,

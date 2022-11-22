@@ -275,7 +275,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                 padding: const EdgeInsets.only(left: 20,right: 20),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    TextButton(onPressed: (){showDialog(context: context, builder: (ctx) => AlertDialog(
+                                    TextButton(onPressed: (){
+                                      //setState(() {positionStreamStarted = false;});
+                                      print('STREAM start: ${positionStreamStarted}');showDialog(context: context, builder: (ctx) => AlertDialog(
                                       title: const Text('add the Point to My List'),
                                       content: SingleChildScrollView(
                                         child: Column(children: [
@@ -297,6 +299,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                         TextButton(onPressed: (){
                                           final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
                                           addMyMarker(newMarker);
+                                          //setState(() {positionStreamStarted = true;});print('STERAM: ${positionStreamStarted}');
                                           Navigator.of(ctx).pop();
                                           }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
                                       ],
@@ -309,7 +312,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
 
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.solidBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
                                     ],
                                 ),
                               ),
@@ -435,9 +438,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                         child: FlutterMap(
                                           mapController: _mapController2,
                                           options: MapOptions(
-                                            center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
+                                            center: currentLatLng,
                                             zoom: 12,
-                                            interactiveFlags: InteractiveFlag.pinchZoom,
+                                            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
                                           ),
                                           children: [
                                             TileLayer(
@@ -533,16 +536,16 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
 
 
-                             style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.all(15) ), child:
+                             style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.only(top: 18,left: 18,right: 18,bottom: 14) ), child:
 
                                 Stack(alignment: Alignment.center, children: [
                                   Column(mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
+                                    children: [
+                                      const Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
                                       Padding(
-                                        padding: EdgeInsets.only(left: 6,right: 6,top: 6),
-                                        child: Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
+                                        padding: const EdgeInsets.only(top: 3),
+                                        child: FaIcon(FontAwesomeIcons.shareNodes, size: 25,color: Colors.black.withOpacity(0.5),),
                                       ),
-                                      Text('sms',style: TextStyle(color: Colors.black45),),
                                     ],
                                   ),],),
 

@@ -12,11 +12,11 @@ import 'package:latlong2/latlong.dart';
 class EditRecord extends StatefulWidget {
    final int index;
    final MyMarkers marker;
-   final double? currentLat;
-   final double? currentLong;
+   final double? markerLat;
+   final double? markerLong;
    MapController mapController;
 
-  EditRecord({Key? key, required this.index, required this.marker, required this.mapController,this.currentLong,this.currentLat}) : super(key: key);
+  EditRecord({Key? key, required this.index, required this.marker, required this.mapController,this.markerLong,this.markerLat}) : super(key: key);
 
   @override
   State<EditRecord> createState() => _EditRecordState();
@@ -59,15 +59,12 @@ class _EditRecordState extends State<EditRecord> {
     setState((){descriptionController.text = widget.marker.description!;});
   }
 
-
-
-
-  @override
+@override
   Widget build(BuildContext context) {
 
     print(widget.mapController);
-    print(widget.currentLong);
-    print(widget.currentLat);
+    print(widget.markerLat);
+    print(widget.markerLong);
 
     return Scaffold(backgroundColor: HexColor('#d8ded5'),
       floatingActionButton: FloatingActionButton.extended(onPressed: () {
@@ -78,7 +75,7 @@ class _EditRecordState extends State<EditRecord> {
       body: FlutterMap(
           mapController: widget.mapController,
           options: MapOptions(
-            center: LatLng(widget.currentLat!, widget.currentLong!),
+            center: LatLng(widget.markerLat!, widget.markerLong!),
             zoom: 12,
             interactiveFlags: InteractiveFlag.none,
           ),
