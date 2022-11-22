@@ -26,6 +26,7 @@ class _EditRecordState extends State<EditRecord> {
 
   bool isLoading = false;
   late Box<MyMarkers> myMarkersBox;
+  late final MapController _mapController3;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
@@ -45,6 +46,7 @@ class _EditRecordState extends State<EditRecord> {
     super.initState();
    setState((){isLoading = true;});
     myMarkersBox = Hive.box('myMarkersBox');
+    _mapController3 = MapController();
 
     setState((){nameController.text = widget.marker.name!;});
     setState((){latitudeController.text = '${widget.marker.lat}';});
@@ -62,10 +64,6 @@ class _EditRecordState extends State<EditRecord> {
 @override
   Widget build(BuildContext context) {
 
-    print(widget.mapController);
-    print(widget.markerLat);
-    print(widget.markerLong);
-
     return Scaffold(backgroundColor: HexColor('#d8ded5'),
       floatingActionButton: FloatingActionButton.extended(onPressed: () {
         final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
@@ -73,7 +71,7 @@ class _EditRecordState extends State<EditRecord> {
         Navigator.pop(context);
      }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),),
       body: FlutterMap(
-          mapController: widget.mapController,
+          mapController: _mapController3,
           options: MapOptions(
             center: LatLng(widget.markerLat!, widget.markerLong!),
             zoom: 12,
