@@ -61,7 +61,7 @@ class AlertDialogs {
     AlertDialog alert = AlertDialog(
       title: Text("AlertDialog"),
       content: Text(
-          "Pre lepší výsledok je potrebné zapnúť GPS. Ak aplikácii neumožníte prístup k GPS, budú nastavené defaultne hodnoty."),
+          "Hlavným cieľom aplikácie je nájsť a zobraziť vašu polohu. K tomu je potrebné aby mala prístup k službám určovania polohy. Nastavne prosím tieto povolenia a skúste znova."),
       actions: [
         cancelButton,
         continueButton,

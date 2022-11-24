@@ -4,13 +4,16 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'alert_gps_permition_massage.dart';
+
 final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+AlertDialogs alertDialogs = AlertDialogs();
 
 class GeoLocations {
 
 
-  Future<Position?> getCurrentPosition() async {
-    final hasPermission = await handlePermission();
+  Future<Position?> getCurrentPosition(BuildContext context) async {
+    final hasPermission = await handlePermission(context);
 
     if (!hasPermission) {
       return null;
@@ -22,7 +25,7 @@ class GeoLocations {
 
   }
 
-  Future<bool> handlePermission() async {
+  Future<bool> handlePermission(BuildContext context) async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -33,6 +36,7 @@ class GeoLocations {
       // accessing the position and request users of the
       // App to enable the location services.
       print('Location services are disabled.');
+      await alertDialogs.showLocationAlertDialogToAnableLocationServices(context);
 
       return false;
     }

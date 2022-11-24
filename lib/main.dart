@@ -2,7 +2,6 @@ import 'package:find_me/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
-import 'home.dart';
 import 'live_location.dart';
 import 'location_provider.dart';
 import 'marker_provider.dart';
@@ -42,7 +41,7 @@ class FindMeApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: mapBoxBlue,
       ),
-      home: const HomePage(),
+      home: const LiveLocationPage(),
       routes: <String, WidgetBuilder>{
         NetworkTileProviderPage.route: (context) => const NetworkTileProviderPage(),
         LiveLocationPage.route: (context) => const LiveLocationPage(),

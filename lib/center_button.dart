@@ -69,7 +69,7 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
               mini: widget.mini,
               backgroundColor: widget.centerColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                geolocations.getCurrentPosition()
+                geolocations.getCurrentPosition(context)
                     .then((value) => setState((){currentLocation = value;}))
                     .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                     .then((value) => widget.mapControler.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),widget.mapControler.zoom));

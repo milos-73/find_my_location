@@ -17,7 +17,6 @@ import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 
-
 import 'center_button.dart';
 import 'geo_location.dart';
 import 'get_address.dart';
@@ -56,6 +55,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   var currentLatLng = LatLng(0, 0);
 
   bool isLoading = false;
+  bool wakelockEnable = false;
 
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
@@ -92,13 +92,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
     _mapController = MapController();
     _mapController2 = MapController();
-    geolocations.getCurrentPosition()
-    //getCurrentLocationGlobal(context)
+    geolocations.getCurrentPosition(context)
         .then((value) => setState((){currentLocation = value;}))
         .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => _getAddressFromLatLng(currentLocation!))
         .then((value) => setState((){accuracy = currentLocation?.accuracy;}))
-        .then((value) => setState((){accuracy = currentLocation?.altitude;}))
+        .then((value) => setState((){altitude = currentLocation?.altitude;}))
 
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
@@ -342,7 +341,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                                 const Center(child: FaIcon(FontAwesomeIcons.mountainSun)),
                                                 Padding(
                                                   padding: const EdgeInsets.only(top: 4),
-                                                  child: Text('${altitude?.toStringAsFixed(2)}'),
+                                                  child: positionStreamStarted == true ? Text('${altitude?.toStringAsFixed(2)}') : Text('${currentLocation?.altitude.toStringAsFixed(2)}'),
                                                 ),
                                               ],
                                               ),
@@ -369,7 +368,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                         Padding(
                                           padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
                                           child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                            children: [const SizedBox(width: 45,child: Text('Long', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
+                                            children: [const SizedBox(width: 45,child: Text('Lon', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),)),
                                               const Padding(
                                                 padding: EdgeInsets.only(left: 3, right: 3),
                                                 child: VerticalDivider(color: Colors.black, thickness: 1,),
@@ -396,7 +395,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                                   const Center(child: FaIcon(FontAwesomeIcons.ruler)),
                                                   Padding(
                                                     padding: const EdgeInsets.only(top: 4),
-                                                    child: Text('${accuracy?.toStringAsFixed(2)}'),
+                                                    child: positionStreamStarted == true ? Text('${accuracy?.toStringAsFixed(2)}') : Text('${currentLocation?.accuracy.toStringAsFixed(2)}'),
                                                   ),
                                                 ],
                                                 ),
@@ -424,7 +423,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                           options: MapOptions(
                                             center: currentLatLng,
                                             zoom: 12,
-                                            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
+                                            interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag | InteractiveFlag.flingAnimation,
                                           ),
                                           children: [
                                             TileLayer(
@@ -435,7 +434,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                             FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
                                             CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
                                             Consumer<MarkerProvider>(builder: (context,value,child){
-                                              return MarkerLayer(markers: [positionStreamStarted == false
+                                              return MarkerLayer(rotate: true, rotateAlignment: Alignment.center,markers: [positionStreamStarted == false
                                                 ? Marker(width: 150, height: 150,point: Provider.of<MarkerProvider>(context).currentLatLng!, builder: (ctx) => const Icon(Icons.location_pin, color: Colors.red,))
                                               : Marker(width: 150, height: 150,point: currentLatLng, builder: (ctx) => const Icon(Icons.location_pin, color: Colors.red,))
                                               ]);}),
@@ -473,7 +472,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                     children: [
                                       SizedBox(width: 70,height: 70,
                                         child:TextButton(onPressed: () {
-                                          geolocations.getCurrentPosition()
+                                          setState((){isLoading = true;});
+                                          geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
                                               .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
                                               .then((value) => _getAddressFromLatLng(currentLocation!))
@@ -493,11 +493,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                               .then((value) => setState((){stateController.text = currentState!;}))
                                               .then((value) => setState((){zipController.text = currentPostalCode!;}))
                                               .then((value) => setState((){descriptionController.text = '';}))
+                                              .then((value) => setState((){isLoading = false;}))
                                           ;},
 
                                 child: Column(
                                   children: [
-                              FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 15,height: 1.4))
+                              FaIcon(FontAwesomeIcons.arrowRotateLeft, color: HexColor('#8C4332'),size: 30,), Text('Refresh', style: TextStyle(color: HexColor('#0468BF'),fontSize: 14,height: 1.4))
                             ],),),
                                       ),
                                     ],
@@ -550,14 +551,34 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                         //positionStreamStarted = !positionStreamStarted;
                                       },),
 //TextButton(onPressed: (){positionStreamStarted = !positionStreamStarted; _toggleListening();}, child: Text('STREAM')),
-                                    Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 15))
+                                    Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 14))
                                     ],
-                                  ),)],),
+                                  ),
+                                    ),
+                                  ],
+                                  ),
                                 )
-                              ],),
-                            ),
-                            ),
+                              ],
+                              ),
 
+                            ),
+                            ),
+                            Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,children: [
+Column(
+  children: [Switch(value: wakelockEnable, activeColor: HexColor('#8C4332'),onChanged: (value) {
+
+    setState(() => wakelockEnable = value); _toggleListening();
+    print(value);
+
+    //positionStreamStarted = !positionStreamStarted;
+  },)
+        ,Center(child: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text('Screen',style: TextStyle(fontSize: 15,height: 0.5),),
+        )),
+  ],
+)
+                            ],),
                           ],
                         );}
                       ),
