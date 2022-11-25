@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:find_me/marker_provider.dart';
 import 'package:find_me/widgets/drawer.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
@@ -61,6 +62,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
   bool positionStreamStarted = false;
 
+
+
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
@@ -83,6 +86,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
   MarkerAddress markerAddress = MarkerAddress();
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+
   @override
   void initState() {
     super.initState();
@@ -92,16 +98,18 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
     _mapController = MapController();
     _mapController2 = MapController();
-    geolocations.getCurrentPosition(context)
+
+    internetConnectivity().then((value) => geolocations.getCurrentPosition(context))
+
         .then((value) => setState((){currentLocation = value;}))
-        .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
-        .then((value) => _getAddressFromLatLng(currentLocation!))
         .then((value) => setState((){accuracy = currentLocation?.accuracy;}))
         .then((value) => setState((){altitude = currentLocation?.altitude;}))
-
+        .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-        .then((value) =>  initLocationService()).then((value) => setState((){isLoading = false;}))
+        .then((value) => _getAddressFromLatLng(currentLocation!))
+        .then((value) =>  initLocationService())
+        .then((value) => setState((){isLoading = false;}))
         .then((value) => setState((){nameController.text = currentTown!;}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
         .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
@@ -115,6 +123,27 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){descriptionController.text = '';}))
     ;
   }
+
+  Future<void> internetConnectivity() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.mobile){
+      print('Connected to Mobile');
+      await alertDialogs.showconnectionStatusMessage(context,'mobile');
+
+    }else if(connectivityResult == ConnectivityResult.wifi){
+      print('Connected to Wifi');
+      await alertDialogs.showconnectionStatusMessage(context,'wifi');
+    }else{
+      print('no connection');
+      await alertDialogs.showconnectionStatusMessage(context,'no connection');
+    }
+  }
+
+  // Future<void> internetConnectivity() async {
+  //   var connectivityResult = await (Connectivity().checkConnectivity());
+  //    print('Connected to Mobile');
+  //     await alertDialogs.showconnectionStatusMessage(context,connectivityResult.toString() );
+  // }
 
   void _toggleServiceStatusStream() {
     if (_serviceStatusStreamSubscription == null) {
@@ -218,7 +247,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
       });
     }).catchError((e) {
-      debugPrint(e);
+      print(e.toString());
     });
   }
 
@@ -476,12 +505,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                           geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
                                               .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
-                                              .then((value) => _getAddressFromLatLng(currentLocation!))
+                                              .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
+                                              .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
                                               .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                                               .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                               .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
-                                              .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
-                                              .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
+                                              .then((value) => _getAddressFromLatLng(currentLocation!))
                                               .then((value) => setState((){nameController.text = currentTown!;}))
                                               .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
                                               .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
@@ -518,9 +547,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                               //      queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
                               // launchUrl(smsLaunchUri);
                               },
-
-
-
                              style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.only(top: 18,left: 18,right: 18,bottom: 14) ), child:
 
                                 Stack(alignment: Alignment.center, children: [

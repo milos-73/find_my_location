@@ -19,9 +19,14 @@ class GeoLocations {
       return null;
     }
 
-    final position = await _geolocatorPlatform.getCurrentPosition();
-   print(position);
-   return position;
+    try {
+      final position = await _geolocatorPlatform.getCurrentPosition();
+         print(position);
+         return position;
+    } on Exception catch (e) {
+      await alertDialogs.showLocationAlertDialogGPSNotWorking(context);
+      return null;
+    }
 
   }
 
