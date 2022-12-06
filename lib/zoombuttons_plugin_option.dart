@@ -54,8 +54,7 @@ class FlutterMapZoomButtons extends StatelessWidget {
                 if (zoom > maxZoom) {
                   zoom = maxZoom;
                 }
-                map.move(centerZoom.center, zoom,
-                    source: MapEventSource.custom);
+                map.move(centerZoom.center, zoom, source: MapEventSource.custom);
               },
               child: Icon(zoomInIcon,
                   color: zoomInColorIcon ?? IconTheme.of(context).color),

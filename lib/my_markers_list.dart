@@ -1,16 +1,15 @@
 import 'dart:ui';
-
-import 'package:find_me/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 
+import 'buttons.dart';
 import 'edit_record.dart';
+import 'marker_details.dart';
 import 'markers_model.dart';
 import 'package:intl/intl.dart';
 
@@ -29,6 +28,7 @@ class MyMarkersList extends StatefulWidget {
 }
 
 LatLongConverter converter = LatLongConverter();
+Buttons buttons = Buttons();
  late Box<MyMarkers> markersList;
 
 class _MyMarkersListState extends State<MyMarkersList> {
@@ -80,12 +80,12 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                 Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 10),
+                                      padding: const EdgeInsets.only(top: 12),
                                       child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text('${marker.name}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                           const Padding(
-                                            padding: EdgeInsets.only(top: 8, bottom: 8, left: 15, right: 15),
+                                            padding: EdgeInsets.only(top: 5, bottom: 4, left: 15, right: 15),
                                             child: Divider(height: 1,color: Colors.black,),
                                           )
                                         ],
@@ -136,10 +136,10 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(height: 5,),
+                                    //const SizedBox(height: 5,),
 
                                     const Padding(
-                                      padding: EdgeInsets.only(top: 8, bottom: 8, left: 15, right: 15),
+                                      padding: EdgeInsets.only(top: 4, bottom: 7, left: 15, right: 15),
                                       child: Divider(height: 1,color: Colors.black,),
                                     ),
 
@@ -207,10 +207,15 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                     ),
 
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 15, bottom: 10),
-                                      child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                      padding: const EdgeInsets.only(left: 20, right: 20),
+                                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
+                                          Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, mapControler: widget.mapController,)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                           Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
+                                          Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){
+                                            buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
+                                          }, icon: FaIcon(FontAwesomeIcons.route,size: 30, color: HexColor('#592d3b'),)))
+
                                         ],
                                       ),
                                     )

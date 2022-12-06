@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:provider/provider.dart';
-import 'geo_location.dart';
-import 'marker_provider.dart';
 
-class CenterMapButtons extends StatefulWidget {
+
+
+class CenterMapButtonOnMarkerDetailScreen extends StatefulWidget {
 
   final bool mini;
   final double padding;
@@ -16,10 +14,11 @@ class CenterMapButtons extends StatefulWidget {
   final Color? centerColorIcon;
   final IconData centerIcon;
   final MapController mapControler;
-  final Position? currentLocation;
+  final double? latitude;
+  final double? longitude;
 
 
-  const CenterMapButtons({
+  const CenterMapButtonOnMarkerDetailScreen({
     super.key,
 
     this.mini = true,
@@ -29,25 +28,26 @@ class CenterMapButtons extends StatefulWidget {
     this.centerColorIcon,
     this.centerIcon = Icons.center_focus_strong_outlined,
     required this.mapControler,
-    this.currentLocation,
-  });
+    this.latitude,
+    this.longitude,   });
 
   @override
-  State<CenterMapButtons> createState() => _CenterMapButtonsState();
+  State<CenterMapButtonOnMarkerDetailScreen> createState() => _CenterMapButtonOnMarkerDetailScreenState();
 }
 
-class _CenterMapButtonsState extends State<CenterMapButtons> {
+class _CenterMapButtonOnMarkerDetailScreenState extends State<CenterMapButtonOnMarkerDetailScreen> {
   final FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12));
-
-  Position? currentLocation;
-  GeoLocations geolocations = GeoLocations();
 
   @override
   void initState() {
+
     super.initState();
-                 }
- @override
+  }
+
+  @override
   Widget build(BuildContext context) {
+
+    LatLng? markerLatLng = LatLng(widget.latitude ?? 0, widget.longitude ?? 0);
     //final map = FlutterMapState.maybeOf(context)!;
     return Align(
       alignment: widget.alignment,
@@ -61,12 +61,8 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
               mini: widget.mini,
               backgroundColor: widget.centerColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                geolocations.getCurrentPosition(context)
-                    .then((value) => setState((){currentLocation = value;}))
-                    .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
-                    .then((value) => widget.mapControler.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),widget.mapControler.zoom));
-                //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  LiveLocationPage()),);
-               },
+                widget.mapControler.move(LatLng(widget.latitude ?? 0,widget.longitude ?? 0),widget.mapControler.zoom);
+              },
               child: FaIcon(FontAwesomeIcons.arrowsToDot,
                   color: widget.centerColorIcon ?? IconTheme.of(context).color),
             ),
@@ -76,3 +72,4 @@ class _CenterMapButtonsState extends State<CenterMapButtons> {
     );
   }
 }
+

@@ -10,6 +10,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'ad_helper.dart';
 import 'center_button.dart';
 import 'geo_location.dart';
 import 'get_address.dart';
@@ -52,6 +54,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   double? altitude;
   List<num>? latDms;
   List<num>? longDms;
+
+  late BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
 
   var currentLatLng = LatLng(0, 0);
 
@@ -89,9 +94,34 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
 
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          //print(_isBannerAdReady);
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    );
+
+    _bannerAd.load();
+  }
+
+
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
     myMarkersBox = Hive.box('myMarkersBox');
     _toggleServiceStatusStream();
     setState((){isLoading = true;});
@@ -374,7 +404,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                                 ),
                                               ],
                                               ),
-                                            )
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -384,9 +414,20 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                   ),
                                 )],
                             ),
+                            if (_isBannerAdReady)
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width: _bannerAd.size.width.toDouble(),
+                                  height: _bannerAd.size.height.toDouble(),
+                                  child: AdWidget(ad: _bannerAd),
+                                ),
+                              ),
+
+
                             Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
+                                Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20, top: 20),
                                   decoration: BoxDecoration(color: HexColor('#D99E6A').withOpacity(0.3),border: Border.all(color: HexColor('#3B592D'),width: 2, style: BorderStyle.solid),
                                       borderRadius: BorderRadius.circular(15),
                                       //boxShadow:const [BoxShadow (color: Colors.black54, offset: Offset(3, 3), blurRadius: 4, spreadRadius: 2)]
@@ -589,22 +630,22 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
                             ),
                             ),
-                            Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,children: [
-Column(
-  children: [Switch(value: wakelockEnable, activeColor: HexColor('#8C4332'),onChanged: (value) {
-
-    setState(() => wakelockEnable = value); _toggleListening();
-    print(value);
-
-    //positionStreamStarted = !positionStreamStarted;
-  },)
-        ,Center(child: Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Text('Screen',style: TextStyle(fontSize: 15,height: 0.5),),
-        )),
-  ],
-)
-                            ],),
+//                             Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,children: [
+// Column(
+//   children: [Switch(value: wakelockEnable, activeColor: HexColor('#8C4332'),onChanged: (value) {
+//
+//     setState(() => wakelockEnable = value); _toggleListening();
+//     print(value);
+//
+//     //positionStreamStarted = !positionStreamStarted;
+//   },)
+//         ,Center(child: Padding(
+//           padding: const EdgeInsets.only(bottom: 10),
+//           child: Text('Screen',style: TextStyle(fontSize: 15,height: 0.5),),
+//         )),
+//   ],
+// )
+//                             ],),
                           ],
                         );}
                       ),

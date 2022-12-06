@@ -1,5 +1,6 @@
 import 'package:find_me/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'live_location.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(MyMarkersAdapter());
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
+  MobileAds.instance.initialize();
 
   
   runApp(

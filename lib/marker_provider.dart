@@ -8,9 +8,7 @@ class MarkerProvider with ChangeNotifier{
  LatLng? currentLatLng = LatLng(0,0);
 
   void SetMarker(Position? currentLocation){
-
     currentLatLng = LatLng(currentLocation!.latitude, currentLocation.longitude);
-
     notifyListeners();
   }
 }
