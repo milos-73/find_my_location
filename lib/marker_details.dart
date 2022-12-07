@@ -85,8 +85,10 @@ class _MarkerDetailsState extends State<MarkerDetails> {
               child: SingleChildScrollView(
                 child: Center(child: Column(
                   children: [
+
+
                     Container(width: MediaQuery.of(context).size.width, height: 400,
-                      child: FlutterMap(mapController:_mapController3, options: MapOptions( center: LatLng(widget.latitude ?? 0, widget.longitude ?? 0),zoom: 15,interactiveFlags: InteractiveFlag.drag,),children: [
+                      child: FlutterMap(mapController:_mapController3, options: MapOptions( center: LatLng(widget.latitude ?? 0, widget.longitude ?? 0),zoom: 17,interactiveFlags: InteractiveFlag.drag,),children: [
                         TileLayer(
                           urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -100,6 +102,18 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                       ],
 
                       ),),
+                    SizedBox(height: 20,),
+                    if (_isBannerAdReady)
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: _bannerAd.size.width.toDouble(),
+                          height: _bannerAd.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd),
+                        ),
+                      ),
+
+
                     SizedBox(height: 20,),
                     Center(child: Text('${widget.marker.name}',style: TextStyle(fontSize: 25, color: HexColor('#8C4332'),fontWeight: FontWeight.w500),)),
                     Padding(
