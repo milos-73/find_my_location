@@ -140,16 +140,16 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => _getAddressFromLatLng(currentLocation!))
         .then((value) =>  initLocationService())
         .then((value) => setState((){isLoading = false;}))
-        .then((value) => setState((){nameController.text = currentTown!;}))
+        .then((value) => setState((){nameController.text = currentTown ?? '';}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
         .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
         .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
         .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
-        .then((value) => setState((){streetController.text = currentStreet!;}))
-        .then((value) => setState((){townController.text = currentTown!;}))
-        .then((value) => setState((){countyController.text = currentCounty!;}))
-        .then((value) => setState((){stateController.text = currentState!;}))
-        .then((value) => setState((){zipController.text = currentPostalCode!;}))
+        .then((value) => setState((){streetController.text = currentStreet ?? '';}))
+        .then((value) => setState((){townController.text = currentTown ?? '';}))
+        .then((value) => setState((){countyController.text = currentCounty ?? '';}))
+        .then((value) => setState((){stateController.text = currentState ?? '';}))
+        .then((value) => setState((){zipController.text = currentPostalCode ?? '';}))
         .then((value) => setState((){descriptionController.text = '';}))
     ;
   }
@@ -271,13 +271,14 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
 
   Future<void> _getAddressFromLatLng(Position position) async {
+    print('GETTING ADDRESS...');
     await placemarkFromCoordinates(currentLocation!.latitude, currentLocation!.longitude).then((List<Placemark> placemarks) {
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
       });
     }).catchError((e) {
-      print(e.toString());
+      print('ADRESS CATCh ERROR: ${e.toString()}');
     });
   }
 
@@ -331,31 +332,36 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                               padding: const EdgeInsets.only(bottom: 15),
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 20,right: 20),
-                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    positionStreamStarted == true ?  TextButton(onPressed: (){
-                                      setState(() => positionStreamStarted = false); _toggleListening();
-                                         print('STREAM start: $positionStreamStarted');
-                                         showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
-                                           child: saveAndEditLocationAlertDialogStreamOn(ctx),
-                                         ),
-                                    );
-                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
-                                    : TextButton(onPressed: (){
-                                      print('STREAM start: $positionStreamStarted');
-                                      showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
-                                        child: saveAndEditLocationAlertDialogStreamOff(ctx),
-                                      ),
+                                child: FittedBox(fit: BoxFit.fitWidth,
+                                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      positionStreamStarted == true ?  TextButton(onPressed: (){
+                                        setState(() => positionStreamStarted = false); _toggleListening();
+                                           print('STREAM start: $positionStreamStarted');
+                                           showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                             child: saveAndEditLocationAlertDialogStreamOn(ctx),
+                                           ),
                                       );
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
+                                        }, child: Column(
+                                        children: [
+                                          FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
+                                      : TextButton(onPressed: (){
+                                        print('STREAM start: $positionStreamStarted');
+                                        showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                          child: saveAndEditLocationAlertDialogStreamOff(ctx),
+                                        ),
+                                        );
+                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
 
-                                    Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
-                                    TextButton(onPressed: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+                                      FittedBox(fit: BoxFit.cover,
+                                          child: Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),)),
+                                      TextButton(onPressed: (){
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
 
-                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
-                                    ],
+                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
+                                      ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -522,12 +528,13 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                              child:
                               Column(
                                children: [
-                                 Text('$currentStreet',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                                 Text('$currentPostalCode $currentTown',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                                 Text('$currentCounty, $currentState ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                 Text('${currentStreet ?? ''}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                 Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                                 Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
 
                                ],
-                             ),
+                             )
+                               ,
                              ),
 
                            ],),
@@ -552,16 +559,16 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                               .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                               .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
                                               .then((value) => _getAddressFromLatLng(currentLocation!))
-                                              .then((value) => setState((){nameController.text = currentTown!;}))
+                                              .then((value) => setState((){nameController.text = currentTown ?? '';}))
                                               .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
                                               .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
                                               .then((value) => setState((){accuracyController.text = '${currentLocation?.accuracy}';}))
                                               .then((value) => setState((){altitudeController.text = '${currentLocation?.altitude}';}))
-                                              .then((value) => setState((){streetController.text = currentStreet!;}))
-                                              .then((value) => setState((){townController.text = currentTown!;}))
-                                              .then((value) => setState((){countyController.text = currentCounty!;}))
-                                              .then((value) => setState((){stateController.text = currentState!;}))
-                                              .then((value) => setState((){zipController.text = currentPostalCode!;}))
+                                              .then((value) => setState((){streetController.text = currentStreet ?? '';}))
+                                              .then((value) => setState((){townController.text = currentTown ?? '';}))
+                                              .then((value) => setState((){countyController.text = currentCounty ?? '';}))
+                                              .then((value) => setState((){stateController.text = currentState ?? '';}))
+                                              .then((value) => setState((){zipController.text = currentPostalCode ?? '';}))
                                               .then((value) => setState((){descriptionController.text = '';}))
                                               .then((value) => setState((){isLoading = false;}))
                                           ;},
