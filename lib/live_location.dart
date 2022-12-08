@@ -492,7 +492,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                           mapController: _mapController2,
                                           options: MapOptions(
                                             center: currentLatLng,
-                                            zoom: 12,
+                                            zoom: 15,
                                             interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag | InteractiveFlag.flingAnimation,
                                           ),
                                           children: [
@@ -696,7 +696,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                           setState(() => positionStreamStarted = true); _toggleListening();
                                           print('STREAM: $positionStreamStarted');
                                           Navigator.of(ctx).pop();
-                                      }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: const Text('Cancel'),)),
+                                      }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
                                       TextButton(onPressed: (){
                                           final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
@@ -704,7 +704,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                           setState(() => positionStreamStarted = true); _toggleListening();
                                           print('STREAM: $positionStreamStarted');
                                           Navigator.of(ctx).pop();
-                                      }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+                                      }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: HexColor('#D99E6A')),),)),
 
                                     ],)
 
@@ -714,7 +714,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   AlertDialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
     return AlertDialog(
-      title: const Text('Add this point to My List'),
+      title: const Text('Add this location to My List'),
       content: SingleChildScrollView(
         child: Column(children: [
           TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
@@ -735,14 +735,14 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         TextButton(onPressed: (){
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
-        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: const Text('Cancel'),)),
+        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
           final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
-        }, child: Container(color: Colors.green, padding: const EdgeInsets.all(14), child: const Text('OK'),)),
+        }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: HexColor('#D99E6A')),),)),
 
       ],)
 
