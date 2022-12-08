@@ -420,16 +420,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                   ),
                                 )],
                             ),
-                            if (_isBannerAdReady)
-                              Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  width: _bannerAd.size.width.toDouble(),
-                                  height: _bannerAd.size.height.toDouble(),
-                                  child: AdWidget(ad: _bannerAd),
-                                ),
-                              ),
-
 
                             Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -486,6 +476,18 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                 ),
                               ],
                             ),
+
+                            if (_isBannerAdReady)
+                              Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  width: _bannerAd.size.width.toDouble(),
+                                  height: _bannerAd.size.height.toDouble(),
+                                  child: AdWidget(ad: _bannerAd),
+                                ),
+                              ),
+
+
                             Row(
                               children: [
                                 Container(height: 300 ,width: MediaQuery.of(context).size.width, alignment: Alignment.center, margin: const EdgeInsets.only(bottom: 10),
