@@ -277,9 +277,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
       });
-    }).catchError((e) {
-      print('ADRESS CATCh ERROR: ${e.toString()}');
-    });
+    })
+       .catchError((e) {
+         print('ADRESS CATCh ERROR: ${e.toString()}');
+      _getAddressFromLatLng(currentLocation!)
+         ;})
+    ;
   }
 
   void addMyMarker(MyMarkers myMarker) {
@@ -530,7 +533,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                              child:
                               Column(
                                children: [
-                                 Text('${currentStreet ?? ''}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                 Text('${currentStreet ?? 'Connection Error.'}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                                  Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                                  Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
 
