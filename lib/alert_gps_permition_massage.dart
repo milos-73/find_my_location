@@ -137,7 +137,7 @@ class AlertDialogs {
     AlertDialog alert = AlertDialog(
       title: Text("AlertDialog"),
       content: Text(
-          "You are connected over $connectionType"),
+          "$connectionType"),
       actions: [
         cancelButton,
         //continueButton,

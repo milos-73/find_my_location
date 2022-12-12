@@ -62,11 +62,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   bool isLoading = false;
   bool wakelockEnable = false;
+  bool internetConnection = true;
+  bool streamConnectionCheck = false;
 
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
   bool positionStreamStarted = false;
-
 
 
   TextEditingController nameController = TextEditingController();
@@ -129,7 +130,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _mapController = MapController();
     _mapController2 = MapController();
 
-    internetConnectivity().then((value) => geolocations.getCurrentPosition(context))
+    internetConnectivity().then((value) => setState((){internetConnection = value;}))
+        .then((value) => geolocations.getCurrentPosition(context))
 
         .then((value) => setState((){currentLocation = value;}))
         .then((value) => setState((){accuracy = currentLocation?.accuracy;}))
@@ -137,9 +139,10 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-        .then((value) => _getAddressFromLatLng(currentLocation!))
-        .then((value) =>  initLocationService())
         .then((value) => setState((){isLoading = false;}))
+        .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
+        .then((value) =>  initLocationService())
+
         .then((value) => setState((){nameController.text = currentTown ?? '';}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
         .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
@@ -154,19 +157,21 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     ;
   }
 
-  Future<void> internetConnectivity() async {
+  Future<bool> internetConnectivity() async {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.mobile){
       print('Connected to Mobile');
-      await alertDialogs.showconnectionStatusMessage(context,'mobile');
+      //await alertDialogs.showconnectionStatusMessage(context,'mobile');
 
     }else if(connectivityResult == ConnectivityResult.wifi){
       print('Connected to Wifi');
-      await alertDialogs.showconnectionStatusMessage(context,'wifi');
+      //await alertDialogs.showconnectionStatusMessage(context,'wifi');
     }else{
       print('no connection');
-      await alertDialogs.showconnectionStatusMessage(context,'no connection');
+      await alertDialogs.showconnectionStatusMessage(context,'No internet connection. Please make sure you are connected to internet to load map and get the address of your location');
+      return false;
     }
+    return true;
   }
 
   // Future<void> internetConnectivity() async {
@@ -203,7 +208,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   }
 
   void _updatePositionList(Position displayValue) {
-
+print('STREAM CONNECTION STate: ${internetConnection}');
+    streamConnectionCheck == false ? internetConnectivity().then((value) => setState((){internetConnection = value;})).then((value) => setState((){streamConnectionCheck = true;})) : null;
+print('STREAM CONNECTION STate2: ${internetConnection}');
     currentLocation = displayValue;
     latDms = converter.getDegreeFromDecimal(displayValue.latitude);
     longDms = converter.getDegreeFromDecimal(displayValue.longitude);
@@ -272,7 +279,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   Future<void> _getAddressFromLatLng(Position position) async {
     print('GETTING ADDRESS...');
+
     await placemarkFromCoordinates(currentLocation!.latitude, currentLocation!.longitude).then((List<Placemark> placemarks) {
+
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
@@ -280,8 +289,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     })
        .catchError((e) {
          print('ADRESS CATCh ERROR: ${e.toString()}');
-      _getAddressFromLatLng(currentLocation!)
-         ;})
+        _getAddressFromLatLng(currentLocation!);
+           })
     ;
   }
 
@@ -533,7 +542,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                              child:
                               Column(
                                children: [
-                                 Text('${currentStreet ?? 'Connection Error.'}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                 internetConnection == true
+                                     ? Text('${currentStreet ?? ''}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                                     : Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),) ,
                                  Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
                                  Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
 
@@ -555,6 +566,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                       SizedBox(width: 70,height: 70,
                                         child:TextButton(onPressed: () {
                                           setState((){isLoading = true;});
+                                          internetConnectivity().then((value) => setState((){internetConnection = value;}));
                                           geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
                                               .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
@@ -563,7 +575,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                               .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                                               .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                               .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
-                                              .then((value) => _getAddressFromLatLng(currentLocation!))
+                                              .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
                                               .then((value) => setState((){nameController.text = currentTown ?? '';}))
                                               .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
                                               .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
@@ -589,7 +601,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                 Column(
                                   children: [
                              OutlinedButton(onPressed: () async {
-                               final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
+                               //final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
+                               //final locationUrl = 'http://www.google.com/maps/dir/?api=1&destination=${currentLocation?.latitude},${currentLocation?.longitude}';
+                               final locationUrl = 'http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude},${currentLocation?.longitude}';
                                await Share.share(locationUrl);
 
 
@@ -624,8 +638,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
                                     children: [
                                       Switch(value: positionStreamStarted, activeColor: HexColor('#8C4332'),onChanged: (value) {
 
-                                        setState(() => positionStreamStarted = value); _toggleListening();
-                                        print(value);
+                                         value == false ? setState((){streamConnectionCheck = false; }): setState((){streamConnectionCheck = true; });setState(() => positionStreamStarted = value); _toggleListening();
+                                        print('STREAM VALUE: ${value}');
+                                        print('CONNECTION check: ${streamConnectionCheck}');
 
                                         //positionStreamStarted = !positionStreamStarted;
                                       },),
