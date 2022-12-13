@@ -260,16 +260,24 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                               Padding(
                                                 padding: const EdgeInsets.only(left: 20, right: 20),
-                                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
-                                                    Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
-                                                    Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){
-                                                      //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
-                                                      MapsLauncher.launchCoordinates(marker.lat!, marker.long!);
-                                                      }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),)))
+                                                child: FittedBox(fit: BoxFit.scaleDown,
+                                                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(right: 5),
+                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                      ),
+                                                      Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
+                                                      Padding(
+                                                        padding: const EdgeInsets.only(left: 5),
+                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){
+                                                          //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
+                                                          MapsLauncher.launchCoordinates(marker.lat!, marker.long!);
+                                                          }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),))),
+                                                      )
 
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               )
                                             ],
