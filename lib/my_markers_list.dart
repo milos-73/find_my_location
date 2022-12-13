@@ -7,6 +7,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 import 'ad_helper.dart';
 import 'buttons.dart';
@@ -264,8 +265,9 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                     Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
                                                     Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){
-                                                      buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
-                                                    }, icon: FaIcon(FontAwesomeIcons.route,size: 30, color: HexColor('#592d3b'),)))
+                                                      //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
+                                                      MapsLauncher.launchCoordinates(marker.lat!, marker.long!);
+                                                      }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),)))
 
                                                   ],
                                                 ),

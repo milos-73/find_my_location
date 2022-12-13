@@ -343,8 +343,8 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                             Padding(
                               padding: const EdgeInsets.only(bottom: 15),
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 20,right: 20),
-                                child: FittedBox(fit: BoxFit.fitWidth,
+                                padding: const EdgeInsets.only(left: 10,right: 10),
+                                child: FittedBox(fit: BoxFit.scaleDown,
                                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       positionStreamStarted == true ?  TextButton(onPressed: (){
@@ -365,8 +365,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                         );
                                       }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
 
-                                      FittedBox(fit: BoxFit.cover,
-                                          child: Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),)),
+                                      Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
                                       TextButton(onPressed: (){
                                         Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
 
