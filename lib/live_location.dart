@@ -144,7 +144,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
         .then((value) => setState((){isLoading = false;}))
 
-        .then((value) => getDmsLat(latDms)).then((value) => getDmslon(longDms))
+        //.then((value) => getDmsLat(latDms)).then((value) => getDmslon(longDms))
 
         .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
         .then((value) =>  initLocationService())
@@ -441,7 +441,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                                       : latDms![0] > 0
                                                       ? Text("${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
                                                       : Text("${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                                  Text('DD: ${(currentLocation?.latitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                  Text('DD: ${(currentLocation?.latitude)?.toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
 
                                                 ],
                                               ),
@@ -497,7 +497,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                                         : longDms![0] > 0
                                                         ? Text("${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),)
                                                         : Text("${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}",style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),),
-                                                    Text('DD: ${(currentLocation?.longitude)?.abs().toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
+                                                    Text('DD: ${(currentLocation?.longitude)?.toStringAsFixed(9)}',style: const TextStyle(fontSize: 14),),
                                                   ],
                                                 ),
                                               ),
@@ -636,6 +636,9 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                 Column(
                                   children: [
                                     OutlinedButton(onPressed: () async {
+
+                                      await getDmsLat(latDms);
+                                      await getDmslon(longDms);
 
                                       print('DMS: ${latDmsLocation}');
 
