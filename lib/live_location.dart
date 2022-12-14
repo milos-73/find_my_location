@@ -55,6 +55,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   List<num>? latDms;
   List<num>? longDms;
 
+  String? latDmsLocation;
+  String? longDmsLocation;
+
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
 
@@ -140,6 +143,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
         .then((value) => setState((){isLoading = false;}))
+
+        .then((value) => getDmsLat(latDms)).then((value) => getDmslon(longDms))
+
         .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
         .then((value) =>  initLocationService())
 
@@ -273,6 +279,36 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
  if (currentLocation != null) {_mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom); _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom);}
 
   }
+
+
+  Future <void> getDmsLat(List<num>? latitideList) async {
+
+    String? dmsLatitude;
+
+    print('LIST: ${latitideList}');
+
+    if (latitideList![0] > 0){
+      dmsLatitude = "${latitideList[0]}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}";
+    } else {
+      dmsLatitude = "${latitideList[0].toString().substring(1)}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}";
+    }print('LIST: ${latitideList}');
+    setState(() {
+      latDmsLocation = dmsLatitude;
+    });
+  }
+
+  Future <void> getDmslon(List<num>? longitudeList) async {
+
+    String? dmsLongitude;
+
+    if (longitudeList![0] > 0){
+      dmsLongitude = "${longitudeList[0]}° ${longitudeList[1]}' ${longitudeList[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}";
+    }else{
+      dmsLongitude = "${longitudeList[0].toString().substring(1)}° ${longitudeList[1]}' ${longitudeList[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}";
+
+    }setState(() {longDmsLocation = dmsLongitude;});
+  }
+
 
 
 
@@ -599,11 +635,15 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                 ),
                                 Column(
                                   children: [
-                             OutlinedButton(onPressed: () async {
-                               //final locationUrl = 'http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}';
-                               //final locationUrl = 'http://www.google.com/maps/dir/?api=1&destination=${currentLocation?.latitude},${currentLocation?.longitude}';
-                               final locationUrl = 'http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude},${currentLocation?.longitude}';
-                               await Share.share(locationUrl);
+                                    OutlinedButton(onPressed: () async {
+
+                                      print('DMS: ${latDmsLocation}');
+
+
+                                      final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude},${currentLocation?.longitude}\n\niOS/Android: http://maps.apple.com/?11=${currentLocation?.latitude},${currentLocation?.longitude}\n\n'
+'$latDmsLocation\n$longDmsLocation'
+                                          ;
+                                      await Share.share(locationUrl);
 
 
 
