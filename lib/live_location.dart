@@ -644,7 +644,13 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
 
                                       final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude},${currentLocation?.longitude}\n\niOS/Android: http://maps.apple.com/?11=${currentLocation?.latitude},${currentLocation?.longitude}\n\n'
-'$latDmsLocation\n$longDmsLocation'
+'DMS:\n$latDmsLocation\n$longDmsLocation\n\nDD:\n${currentLocation?.latitude}, ${currentLocation?.longitude}\n\n'
+                                          'Address:\n'
+                                          '$currentStreet\n'
+                                          '$currentPostalCode $currentTown\n'
+                                          '$currentCounty'
+                                          '$currentState '
+
                                           ;
                                       await Share.share(locationUrl);
 
