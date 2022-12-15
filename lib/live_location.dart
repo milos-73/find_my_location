@@ -380,35 +380,38 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                               padding: const EdgeInsets.only(bottom: 15),
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10,right: 10),
-                                child: FittedBox(fit: BoxFit.scaleDown,
-                                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      positionStreamStarted == true ?  TextButton(onPressed: (){
-                                        setState(() => positionStreamStarted = false); _toggleListening();
-                                           print('STREAM start: $positionStreamStarted');
-                                           showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
-                                             child: saveAndEditLocationAlertDialogStreamOn(ctx),
-                                           ),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    positionStreamStarted == true ?  TextButton(onPressed: (){
+                                      setState(() => positionStreamStarted = false); _toggleListening();
+                                         print('STREAM start: $positionStreamStarted');
+                                         showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                           child: saveAndEditLocationAlertDialogStreamOn(ctx),
+                                         ),
+                                    );
+                                      }, child: Column(
+                                      children: [
+                                        FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
+                                    : TextButton(onPressed: (){
+                                      print('STREAM start: $positionStreamStarted');
+                                      showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                        child: saveAndEditLocationAlertDialogStreamOff(ctx),
+                                      ),
                                       );
-                                        }, child: Column(
-                                        children: [
-                                          FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
-                                      : TextButton(onPressed: (){
-                                        print('STREAM start: $positionStreamStarted');
-                                        showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
-                                          child: saveAndEditLocationAlertDialogStreamOff(ctx),
-                                        ),
-                                        );
-                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
-
-                                      Text('My Location',style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
-                                      TextButton(onPressed: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
 
 
-                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
-                                      ],
-                                  ),
+                                    Flexible(
+                                      child:
+                                      Text('My Location',softWrap: true,overflow: TextOverflow.fade,style: GoogleFonts.indieFlower(fontSize: 35, fontWeight: FontWeight.w600),),
+                                      //Text('My Location', softWrap: false, maxLines: 1,overflow: TextOverflow.fade,style: TextStyle(fontSize: 35, fontWeight: FontWeight.w600),),
+                                    ),
+                                    TextButton(onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+
+
+                                    }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
+                                    ],
                                 ),
                               ),
                             ),
@@ -779,7 +782,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                           setState(() => positionStreamStarted = true); _toggleListening();
                                           print('STREAM: $positionStreamStarted');
                                           Navigator.of(ctx).pop();
-                                      }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: HexColor('#D99E6A')),),)),
+                                      }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 
                                     ],)
 
@@ -817,7 +820,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
-        }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: HexColor('#D99E6A')),),)),
+        }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 
       ],)
 
