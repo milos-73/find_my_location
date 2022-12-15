@@ -22,9 +22,7 @@ class MyMarkersList extends StatefulWidget {
   final double? currentLong;
   MapController mapController;
 
-
-
-  MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapController}) : super(key: key);
+MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapController}) : super(key: key);
 
   @override
   State<MyMarkersList> createState() => _MyMarkersListState();

@@ -5,9 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'ad_helper.dart';
 
 class EditRecord extends StatefulWidget {
    final int index;
@@ -22,11 +25,17 @@ class EditRecord extends StatefulWidget {
   State<EditRecord> createState() => _EditRecordState();
 }
 
+const int maxFailedLoadAttempts = 3;
+
 class _EditRecordState extends State<EditRecord> {
 
   bool isLoading = false;
   late Box<MyMarkers> myMarkersBox;
   late final MapController _mapController3;
+
+  // TODO: Add _interstitialAd
+  InterstitialAd? _interstitialAd;
+  int _interstitialLoadAttempts = 0;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
@@ -47,6 +56,7 @@ class _EditRecordState extends State<EditRecord> {
    setState((){isLoading = true;});
     myMarkersBox = Hive.box('myMarkersBox');
     _mapController3 = MapController();
+    _createInterstitialAd();
 
     setState((){nameController.text = widget.marker.name!;});
     setState((){latitudeController.text = '${widget.marker.lat}';});
@@ -61,6 +71,42 @@ class _EditRecordState extends State<EditRecord> {
     setState((){descriptionController.text = widget.marker.description!;});
   }
 
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
 @override
   Widget build(BuildContext context) {
 
@@ -68,8 +114,9 @@ class _EditRecordState extends State<EditRecord> {
       floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 40),
+            padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
+              _showInterstitialAd();
                Navigator.pop(context);
      }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
           ),
@@ -79,6 +126,7 @@ class _EditRecordState extends State<EditRecord> {
             child: FloatingActionButton.extended(onPressed: () {
               final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
               myMarkersBox.putAt(widget.index, newMarker);
+              _showInterstitialAd();
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),
@@ -99,7 +147,7 @@ class _EditRecordState extends State<EditRecord> {
               padding: const EdgeInsets.all(20.0),
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 30),
+                  padding: const EdgeInsets.only(top: 30, bottom: 50),
                   child: Column(children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -162,4 +210,11 @@ class _EditRecordState extends State<EditRecord> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _interstitialAd?.dispose();
+  }
+
 }
