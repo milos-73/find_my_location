@@ -265,5 +265,13 @@ class _MarkerDetailsState extends State<MarkerDetails> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bannerAd.dispose();
+  }
+
+
 }
 

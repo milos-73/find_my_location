@@ -30,16 +30,18 @@ class MyMarkersList extends StatefulWidget {
   State<MyMarkersList> createState() => _MyMarkersListState();
 }
 
-LatLongConverter converter = LatLongConverter();
-Buttons buttons = Buttons();
- late Box<MyMarkers> markersList;
+  LatLongConverter converter = LatLongConverter();
+  Buttons buttons = Buttons();
+  late Box<MyMarkers> markersList;
+  const int maxFailedLoadAttempts = 3;
 
 class _MyMarkersListState extends State<MyMarkersList> {
 
+  // TODO: Add _bannerAd
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
 
-  ///TO-DO put to a separate file
+ //TODO: put to a separate file
   void _loadBannerAd() {
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
@@ -62,12 +64,55 @@ class _MyMarkersListState extends State<MyMarkersList> {
     _bannerAd.load();
   }
 
+  // TODO: Add _interstitialAd
+  InterstitialAd? _interstitialAd;
+  int _interstitialLoadAttempts = 0;
+
   @override
   void initState() {
     super.initState();
     _loadBannerAd();
+    _createInterstitialAd();
     markersList = Hive.box('myMarkersBox');
   }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +310,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     children: [
                                                       Padding(
                                                         padding: const EdgeInsets.only(right: 5),
-                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){ Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){_showInterstitialAd(); Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                       ),
                                                       Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
                                                       Padding(
@@ -320,4 +365,14 @@ class _MyMarkersListState extends State<MyMarkersList> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+   _interstitialAd?.dispose();
+   _bannerAd.dispose();
+  }
+
 }
+
+

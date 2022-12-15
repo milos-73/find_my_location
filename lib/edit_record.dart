@@ -65,11 +65,26 @@ class _EditRecordState extends State<EditRecord> {
   Widget build(BuildContext context) {
 
     return Scaffold(backgroundColor: HexColor('#d8ded5'),
-      floatingActionButton: FloatingActionButton.extended(onPressed: () {
-        final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
-        myMarkersBox.putAt(widget.index, newMarker);
-        Navigator.pop(context);
-     }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),),
+      floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 40),
+            child: FloatingActionButton.extended(onPressed: () {
+               Navigator.pop(context);
+     }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
+          ),
+          SizedBox(height: 10,),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: FloatingActionButton.extended(onPressed: () {
+              final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+              myMarkersBox.putAt(widget.index, newMarker);
+              Navigator.pop(context);
+            }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
+          ),
+
+        ],
+      ),
       body: FlutterMap(
           mapController: _mapController3,
           options: MapOptions(

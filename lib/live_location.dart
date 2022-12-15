@@ -838,6 +838,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
     // widget tree.
     nameController.dispose();
     super.dispose();
+   _bannerAd.dispose();
   }
 
 }
