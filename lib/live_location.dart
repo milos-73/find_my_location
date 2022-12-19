@@ -69,7 +69,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   bool wakelockEnable = false;
   bool internetConnection = true;
   bool streamConnectionCheck = false;
-  bool internetConnectionError = false;
+  bool addressLookupError = false;
+
 
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
@@ -152,8 +153,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){isAddressLoading = false;}))
         .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
 
-        .then((value) =>  internetConnectionError == false ? initLocationService() : print('Adress not loaded'))
-        //.then((value) =>   initLocationService())
+        //.then((value) =>  internetConnectionError == false ? initLocationService() : print('Adress not loaded'))
+        .then((value) =>   initLocationService())
 
         .then((value) => setState((){nameController.text = currentTown ?? '';}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
@@ -330,13 +331,13 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
-      internetConnectionError = false;
+      //internetConnectionError = false;
       });
     })
        .catchError((e) {
          setState(() {
-           internetConnectionError = true;  });
-         isAddressLoading = false;
+           addressLookupError = true;  });
+         //isAddressLoading = false;
 
       setState(() { currentAddress = '';
       currentStreet = ''; currentTown = '';currentCounty = '';currentPostalCode = '';currentState = '';
@@ -353,8 +354,9 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
   @override
   Widget build(BuildContext context) {
- print('INTERNET CONNECTION ERROR: ${internetConnectionError}');
- print('ADDRESS LOADINGR: ${isAddressLoading}');
+ print('INTERNET CONNECTION ERROR: ${addressLookupError}');
+ print('ADDRESS LOADINGR: ${internetConnection}');
+ print('STREET: ${currentStreet}');
 
     // if (currentLocation != null) {
     //   currentLatLng = LatLng(currentLocation!.latitude, currentLocation!.longitude);
@@ -610,14 +612,16 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                       Column(
                                children: [
 
-                                 internetConnection == true && internetConnectionError == false
-                                     ? Text('Loading address detials...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
-                                     : internetConnection == false && internetConnectionError == true
-                                     ? Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
-                                     : internetConnection == false && internetConnectionError == false
-                                     ? Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
-                                     : internetConnection == true && internetConnectionError == true
-                      ? Column(
+                                     // addressLookupError == false && (currentStreet == '' || currentStreet == null )
+                                     // ? Column(
+                                     //   children: [
+                                     //     Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                     //     Text('Trying to load address details...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                     //   ],
+                                     // ):
+                                     internetConnection == false && addressLookupError == false
+                                     ?
+                       Column(
                         children: [
                           Text('Address Loading ERROR', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                           Text('Slow or missing internet connection', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
@@ -651,6 +655,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                       SizedBox(width: 70,height: 70,
                                         child:TextButton(onPressed: () {
                                           setState((){isLoading = true;});
+                                          setState((){isAddressLoading = true;});
                                           internetConnectivity().then((value) => setState((){internetConnection = value;}));
                                           geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
@@ -661,6 +666,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                               .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                               .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
                                               .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
+                                              .then((value) => setState((){isAddressLoading = false;}))
                                               .then((value) => setState((){nameController.text = currentTown ?? '';}))
                                               .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
                                               .then((value) => setState((){longitudeController.text = '${currentLocation?.longitude}';}))
