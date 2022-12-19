@@ -10,10 +10,12 @@ import 'markers_model.dart';
 import 'network_tile_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+
 late Box box;
 
 Future<void> main() async {
   await Hive.initFlutter();
+
   Hive.registerAdapter(MyMarkersAdapter());
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
   MobileAds.instance.initialize();

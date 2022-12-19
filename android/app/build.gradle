@@ -88,7 +88,7 @@ android {
         minSdkVersion 20
         compileSdkVersion 33
         multiDexEnabled = true
-        versionCode 19
-        versionName "0.1.0"
+        //versionCode 20
+        //versionName "0.3.0"
     }
 }

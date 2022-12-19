@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:find_me/marker_provider.dart';
-import 'package:find_me/widgets/drawer.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +39,7 @@ class LiveLocationPage extends StatefulWidget {
 
 class LiveLocationPageState extends State<LiveLocationPage> {
 
-  //LocationData? _currentLocation;
+   //LocationData? _currentLocation;
   late final MapController _mapController;
   late final MapController _mapController2;
   late Box<MyMarkers> myMarkersBox;
@@ -55,6 +55,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   List<num>? latDms;
   List<num>? longDms;
 
+
   String? latDmsLocation;
   String? longDmsLocation;
 
@@ -64,9 +65,11 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   var currentLatLng = LatLng(0, 0);
 
   bool isLoading = false;
+  bool isAddressLoading = false;
   bool wakelockEnable = false;
   bool internetConnection = true;
   bool streamConnectionCheck = false;
+  bool internetConnectionError = false;
 
   StreamSubscription<Position>? _positionStreamSubscription;
   StreamSubscription<ServiceStatus>? _serviceStatusStreamSubscription;
@@ -87,7 +90,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   int interActiveFlags = InteractiveFlag.all;
 
-
   //final Location _locationService = Location();
 
   LatLongConverter converter = LatLongConverter();
@@ -97,7 +99,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
-
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
@@ -121,7 +122,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _bannerAd.load();
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -129,6 +129,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     myMarkersBox = Hive.box('myMarkersBox');
     _toggleServiceStatusStream();
     setState((){isLoading = true;});
+    setState((){isAddressLoading = true;});
+
+
 
     _mapController = MapController();
     _mapController2 = MapController();
@@ -142,12 +145,15 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
         .then((value) => setState((){latDms = converter.getDegreeFromDecimal(currentLocation!.latitude);}))
         .then((value) => setState((){longDms = converter.getDegreeFromDecimal(currentLocation!.longitude);}))
-        .then((value) => setState((){isLoading = false;}))
+        .then((value) => setState((){isLoading = false;})).then((value) => setState((){isAddressLoading = true;}))
+        //.then((value) => setState((){isAddressLoading = true;}))
 
         //.then((value) => getDmsLat(latDms)).then((value) => getDmslon(longDms))
-
+        .then((value) => setState((){isAddressLoading = false;}))
         .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
-        .then((value) =>  initLocationService())
+
+        .then((value) =>  internetConnectionError == false ? initLocationService() : print('Adress not loaded'))
+        //.then((value) =>   initLocationService())
 
         .then((value) => setState((){nameController.text = currentTown ?? '';}))
         .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
@@ -164,9 +170,14 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   }
 
   Future<bool> internetConnectivity() async {
+
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if(connectivityResult == ConnectivityResult.mobile){
+     var isDeviceConnected = false;
+
+      if(connectivityResult == ConnectivityResult.mobile){
+        isDeviceConnected = await InternetConnectionChecker().hasConnection;
       print('Connected to Mobile');
+        print('$isDeviceConnected');
       //await alertDialogs.showconnectionStatusMessage(context,'mobile');
 
     }else if(connectivityResult == ConnectivityResult.wifi){
@@ -174,7 +185,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
       //await alertDialogs.showconnectionStatusMessage(context,'wifi');
     }else{
       print('no connection');
-      await alertDialogs.showconnectionStatusMessage(context,'No internet connection. Please make sure you are connected to internet to load map and get the address of your location');
+      await alertDialogs.showconnectionStatusMessage(context,'No internet connection. Please make sure you are connected to internet to load map and get the address of your location. Other application functionality is not affected by this.');
       return false;
     }
     return true;
@@ -276,10 +287,8 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
   void initLocationService() async {
 
- if (currentLocation != null) {_mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom); _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom);}
-
+ if (currentLocation != null) { try {_mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom);} catch (e){(print('ERROR - ERROR'));}; try {_mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom);} catch(e) {(print('ERROR2 - ERROR2'));}};
   }
-
 
   Future <void> getDmsLat(List<num>? latitideList) async {
 
@@ -309,23 +318,31 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
     }setState(() {longDmsLocation = dmsLongitude;});
   }
 
-
-
-
-
   Future<void> _getAddressFromLatLng(Position position) async {
     print('GETTING ADDRESS...');
+
+    setState(() {
+
+    });
 
     await placemarkFromCoordinates(currentLocation!.latitude, currentLocation!.longitude).then((List<Placemark> placemarks) {
 
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
+      internetConnectionError = false;
       });
     })
        .catchError((e) {
+         setState(() {
+           internetConnectionError = true;  });
+         isAddressLoading = false;
+
+      setState(() { currentAddress = '';
+      currentStreet = ''; currentTown = '';currentCounty = '';currentPostalCode = '';currentState = '';
+      });
          print('ADRESS CATCh ERROR: ${e.toString()}');
-        _getAddressFromLatLng(currentLocation!);
+
            })
     ;
   }
@@ -336,7 +353,8 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
   @override
   Widget build(BuildContext context) {
-
+ print('INTERNET CONNECTION ERROR: ${internetConnectionError}');
+ print('ADDRESS LOADINGR: ${isAddressLoading}');
 
     // if (currentLocation != null) {
     //   currentLatLng = LatLng(currentLocation!.latitude, currentLocation!.longitude);
@@ -344,12 +362,16 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
     //   currentLatLng = LatLng(0, 0);
     // }
 
-    return Scaffold(
+      return Scaffold(backgroundColor: Colors.white30,
       resizeToAvoidBottomInset: false,
       //appBar: AppBar(title: const Text('Home')),
-      drawer: buildDrawer(context, LiveLocationPage.route),
+      //drawer: buildDrawer(context, LiveLocationPage.route),
       body: SizedBox(height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
-            child: FlutterMap(
+            child:
+
+
+
+            FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 center: currentLatLng,
@@ -555,9 +577,9 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                           ),
                                           children: [
                                             TileLayer(
-                                              urlTemplate:
-                                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                              urlTemplate:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                               userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                                                errorImage: Image(image: AssetImage('assets/images/nointernet.png')).image
                                             ),
                                             FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
                                             CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
@@ -576,15 +598,40 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                             ),
                            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                             Container(margin: const EdgeInsets.only(bottom: 25),
+                      isAddressLoading == true ? Container (
+                      margin: const EdgeInsets.only(bottom: 25),
+                      child: Text('${'Loading address detials'}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                      )
+
+                      : Container(margin: const EdgeInsets.only(bottom: 25),
                              child:
-                              Column(
+
+
+                      Column(
                                children: [
-                                 internetConnection == true
-                                     ? Text('${currentStreet ?? ''}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
-                                     : Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),) ,
-                                 Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                                 Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+
+                                 internetConnection == true && internetConnectionError == false
+                                     ? Text('Loading address detials...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                                     : internetConnection == false && internetConnectionError == true
+                                     ? Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                                     : internetConnection == false && internetConnectionError == false
+                                     ? Text('No internet connection available.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                                     : internetConnection == true && internetConnectionError == true
+                      ? Column(
+                        children: [
+                          Text('Address Loading ERROR', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                          Text('Slow or missing internet connection', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                        ],
+                      ) : Column(
+                                   children: [
+                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                                     Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                   ],
+                                 ) ,
+
+
+
 
                                ],
                              )
@@ -741,12 +788,12 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                   urlTemplate:
                   'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  errorImage: Image(image: AssetImage('assets/images/nointernet.png')).image
                 ),
                 //MarkerLayer(markers: markers),
               ],
             ),
           ),
-
     );
   }
 
@@ -829,9 +876,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
   }
 
 
-
-
-  @override
+ @override
   void dispose() {
     if (_positionStreamSubscription != null) {
       _positionStreamSubscription!.cancel();
