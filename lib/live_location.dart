@@ -67,7 +67,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   bool isLoading = false;
   bool isAddressLoading = false;
   bool wakelockEnable = false;
-  bool internetConnection = true;
+  bool isDeviceConnected = false;
   bool streamConnectionCheck = false;
   bool addressLookupError = false;
 
@@ -137,7 +137,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _mapController = MapController();
     _mapController2 = MapController();
 
-    internetConnectivity().then((value) => setState((){internetConnection = value;}))
+    internetConnectivity().then((value) => setState((){isDeviceConnected = value;}))
         .then((value) => geolocations.getCurrentPosition(context))
 
         .then((value) => setState((){currentLocation = value;}))
@@ -151,7 +151,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
         //.then((value) => getDmsLat(latDms)).then((value) => getDmslon(longDms))
         .then((value) => setState((){isAddressLoading = false;}))
-        .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
+        .then((value) => isDeviceConnected == true ? _getAddressFromLatLng(currentLocation!) : setState((){addressLookupError = false;}))
 
         //.then((value) =>  internetConnectionError == false ? initLocationService() : print('Adress not loaded'))
         .then((value) =>   initLocationService())
@@ -173,12 +173,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   Future<bool> internetConnectivity() async {
 
     var connectivityResult = await (Connectivity().checkConnectivity());
-     var isDeviceConnected = false;
+     var deviceConnection = true;
 
       if(connectivityResult == ConnectivityResult.mobile){
-        isDeviceConnected = await InternetConnectionChecker().hasConnection;
+        deviceConnection = await InternetConnectionChecker().hasConnection;
       print('Connected to Mobile');
-        print('$isDeviceConnected');
+        print('$deviceConnection');
       //await alertDialogs.showconnectionStatusMessage(context,'mobile');
 
     }else if(connectivityResult == ConnectivityResult.wifi){
@@ -226,9 +226,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   }
 
   void _updatePositionList(Position displayValue) {
-print('STREAM CONNECTION STate: ${internetConnection}');
-    streamConnectionCheck == false ? internetConnectivity().then((value) => setState((){internetConnection = value;})).then((value) => setState((){streamConnectionCheck = true;})) : null;
-print('STREAM CONNECTION STate2: ${internetConnection}');
+print('STREAM CONNECTION STate: ${isDeviceConnected}');
+    streamConnectionCheck == false ? internetConnectivity().then((value) => setState((){isDeviceConnected = value;})).then((value) => setState((){streamConnectionCheck = true;})) : null;
+print('STREAM CONNECTION STate2: ${isDeviceConnected}');
     currentLocation = displayValue;
     latDms = converter.getDegreeFromDecimal(displayValue.latitude);
     longDms = converter.getDegreeFromDecimal(displayValue.longitude);
@@ -354,8 +354,8 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
   @override
   Widget build(BuildContext context) {
- print('INTERNET CONNECTION ERROR: ${addressLookupError}');
- print('ADDRESS LOADINGR: ${internetConnection}');
+ print('Address LookUp Error: ${addressLookupError}');
+ print('Is Device Connected: ${isDeviceConnected}');
  print('STREET: ${currentStreet}');
 
     // if (currentLocation != null) {
@@ -369,11 +369,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
       //appBar: AppBar(title: const Text('Home')),
       //drawer: buildDrawer(context, LiveLocationPage.route),
       body: SizedBox(height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
-            child:
-
-
-
-            FlutterMap(
+            child:FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 center: currentLatLng,
@@ -578,10 +574,13 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                             interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag | InteractiveFlag.flingAnimation,
                                           ),
                                           children: [
+
+
                                             TileLayer(
-                                              urlTemplate:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                              urlTemplate:
+                                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                               userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                                                errorImage: Image(image: AssetImage('assets/images/nointernet.png')).image
+                                              errorImage: Image(image: AssetImage('assets/images/nointernet.png')).image
                                             ),
                                             FlutterMapZoomButtons(minZoom: 4, maxZoom: 19, mini: true, padding: 10, alignment: Alignment.bottomLeft,zoomInColor: HexColor('#049DBF'),zoomOutColor:  HexColor('#049DBF'),),
                                             CenterMapButtons(mini: true, padding: 10, alignment: Alignment.bottomRight, mapControler: _mapController2, currentLocation: currentLocation, centerColor: HexColor('#0468BF'),),
@@ -602,7 +601,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
 
                       isAddressLoading == true ? Container (
                       margin: const EdgeInsets.only(bottom: 25),
-                      child: Text('${'Loading address detials'}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
+                      child: Text('${'Loading address details...'}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),)
                       )
 
                       : Container(margin: const EdgeInsets.only(bottom: 25),
@@ -612,14 +611,14 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                       Column(
                                children: [
 
-                                     // addressLookupError == false && (currentStreet == '' || currentStreet == null )
-                                     // ? Column(
-                                     //   children: [
-                                     //     Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                                     //     Text('Trying to load address details...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                                     //   ],
-                                     // ):
-                                     internetConnection == false && addressLookupError == false
+                                     addressLookupError == false && (currentStreet == '' || currentStreet == null ) && isDeviceConnected == true
+                                     ? Column(
+                                       children: [
+                                         Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                         Text('Still trying...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                       ],
+                                     ):
+                                     isDeviceConnected == false || addressLookupError == true
                                      ?
                        Column(
                         children: [
@@ -656,7 +655,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                         child:TextButton(onPressed: () {
                                           setState((){isLoading = true;});
                                           setState((){isAddressLoading = true;});
-                                          internetConnectivity().then((value) => setState((){internetConnection = value;}));
+                                          internetConnectivity().then((value) => setState((){isDeviceConnected = value;}));
                                           geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
                                               .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
@@ -665,7 +664,7 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                               .then((value) => Provider.of<MarkerProvider>(context,listen: false).SetMarker(currentLocation))
                                               .then((value) => _mapController2.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController2.zoom))
                                               .then((value) => _mapController.move(LatLng(currentLocation!.latitude,currentLocation!.longitude),_mapController.zoom))
-                                              .then((value) => internetConnection == true ? _getAddressFromLatLng(currentLocation!) : null)
+                                              .then((value) => isDeviceConnected == true ? _getAddressFromLatLng(currentLocation!) : null)
                                               .then((value) => setState((){isAddressLoading = false;}))
                                               .then((value) => setState((){nameController.text = currentTown ?? '';}))
                                               .then((value) => setState((){latitudeController.text = '${currentLocation?.latitude}';}))
@@ -699,13 +698,13 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                                       print('DMS: ${latDmsLocation}');
 
 
-                                      final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude},${currentLocation?.longitude}\n\niOS/Android: http://maps.apple.com/?11=${currentLocation?.latitude},${currentLocation?.longitude}\n\n'
-'DMS:\n$latDmsLocation\n$longDmsLocation\n\nDD:\n${currentLocation?.latitude}, ${currentLocation?.longitude}\n\n'
+                                      final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude ?? ''},${currentLocation?.longitude ?? ''}\n\niOS/Android: http://maps.apple.com/?11=${currentLocation?.latitude ?? ''},${currentLocation?.longitude ?? ''}\n\n'
+'DMS:\n${latDmsLocation ?? ''}\n${longDmsLocation ?? ''}\n\nDD:\n${currentLocation?.latitude ?? ''}, ${currentLocation?.longitude ?? ''}\n\n'
                                           'Address:\n'
-                                          '$currentStreet\n'
-                                          '$currentPostalCode $currentTown\n'
-                                          '$currentCounty'
-                                          '$currentState '
+                                          '${currentStreet ?? ''}\n'
+                                          '${currentPostalCode ?? ''} ${currentTown ?? ''}\n'
+                                          '${currentCounty ?? ''}'
+                                          '${currentState ?? ''}'
 
                                           ;
                                       await Share.share(locationUrl);
@@ -790,12 +789,12 @@ print('STREAM CONNECTION STate2: ${internetConnection}');
                 )
               ],
               children: [
-                TileLayer(
-                  urlTemplate:
-                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                 TileLayer(
+                  urlTemplate:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  errorImage: Image(image: AssetImage('assets/images/nointernet.png')).image
-                ),
+                  //errorImage: Image(image: AssetImage('assets/images/nointernetPlain.png')).image
+                )
+
                 //MarkerLayer(markers: markers),
               ],
             ),
