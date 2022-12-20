@@ -50,6 +50,12 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   String? currentCounty;
   String? currentPostalCode;
   String? currentState;
+
+  String? name;
+  String? subLocality;
+  String? administrativeArea;
+  String? countryCode;
+
   double? accuracy;
   double? altitude;
   List<num>? latDms;
@@ -331,6 +337,11 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
       currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
+      name = '${place.name}';
+      subLocality = '${place.subLocality}';
+      administrativeArea = '${place.administrativeArea}';
+      countryCode = '${place.isoCountryCode}';
+
       //internetConnectionError = false;
       });
     })
@@ -611,7 +622,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                       Column(
                                children: [
 
-                                     addressLookupError == false && (currentStreet == '' || currentStreet == null ) && isDeviceConnected == true
+                                     addressLookupError == false && currentAddress == null && isDeviceConnected == true
                                      ? Column(
                                        children: [
                                          Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
@@ -625,13 +636,33 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                           Text('Address Loading ERROR', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                           Text('Slow or missing internet connection', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                         ],
-                      ) : Column(
+                      ) :
+                                     Column(
                                    children: [
-                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                                     Text('${currentCounty ?? ''}, ${currentState ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                     Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                     Text('${administrativeArea ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                     Text('${currentState ?? 'subLocality' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+
                                    ],
                                  ) ,
+                                 //     Column(
+                                 //       children: [
+                                 //         Text('street: ${currentStreet ?? 'currentStreet' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         //Text('${addressField2 ?? 'currentPostalCode'} ${addressField1 ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //
+                                 //         Text('currentPostalCode: ${currentPostalCode ?? 'currentPostalCode'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         Text('locality: ${currentTown ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         Text('subAdministrativeArea: ${currentCounty ?? 'currentCounty'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                 //         Text('country: ${currentState ?? 'currentState'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                 //         Text('name: ${name ?? 'name' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         Text('subLocality: ${subLocality ?? 'subLocality' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         Text('administrativeArea: ${administrativeArea ?? 'administrativeArea' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //         Text('countryCode: ${countryCode ?? 'countryCode' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                 //
+                                 //       ],
+                                 //     )
 
 
 
