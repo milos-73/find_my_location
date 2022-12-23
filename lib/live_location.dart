@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:find_me/marker_provider.dart';
+import 'package:find_me/widgets/address.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -18,6 +19,7 @@ import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'ad_helper.dart';
 import 'center_button.dart';
@@ -76,6 +78,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   bool isDeviceConnected = false;
   bool streamConnectionCheck = false;
   bool addressLookupError = false;
+  bool showAddress = false;
+
+  Future<void>? _launched;
 
 
   StreamSubscription<Position>? _positionStreamSubscription;
@@ -369,6 +374,8 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
  print('Is Device Connected: ${isDeviceConnected}');
  print('STREET: ${currentStreet}');
 
+
+
     // if (currentLocation != null) {
     //   currentLatLng = LatLng(currentLocation!.latitude, currentLocation!.longitude);
     // } else {
@@ -622,7 +629,9 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                       Column(
                                children: [
 
-                                     addressLookupError == false && currentAddress == null && isDeviceConnected == true
+                                 //AddressLookUp(),
+
+                                 addressLookupError == false && currentAddress == null && isDeviceConnected == true
                                      ? Column(
                                        children: [
                                          Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
@@ -639,11 +648,11 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                       ) :
                                      Column(
                                    children: [
-                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                     Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
-                                     Text('${administrativeArea ?? '' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                     Text('${currentState ?? 'subLocality' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                                     Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300),),
+                                     Text('${administrativeArea ?? ''}, ${currentState ?? 'subLocality' }',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
+
 
                                    ],
                                  ) ,
@@ -770,16 +779,25 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                                     SizedBox(height: 70,  width: 70,child:
                                     Column(
                                     children: [
-                                      Switch(value: positionStreamStarted, activeColor: HexColor('#8C4332'),onChanged: (value) {
+                                      //IconButton(onPressed: () {}, icon: FaIcon(FontAwesomeIcons.circleInfo, size: 30, color: HexColor('#8C4332'),)),
+                                      // Switch(value: positionStreamStarted, activeColor: HexColor('#8C4332'),onChanged: (value) {
+                                      //
+                                      //    value == false ? setState((){streamConnectionCheck = false; }): setState((){streamConnectionCheck = true; });setState(() => positionStreamStarted = value); _toggleListening();
+                                      //   print('STREAM VALUE: ${value}');
+                                      //   print('CONNECTION check: ${streamConnectionCheck}');
+                                      //
+                                      //   //positionStreamStarted = !positionStreamStarted;
+                                      // },),
 
-                                         value == false ? setState((){streamConnectionCheck = false; }): setState((){streamConnectionCheck = true; });setState(() => positionStreamStarted = value); _toggleListening();
-                                        print('STREAM VALUE: ${value}');
-                                        print('CONNECTION check: ${streamConnectionCheck}');
+                                      TextButton(onPressed: (){
+                                         showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
+                                          child: aboutInfo(ctx),
+                                        ),
+                                        );
+                                      }, child: Column(children: [FaIcon(FontAwesomeIcons.circleInfo, color: HexColor('#8C4332'),size: 30,), Text('About', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],)),
 
-                                        //positionStreamStarted = !positionStreamStarted;
-                                      },),
-//TextButton(onPressed: (){positionStreamStarted = !positionStreamStarted; _toggleListening();}, child: Text('STREAM')),
-                                    Text('Follow', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 14))
+
+                                    //Text('About', style: TextStyle(color: HexColor('#0468BF'),height: 0.5,fontSize: 14))
                                     ],
                                   ),
                                     ),
@@ -904,6 +922,69 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
         }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
+
+      ],)
+
+      ],
+    );
+  }
+
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
+  }
+
+
+
+  AlertDialog aboutInfo(BuildContext ctx) {
+
+    final Uri _url = Uri.parse('https://findme.salus-apps.eu');
+    final Uri _url2 = Uri.parse('https://findme.salus-apps.eu/privacy-policy');
+   // final Uri _url3 = Uri.parse('https://help.salus-apps.eu');
+    final Uri _url3 = Uri.parse('mailto:findme@salus-apps.eu');
+
+    return AlertDialog(
+      title: Center(child: const Text('')),
+      content: SingleChildScrollView(
+        child: Column(children: [
+          Icon(FontAwesomeIcons.locationDot, size: 50, color: HexColor('#3B592D'),),
+          SizedBox(height: 20,),
+          Text('FindMe', style: TextStyle(fontSize: 40,fontWeight: FontWeight.w600),),
+          Text('Find My Location', style: TextStyle(fontSize: 20,fontWeight: FontWeight.w400),),
+          SizedBox(height: 5,),
+          Text('verzia 1.0.0', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          SizedBox(height: 20,),
+          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('findme.salus-aps.eu'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
+          Text('support@salus-apps.eu', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url2);}), child: const Text('Privacy Policy'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 2),
+            child: Text('Development', style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500),),
+          ),
+          Text('Miloš Sálus', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w500),),
+          Text('Pivo SALUS s.r.o.', style: TextStyle(fontSize: 13,fontWeight: FontWeight.w400),),
+          SizedBox(height: 15,),
+          Center(
+            child: Row(mainAxisAlignment: MainAxisAlignment.center,
+              children: [FaIcon(FontAwesomeIcons.envelope, size: 20,),
+                SizedBox(width: 8,),
+                TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url3);}), child: const Text('Report an issue', style: TextStyle(fontSize: 20,fontWeight: FontWeight.w600),),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
+              ],
+            ),
+          ),
+
+        ],),
+      ),
+      actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.center ,children: [
+        TextButton(onPressed: (){
+          print('STREAM: $positionStreamStarted');
+          Navigator.of(ctx).pop();
+        }, child: Container(color: Colors.red, width: 100,padding: const EdgeInsets.all(14), child: Center(child: Text('OK',style: TextStyle(color: Colors.white),)),)),
+
 
       ],)
 

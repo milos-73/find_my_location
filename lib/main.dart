@@ -1,5 +1,6 @@
 import 'package:find_me/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,11 @@ Future<void> main() async {
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
   MobileAds.instance.initialize();
 
-  
+  await SystemChrome.setPreferredOrientations([
+  DeviceOrientation.portraitUp,
+  DeviceOrientation.portraitDown,
+  ]);
+
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider<MarkerProvider>(create:(context) => MarkerProvider()),
@@ -28,10 +33,6 @@ Future<void> main() async {
     ],
 
      child: FindMeApp()));
-
-
-
-
 }
 
 class FindMeApp extends StatelessWidget {
