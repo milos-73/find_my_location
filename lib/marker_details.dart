@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:share_plus/share_plus.dart';
 import 'ad_helper.dart';
 import 'center_button_detail_screen.dart';
 import 'package:intl/intl.dart';
@@ -34,6 +35,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
 
+  String? latDmsLocation;
+  String? longDmsLocation;
 
   ///TO-DO move to separate file
   void _loadBannerAd() {
@@ -57,6 +60,36 @@ class _MarkerDetailsState extends State<MarkerDetails> {
 
     _bannerAd.load();
   }
+
+
+  Future <void> getDmsLat(List<num>? latitideList) async {
+
+    String? dmsLatitude;
+
+    print('LIST: ${latitideList}');
+
+    if (latitideList![0] > 0){
+      dmsLatitude = "${latitideList[0]}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${widget.longitude! < 0 ? 'S' : 'N'}";
+    } else {
+      dmsLatitude = "${latitideList[0].toString().substring(1)}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${widget.latitude! < 0 ? 'S' : 'N'}";
+    }print('LIST: ${latitideList}');
+    setState(() {
+      latDmsLocation = dmsLatitude;
+    });
+  }
+
+  Future <void> getDmslon(List<num>? longitudeList) async {
+
+    String? dmsLongitude;
+
+    if (longitudeList![0] > 0){
+      dmsLongitude = "${longitudeList[0]}° ${longitudeList[1]}' ${longitudeList[2].toString().substring(0,7)}\" ${widget.longitude! < 0 ? 'W' : 'E'}";
+    }else{
+      dmsLongitude = "${longitudeList[0].toString().substring(1)}° ${longitudeList[1]}' ${longitudeList[2].toString().substring(0,7)}\" ${widget.longitude! < 0 ? 'W' : 'E'}";
+
+    } setState(() {longDmsLocation = dmsLongitude;});
+  }
+
 
 
 
@@ -240,6 +273,46 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                             Text('${widget.marker.county}, ${widget.marker.state} ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
                             SizedBox(height: 15,),
                             Text(DateFormat().format(widget.marker.dateTime!),style: TextStyle(fontSize: 15,color: HexColor('#0468BF'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
+SizedBox(height: 20,),
+                            OutlinedButton(onPressed: () async {
+
+                              await getDmsLat(widget.latDms);
+                              await getDmslon(widget.longDms);
+
+
+                              final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${widget.latitude ?? ''},${widget.longitude ?? ''}\n\niOS/Android: http://maps.apple.com/?11=${widget.latitude ?? ''},${widget.longitude ?? ''}\n\n'
+                                  'DMS:\n${latDmsLocation ?? ''}\n${longDmsLocation ?? ''}\n\nDD:\n${widget.latitude ?? ''}, ${widget.longitude ?? ''}\n\n'
+                                  'Address:\n'
+                                  '${widget.marker.street ?? ''}\n'
+                                  '${widget.marker.zip ?? ''} ${widget.marker.name ?? ''}\n'
+                                  '${widget.marker.county ?? ''}'
+                                  '${widget.marker.state ?? ''}'
+
+                              ;
+                              await Share.share(locationUrl);
+
+
+
+                              // Uri smsLaunchUri = Uri(
+                              //      scheme: 'sms',
+                              //       path: '',
+                              //      queryParameters: {'body': Uri.encodeFull('http://maps.google.com/maps?z=12&t=m&q=loc:${currentLocation?.latitude}+${currentLocation?.longitude}')});
+                              // launchUrl(smsLaunchUri);
+                            },
+                              style: OutlinedButton.styleFrom(backgroundColor: HexColor('#D99E6A'),elevation: 15,side: BorderSide(color: HexColor('#3B592D'),width: 7),shape: const CircleBorder(),padding: const EdgeInsets.only(top: 18,left: 18,right: 18,bottom: 14) ), child:
+
+                              Stack(alignment: Alignment.center, children: [
+                                Column(mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text('SEND',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: FaIcon(FontAwesomeIcons.shareNodes, size: 25,color: Colors.black.withOpacity(0.5),),
+                                    ),
+                                  ],
+                                ),],),
+
+                            )
 
                           ],
                         ),

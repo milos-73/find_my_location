@@ -327,7 +327,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
     }else{
       dmsLongitude = "${longitudeList[0].toString().substring(1)}° ${longitudeList[1]}' ${longitudeList[2].toString().substring(0,7)}\" ${currentLocation!.longitude < 0 ? 'W' : 'E'}";
 
-    }setState(() {longDmsLocation = dmsLongitude;});
+    } setState(() {longDmsLocation = dmsLongitude;});
   }
 
   Future<void> _getAddressFromLatLng(Position position) async {
