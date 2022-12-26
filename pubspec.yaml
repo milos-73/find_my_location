@@ -75,16 +75,17 @@ dev_dependencies:
   flutter_native_splash: ^2.2.16
 
 flutter_native_splash:
-  color: "#8C4332"
-  image: assets/play_store_512.png
+  color: "#D99E6A"
+  image: assets/launch_screen_icon.png
+  branding: assets/logo.png
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/play_store_512.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
-  adaptive_icon_background: "assets/launger_icon_background.png"
-  adaptive_icon_foreground: "assets/launger_icon_foreground.png"
+  adaptive_icon_background: "assets/launch_icon_background.png"
+  adaptive_icon_foreground: "assets/launch_icon_foreground.png"
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
