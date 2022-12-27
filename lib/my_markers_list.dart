@@ -110,8 +110,6 @@ class _MyMarkersListState extends State<MyMarkersList> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
 
@@ -283,9 +281,19 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     ],
                                                     ),
                                                   ),
+                                                  marker.city !='' ?
+
                                                   Row(children: [Text('${marker.zip} ${marker.city}', style: TextStyle(color: HexColor('#049DBF'),
                                                      shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                     ),)
+                                                  ],
+                                                  ) :
+
+                                                  Row(children: [Text('${marker.zip}', style: TextStyle(color: HexColor('#049DBF'),
+                                                      shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
+                                                  ),),
+                                                    Text(' City Name', style: TextStyle(color: HexColor('#0468BF'),
+                                                        shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),)
                                                   ],
                                                   ),
                                                   Row(children: [Text('${marker.state}', style: TextStyle(color: HexColor('#049DBF'),
@@ -295,6 +303,11 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                   ),
 
                                                 ],
+
+
+
+
+
 
 
                                                 ),

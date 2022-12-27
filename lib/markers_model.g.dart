@@ -29,13 +29,16 @@ class MyMarkersAdapter extends TypeAdapter<MyMarkers> {
       county: fields[9] as String?,
       state: fields[10] as String?,
       zip: fields[11] as String?,
+      administrativeArea: fields[13] as String?,
+      subLocality: fields[12] as String?,
+      countryCode: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MyMarkers obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.dateTime)
       ..writeByte(1)
@@ -59,7 +62,13 @@ class MyMarkersAdapter extends TypeAdapter<MyMarkers> {
       ..writeByte(10)
       ..write(obj.state)
       ..writeByte(11)
-      ..write(obj.zip);
+      ..write(obj.zip)
+      ..writeByte(12)
+      ..write(obj.subLocality)
+      ..writeByte(13)
+      ..write(obj.administrativeArea)
+      ..writeByte(14)
+      ..write(obj.countryCode);
   }
 
   @override

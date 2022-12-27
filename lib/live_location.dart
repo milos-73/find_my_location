@@ -52,6 +52,8 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   String? currentPostalCode;
   String? currentState;
 
+
+
   String? name;
   String? subLocality;
   String? administrativeArea;
@@ -98,6 +100,10 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   TextEditingController stateController = TextEditingController();
   TextEditingController zipController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  TextEditingController subLocalityController = TextEditingController();
+  TextEditingController administrativeAreaController = TextEditingController();
+  TextEditingController countryCodeController = TextEditingController();
 
   int interActiveFlags = InteractiveFlag.all;
 
@@ -177,6 +183,9 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){stateController.text = currentState ?? '';}))
         .then((value) => setState((){zipController.text = currentPostalCode ?? '';}))
         .then((value) => setState((){descriptionController.text = '';}))
+        .then((value) => setState((){subLocalityController.text = subLocality ?? '';}))
+        .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
+        .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
     ;
   }
 
@@ -257,6 +266,15 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
     markerAddress.getCounty(displayValue).then((value) => currentCounty = value).then((value) =>countyController.text = value!);
     markerAddress.getState(displayValue).then((value) => currentState = value).then((value) =>stateController.text = value!);
     markerAddress.getZip(displayValue).then((value) => currentPostalCode = value).then((value) =>zipController.text = value!);
+
+markerAddress.getSubLocality(displayValue).then((value) => subLocality = value).then((value) =>subLocalityController.text = value!);
+markerAddress.getAdministrativeArea(displayValue).then((value) => administrativeArea = value).then((value) =>administrativeAreaController.text = value!);
+markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).then((value) =>countryCodeController.text = value!);
+
+
+
+
+
     setState(() {});
   }
 
@@ -340,7 +358,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
 
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
-      currentStreet = '${place.street}'; currentTown = '${place.locality}';currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
+      currentStreet = '${place.street}'; currentTown = '${place.locality}'; currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
       name = '${place.name}';
       subLocality = '${place.subLocality}';
       administrativeArea = '${place.administrativeArea}';
@@ -650,7 +668,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                                      Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
                                      Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
                                      Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300),),
-                                     Text('${administrativeArea ?? ''}, ${currentState ?? 'subLocality' }',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
+                                     Text('${administrativeArea ?? ''}, ${currentState ?? '' }',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
 
 
                                    ],
@@ -715,6 +733,9 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                                               .then((value) => setState((){countyController.text = currentCounty ?? '';}))
                                               .then((value) => setState((){stateController.text = currentState ?? '';}))
                                               .then((value) => setState((){zipController.text = currentPostalCode ?? '';}))
+                                              .then((value) => setState((){subLocalityController.text = subLocality ??'';}))
+                                              .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
+                                              .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
                                               .then((value) => setState((){descriptionController.text = '';}))
                                               .then((value) => setState((){isLoading = false;}))
                                           ;},
@@ -855,17 +876,20 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                                     title: const Text('Add this point to My List'),
                                     content: SingleChildScrollView(
                                       child: Column(children: [
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
-                                          TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'City area',),controller:subLocalityController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'District',),controller:countyController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'County/State',),controller:administrativeAreaController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
+                                        TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
                                       ],),
                                     ),
@@ -877,7 +901,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
                                       }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
                                       TextButton(onPressed: (){
-                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text);
                                           addMyMarker(newMarker);
                                           setState(() => positionStreamStarted = true); _toggleListening();
                                           print('STREAM: $positionStreamStarted');
@@ -902,9 +926,12 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
           TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
           TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
           TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-          TextFormField(decoration: const InputDecoration(labelText: 'County',),controller:countyController),
-          TextFormField(decoration: const InputDecoration(labelText: 'State',),controller:stateController),
+          TextFormField(decoration: const InputDecoration(labelText: 'City area',),controller:subLocalityController),
+          TextFormField(decoration: const InputDecoration(labelText: 'District',),controller:countyController),
+          TextFormField(decoration: const InputDecoration(labelText: 'County/State',),controller:administrativeAreaController),
           TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
           TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
         ],),
@@ -916,7 +943,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
         }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text);
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();

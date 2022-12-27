@@ -39,5 +39,26 @@ class MarkerAddress {
     });return zipName;
   }
 
+  Future<String?> getAdministrativeArea(Position currentLocation) async {
+    String? administrativeAreaName;
+    await placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude).then((List<Placemark> placemarks) {Placemark place = placemarks[0];
+    administrativeAreaName = place.administrativeArea;
+    });return administrativeAreaName;
+  }
+
+  Future<String?> getSubLocality(Position currentLocation) async {
+    String? subLocalityName;
+    await placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude).then((List<Placemark> placemarks) {Placemark place = placemarks[0];
+    subLocalityName = place.subLocality;
+    });return subLocalityName;
+  }
+
+  Future<String?> getCountryCode(Position currentLocation) async {
+    String? countryCodeName;
+    await placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude).then((List<Placemark> placemarks) {Placemark place = placemarks[0];
+    countryCodeName = place.isoCountryCode;
+    });return countryCodeName;
+  }
+
 
 }

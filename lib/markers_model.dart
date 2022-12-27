@@ -19,7 +19,10 @@ class MyMarkers {
     this.city,
     this.county,
     this.state,
-    this.zip
+    this.zip,
+    this.administrativeArea,
+    this.subLocality,
+    this.countryCode
   });
 
   @HiveField(0)
@@ -57,5 +60,14 @@ class MyMarkers {
 
   @HiveField(11)
   String? zip;
+
+  @HiveField(12)
+  String? subLocality;
+
+  @HiveField(13)
+  String? administrativeArea;
+
+  @HiveField(14)
+  String? countryCode;
 
 }

@@ -48,6 +48,9 @@ class _EditRecordState extends State<EditRecord> {
   TextEditingController stateController = TextEditingController();
   TextEditingController zipController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController subLocalityController = TextEditingController();
+  TextEditingController administrativeAreaController = TextEditingController();
+  TextEditingController countryCodeController = TextEditingController();
 
 
   @override
@@ -63,12 +66,16 @@ class _EditRecordState extends State<EditRecord> {
     setState((){longitudeController.text = '${widget.marker.long}';});
     setState((){accuracyController.text = '${widget.marker.accuracy}';});
     setState((){altitudeController.text = '${widget.marker.altitude}';});
-    setState((){streetController.text = widget.marker.street!;});
-    setState((){townController.text = widget.marker.city!;});
-    setState((){countyController.text = widget.marker.county!;});
-    setState((){stateController.text = widget.marker.state!;});
-    setState((){zipController.text = widget.marker.zip!;});
-    setState((){descriptionController.text = widget.marker.description!;});
+    setState((){streetController.text = widget.marker.street ?? '';});
+    setState((){townController.text = widget.marker.city ?? '';});
+    setState((){countyController.text = widget.marker.county ?? '';});
+    setState((){stateController.text = widget.marker.state ?? '';});
+    setState((){zipController.text = widget.marker.zip ?? '';});
+    setState((){descriptionController.text = widget.marker.description ?? '';});
+
+    setState((){subLocalityController.text = widget.marker.subLocality ?? '';});
+    setState((){administrativeAreaController.text = widget.marker.administrativeArea ?? '';});
+    setState((){countryCodeController.text = widget.marker.countryCode ?? '';});
   }
 
   void _createInterstitialAd() {
@@ -177,18 +184,39 @@ class _EditRecordState extends State<EditRecord> {
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Town', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: townController,),
                     ),
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'County', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: countyController,),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'City area', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: subLocalityController,),
                     ),
+
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'State', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: stateController,),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'District', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: countyController,),
                     ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'County/State', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: administrativeAreaController,),
+                    ),
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Postal Code', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: zipController,),
                     ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'State', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: stateController,),
+                    ),
+
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Country Code', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: countryCodeController,),
+                    ),
+
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Notes', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:descriptionController,minLines: 1,maxLines: 3,),

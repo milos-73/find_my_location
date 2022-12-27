@@ -269,8 +269,18 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                         Column(
                           children: [
                             Text('${widget.marker.street}',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                            Text('${widget.marker.zip} ${widget.marker.city}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-                            Text('${widget.marker.county}, ${widget.marker.state} ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                            widget.marker.city != '' ?
+                            Text('${widget.marker.zip} ${widget.marker.city}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)) :
+                            Row(
+                              children: [
+                                Text('${widget.marker.zip}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                                Text(' City Name',style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: HexColor('#8C4332'))),
+                              ],
+                            )
+                                                        ,
+
+                            Text('${widget.marker.subLocality ?? ''}, ${widget.marker.county} ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                            Text('${widget.marker.administrativeArea ?? ''}, ${widget.marker.state} ',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
                             SizedBox(height: 15,),
                             Text(DateFormat().format(widget.marker.dateTime!),style: TextStyle(fontSize: 15,color: HexColor('#0468BF'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
 SizedBox(height: 20,),
@@ -284,7 +294,7 @@ SizedBox(height: 20,),
                                   'DMS:\n${latDmsLocation ?? ''}\n${longDmsLocation ?? ''}\n\nDD:\n${widget.latitude ?? ''}, ${widget.longitude ?? ''}\n\n'
                                   'Address:\n'
                                   '${widget.marker.street ?? ''}\n'
-                                  '${widget.marker.zip ?? ''} ${widget.marker.name ?? ''}\n'
+                                  '${widget.marker.zip ?? ''}  ${widget.marker.name ?? ''}\n'
                                   '${widget.marker.county ?? ''}'
                                   '${widget.marker.state ?? ''}'
 
