@@ -196,15 +196,15 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
       if(connectivityResult == ConnectivityResult.mobile){
         deviceConnection = await InternetConnectionChecker().hasConnection;
-      print('Connected to Mobile');
-        print('$deviceConnection');
+      //print('Connected to Mobile');
+        //print('$deviceConnection');
       //await alertDialogs.showconnectionStatusMessage(context,'mobile');
 
     }else if(connectivityResult == ConnectivityResult.wifi){
-      print('Connected to Wifi');
+      //print('Connected to Wifi');
       //await alertDialogs.showconnectionStatusMessage(context,'wifi');
     }else{
-      print('no connection');
+      //print('no connection');
       await alertDialogs.showconnectionStatusMessage(context,'No internet connection. Please make sure you are connected to internet to load map and get the address of your location. Other application functionality is not affected by this.');
       return false;
     }
@@ -226,7 +226,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         String serviceStatusValue;
         if (serviceStatus == ServiceStatus.enabled) {
           if (positionStreamStarted) {_toggleListening();}
-          print('enabled');
+          //print('enabled');
         } else {
           if (_positionStreamSubscription != null) {
             setState(() { _positionStreamSubscription?.cancel();
@@ -234,7 +234,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
               //_updatePositionList(_PositionItemType.log, 'Position Stream has been canceled');
             });
           }
-          print('disabled');
+          //print('disabled');
         }
         // _updatePositionList(
         //   _PositionItemType.log,
@@ -323,13 +323,15 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
     String? dmsLatitude;
 
-    print('LIST: ${latitideList}');
+    //print('LIST: ${latitideList}');
 
     if (latitideList![0] > 0){
       dmsLatitude = "${latitideList[0]}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}";
     } else {
       dmsLatitude = "${latitideList[0].toString().substring(1)}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${currentLocation!.latitude < 0 ? 'S' : 'N'}";
-    }print('LIST: ${latitideList}');
+    }
+    //print('LIST: ${latitideList}')
+    ;
     setState(() {
       latDmsLocation = dmsLatitude;
     });
@@ -348,7 +350,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
   }
 
   Future<void> _getAddressFromLatLng(Position position) async {
-    print('GETTING ADDRESS...');
+    //print('GETTING ADDRESS...');
 
     setState(() {
 
@@ -387,9 +389,9 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
   @override
   Widget build(BuildContext context) {
- print('Address LookUp Error: ${addressLookupError}');
- print('Is Device Connected: ${isDeviceConnected}');
- print('STREET: ${currentStreet}');
+ //print('Address LookUp Error: ${addressLookupError}');
+ //print('Is Device Connected: ${isDeviceConnected}');
+ //print('STREET: ${currentStreet}');
 
 
 
@@ -439,7 +441,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                   children: [
                                     positionStreamStarted == true ?  TextButton(onPressed: (){
                                       setState(() => positionStreamStarted = false); _toggleListening();
-                                         print('STREAM start: $positionStreamStarted');
+                                         //print('STREAM start: $positionStreamStarted');
                                          showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
                                            child: saveAndEditLocationAlertDialogStreamOn(ctx),
                                          ),
@@ -448,7 +450,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                       children: [
                                         FaIcon(FontAwesomeIcons.heartCirclePlus, color: HexColor('#8C4332'),size: 30,), Text('Save', style: TextStyle(color: HexColor('#0468BF'), height: 1.5),)],))
                                     : TextButton(onPressed: (){
-                                      print('STREAM start: $positionStreamStarted');
+                                      //print('STREAM start: $positionStreamStarted');
                                       showDialog(barrierDismissible: false,context: context, builder: (ctx) => WillPopScope(onWillPop: () => Future.value(false),
                                         child: saveAndEditLocationAlertDialogStreamOff(ctx),
                                       ),
@@ -755,7 +757,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                       await getDmsLat(latDms);
                                       await getDmslon(longDms);
 
-                                      print('DMS: ${latDmsLocation}');
+                                      //print('DMS: ${latDmsLocation}');
 
 
                                       final locationUrl = 'You can find me here.\n\n Android: http://www.google.com/maps/search/?api=1&query=${currentLocation?.latitude ?? ''},${currentLocation?.longitude ?? ''}\n\niOS/Android: http://maps.apple.com/?11=${currentLocation?.latitude ?? ''},${currentLocation?.longitude ?? ''}\n\n'
