@@ -59,7 +59,8 @@ class _EditRecordState extends State<EditRecord> {
    setState((){isLoading = true;});
     myMarkersBox = Hive.box('myMarkersBox');
     _mapController3 = MapController();
-    _createInterstitialAd();
+    _createInterstitialAdCancel();
+    _createInterstitialAdSave();
 
     setState((){nameController.text = widget.marker.name!;});
     setState((){latitudeController.text = '${widget.marker.lat}';});
@@ -78,9 +79,9 @@ class _EditRecordState extends State<EditRecord> {
     setState((){countryCodeController.text = widget.marker.countryCode ?? '';});
   }
 
-  void _createInterstitialAd() {
+  void _createInterstitialAdSave() {
     InterstitialAd.load(
-      adUnitId: AdHelper.interstitialAdUnitId,
+      adUnitId: AdHelper.editSave,
       request: AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
@@ -91,23 +92,59 @@ class _EditRecordState extends State<EditRecord> {
           _interstitialLoadAttempts += 1;
           _interstitialAd = null;
           if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
-            _createInterstitialAd();
+            _createInterstitialAdSave();
           }
         },
       ),
     );
   }
 
-  void _showInterstitialAd() {
+  void _createInterstitialAdCancel() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.editSave,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAdCancel();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAdSave() {
     if (_interstitialAd != null) {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (InterstitialAd ad) {
           ad.dispose();
-          _createInterstitialAd();
+          _createInterstitialAdSave();
         },
         onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
           ad.dispose();
-          _createInterstitialAd();
+          _createInterstitialAdSave();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+  void _showInterstitialAdCancel() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAdCancel();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAdCancel();
         },
       );
       _interstitialAd!.show();
@@ -123,7 +160,7 @@ class _EditRecordState extends State<EditRecord> {
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
-              _showInterstitialAd();
+              _showInterstitialAdCancel();
                Navigator.pop(context);
      }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
           ),
@@ -133,7 +170,7 @@ class _EditRecordState extends State<EditRecord> {
             child: FloatingActionButton.extended(onPressed: () {
               final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text);
               myMarkersBox.putAt(widget.index, newMarker);
-              _showInterstitialAd();
+              _showInterstitialAdSave();
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),

@@ -119,7 +119,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
+      adUnitId: AdHelper.mainScreen,
       request: AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(

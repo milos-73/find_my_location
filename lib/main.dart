@@ -20,10 +20,10 @@ Future<void> main() async {
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
 
   MobileAds.instance.initialize();
-  final RequestConfiguration requestConfiguration = RequestConfiguration(
-      tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
-  maxAdContentRating: MaxAdContentRating.pg);
-  MobileAds.instance.updateRequestConfiguration(requestConfiguration);
+  // final RequestConfiguration requestConfiguration = RequestConfiguration(
+  //     tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+  // maxAdContentRating: MaxAdContentRating.t);
+  // MobileAds.instance.updateRequestConfiguration(requestConfiguration);
 
 
   await SystemChrome.setPreferredOrientations([

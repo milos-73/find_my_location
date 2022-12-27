@@ -41,7 +41,7 @@ class _MarkerDetailsState extends State<MarkerDetails> {
   ///TO-DO move to separate file
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
+      adUnitId: AdHelper.detailedScreen,
       request: AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(

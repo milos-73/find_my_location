@@ -42,7 +42,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
  //TODO: put to a separate file
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
+      adUnitId: AdHelper.markerList,
       request: AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
@@ -76,7 +76,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
   void _createInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: AdHelper.interstitialAdUnitId,
+      adUnitId: AdHelper.detailedScreenEnter,
       request: AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
