@@ -11,7 +11,6 @@ import 'markers_model.dart';
 import 'network_tile_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-
 late Box box;
 
 Future<void> main() async {
@@ -19,7 +18,13 @@ Future<void> main() async {
 
   Hive.registerAdapter(MyMarkersAdapter());
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
+
   MobileAds.instance.initialize();
+  final RequestConfiguration requestConfiguration = RequestConfiguration(
+      tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+  maxAdContentRating: MaxAdContentRating.pg);
+  MobileAds.instance.updateRequestConfiguration(requestConfiguration);
+
 
   await SystemChrome.setPreferredOrientations([
   DeviceOrientation.portraitUp,
@@ -42,6 +47,7 @@ class FindMeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Find my location',
       theme: ThemeData(
         primarySwatch: mapBoxBlue,

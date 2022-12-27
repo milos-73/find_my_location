@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:find_me/marker_provider.dart';
-import 'package:find_me/widgets/address.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -958,7 +957,7 @@ print('STREAM CONNECTION STate2: ${isDeviceConnected}');
           SizedBox(height: 5,),
           Text('verzia 1.0.0', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
-          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('findme.salus-aps.eu'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
+          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('findme.salus-apps.eu'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Text('support@salus-apps.eu', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url2);}), child: const Text('Privacy Policy'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Padding(

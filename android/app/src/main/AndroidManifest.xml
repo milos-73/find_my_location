@@ -32,7 +32,7 @@
     <!--#enddocregion android-queries-->
 
     <application
-        android:label="Find Me"
+        android:label="FindMe: Find My Location"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
