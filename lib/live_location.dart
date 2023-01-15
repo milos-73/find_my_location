@@ -20,6 +20,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'center_button.dart';
 import 'geo_location.dart';
@@ -360,7 +361,11 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
       Placemark place = placemarks[0];
       setState(() { currentAddress = '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}, ${place.postalCode}';
-      currentStreet = '${place.street}'; currentTown = '${place.locality}'; currentCounty = '${place.subAdministrativeArea}';currentPostalCode = '${place.postalCode}';currentState = '${place.country}';
+      currentStreet = '${place.street}';
+      currentTown = '${place.locality}';
+      currentCounty = '${place.subAdministrativeArea}';
+      currentPostalCode = '${place.postalCode}';
+      currentState = '${place.country}';
       name = '${place.name}';
       subLocality = '${place.subLocality}';
       administrativeArea = '${place.administrativeArea}';
@@ -634,7 +639,8 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                 ),
                               ],
                             ),
-                           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                           SingleChildScrollView(
+                             scrollDirection: Axis.horizontal,child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
 
                       isAddressLoading == true ? Container (
                       margin: const EdgeInsets.only(bottom: 25),
@@ -642,65 +648,66 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                       )
 
                       : Container(margin: const EdgeInsets.only(bottom: 25),
-                             child:
+                               child:
 
 
                       Column(
-                               children: [
+                                 children: [
 
-                                 //AddressLookUp(),
+                                   //AddressLookUp(),
 
-                                 addressLookupError == false && currentAddress == null && isDeviceConnected == true
-                                     ? Column(
-                                       children: [
-                                         Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                                         Text('Still trying...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
-                                       ],
-                                     ):
-                                     isDeviceConnected == false || addressLookupError == true
-                                     ?
+                                   addressLookupError == false && currentAddress == null && isDeviceConnected == true
+                                       ? Column(
+                                         children: [
+                                           Text('Connection Error.',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                           Text('Still trying...',style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
+                                         ],
+                                       ):
+                                       isDeviceConnected == false || addressLookupError == true
+                                       ?
                        Column(
                         children: [
                           Text('Address Loading ERROR', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                           Text('Slow or missing internet connection', style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w400),),
                         ],
                       ) :
-                                     Column(
-                                   children: [
-                                     Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
-                                     Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
-                                     Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300),),
-                                     Text('${administrativeArea ?? ''}, ${currentState ?? '' }',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
+                                       Column(
+                                     children: [
+                                       Text('${currentStreet ?? '' }',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                                       Text('${currentPostalCode ?? ''} ${currentTown ?? ''}',style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                                       Text('${subLocality ?? ''}, ${currentCounty ?? ''}',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300),),
+                                       Text('${administrativeArea ?? ''}, ${currentState ?? '' }',style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w300)),
 
 
-                                   ],
-                                 ) ,
-                                 //     Column(
-                                 //       children: [
-                                 //         Text('street: ${currentStreet ?? 'currentStreet' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         //Text('${addressField2 ?? 'currentPostalCode'} ${addressField1 ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //
-                                 //         Text('currentPostalCode: ${currentPostalCode ?? 'currentPostalCode'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         Text('locality: ${currentTown ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         Text('subAdministrativeArea: ${currentCounty ?? 'currentCounty'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
-                                 //         Text('country: ${currentState ?? 'currentState'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
-                                 //         Text('name: ${name ?? 'name' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         Text('subLocality: ${subLocality ?? 'subLocality' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         Text('administrativeArea: ${administrativeArea ?? 'administrativeArea' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //         Text('countryCode: ${countryCode ?? 'countryCode' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
-                                 //
-                                 //       ],
-                                 //     )
+                                     ],
+                                   ) ,
+                                   //     Column(
+                                   //       children: [
+                                   //         Text('street: ${currentStreet ?? 'currentStreet' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         //Text('${addressField2 ?? 'currentPostalCode'} ${addressField1 ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //
+                                   //         Text('currentPostalCode: ${currentPostalCode ?? 'currentPostalCode'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         Text('locality: ${currentTown ?? 'currentTown'}',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         Text('subAdministrativeArea: ${currentCounty ?? 'currentCounty'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                   //         Text('country: ${currentState ?? 'currentState'}',style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w300),),
+                                   //         Text('name: ${name ?? 'name' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         Text('subLocality: ${subLocality ?? 'subLocality' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         Text('administrativeArea: ${administrativeArea ?? 'administrativeArea' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //         Text('countryCode: ${countryCode ?? 'countryCode' }',style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
+                                   //
+                                   //       ],
+                                   //     )
 
 
 
 
-                               ],
-                             )
-                               ,
-                             ),
+                                 ],
+                               )
+                                 ,
+                               ),
 
-                           ],),
+                             ],),
+                           ),
                             SizedBox(width: MediaQuery.of(context).size.width, height: 110, child:
 
                             Padding(
@@ -984,7 +991,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           Text('FindMe', style: TextStyle(fontSize: 40,fontWeight: FontWeight.w600),),
           Text('Find My Location', style: TextStyle(fontSize: 20,fontWeight: FontWeight.w400),),
           SizedBox(height: 5,),
-          Text('verzia 1.0.0', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          Text('verzia 1.0.9', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
           TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('findme.salus-apps.eu'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Text('support@salus-apps.eu', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),

@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 
+import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'buttons.dart';
 import 'edit_record.dart';
@@ -196,7 +197,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                               latDms?[0] > 0
                                                                   ? Text("Lat: ${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),)
                                                                   : Text("Lat: ${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),),
-                                                              Text('DD: ${marker.lat?.abs().toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
+                                                              Text('DD: ${marker.lat?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
                                                             ],),],
                                                         ),
                                                         const SizedBox(height: 10,),
@@ -206,7 +207,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                               : Text("Long: ${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${marker.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                           Padding(
                                                             padding: const EdgeInsets.only(top: 3),
-                                                            child: Text('DD: ${marker.long?.abs().toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
+                                                            child: Text('DD: ${marker.long?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
                                                           ),
                                                         ],),
 
@@ -321,12 +322,14 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     children: [
                                                       Padding(
                                                         padding: const EdgeInsets.only(right: 5),
-                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){_showInterstitialAd(); Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10),onPressed: (){
+                                                          _showInterstitialAd();
+                                                          Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                       ),
                                                       Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
                                                       Padding(
                                                         padding: const EdgeInsets.only(left: 5),
-                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(padding: EdgeInsets.only(bottom: 10),onPressed: (){
+                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue,padding: EdgeInsets.only(bottom: 10),onPressed: (){
                                                           //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
                                                           MapsLauncher.launchCoordinates(marker.lat!, marker.long!);
                                                           }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),))),
