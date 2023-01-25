@@ -10,7 +10,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
-import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'center_button_detail_screen.dart';
 import 'package:intl/intl.dart';
@@ -40,25 +39,9 @@ class _MarkerDetailsState extends State<MarkerDetails> {
   String? longDmsLocation;
 
   ///TO-DO move to separate file
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.detailedScreen,
-      request: AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (_) {
-          //print(_isBannerAdReady);
-          setState(() {
-            _isBannerAdReady = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          _isBannerAdReady = false;
-          ad.dispose();
-        },
-      ),
-    );
-
+  void _loadBannerAd() {_bannerAd = BannerAd(adUnitId: AdHelper.detailedScreen,request: AdRequest(),size: AdSize.banner,listener: BannerAdListener(
+        onAdLoaded: (_) {setState(() {_isBannerAdReady = true;});},
+        onAdFailedToLoad: (ad, err) {_isBannerAdReady = false; ad.dispose();},),);
     _bannerAd.load();
   }
 
