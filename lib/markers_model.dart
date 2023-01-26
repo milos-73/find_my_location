@@ -70,7 +70,5 @@ class MyMarkers {
   @HiveField(14)
   String? countryCode;
 
-  @HiveField(15)
-  String? markerCategory;
 
 }

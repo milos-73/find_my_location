@@ -52,6 +52,7 @@ class _EditRecordState extends State<EditRecord> {
   TextEditingController subLocalityController = TextEditingController();
   TextEditingController administrativeAreaController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
+  TextEditingController markerCategoryController = TextEditingController();
 
 
   @override
@@ -78,6 +79,7 @@ class _EditRecordState extends State<EditRecord> {
     setState((){subLocalityController.text = widget.marker.subLocality ?? '';});
     setState((){administrativeAreaController.text = widget.marker.administrativeArea ?? '';});
     setState((){countryCodeController.text = widget.marker.countryCode ?? '';});
+    //setState((){markerCategoryController.text = widget.marker.markerCategoryTitle ?? '';});
   }
 
   void _createInterstitialAdSave() {
@@ -253,6 +255,11 @@ class _EditRecordState extends State<EditRecord> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Country Code', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: countryCodeController,),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController,minLines: 1,maxLines: 3,),
                     ),
 
                     Padding(

@@ -130,8 +130,9 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                         ),
                       ),
 
-
                     SizedBox(height: 20,),
+                    //Center(child: Text('${widget.marker.markerCategory}',style: TextStyle(fontSize: 18, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)),
+                    SizedBox(height: 10,),
                     Center(child: Text('${widget.marker.name}',style: TextStyle(fontSize: 25, color: HexColor('#8C4332'),fontWeight: FontWeight.w500),)),
                     Padding(
                       padding: const EdgeInsets.only(top: 8,bottom: 15,left: 20,right: 20),

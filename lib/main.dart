@@ -7,17 +7,21 @@ import 'package:provider/provider.dart';
 import 'live_location.dart';
 import 'location_provider.dart';
 import 'marker_provider.dart';
+import 'markers_category_model.dart';
 import 'markers_model.dart';
 import 'network_tile_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 late Box box;
+late Box box_category;
 
 Future<void> main() async {
   await Hive.initFlutter();
 
   Hive.registerAdapter(MyMarkersAdapter());
+  Hive.registerAdapter(MyMarkersCategoryAdapter());
   box = await Hive.openBox<MyMarkers>('myMarkersBox');
+  box_category = await Hive.openBox<MyMarkersCategory>('myMarkersCategoryBox');
 
   MobileAds.instance.initialize();
   final RequestConfiguration requestConfiguration = RequestConfiguration(
