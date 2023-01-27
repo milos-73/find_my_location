@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
+import 'category_provider.dart';
 import 'live_location.dart';
 import 'location_provider.dart';
 import 'marker_provider.dart';
@@ -39,6 +40,7 @@ Future<void> main() async {
     MultiProvider(providers: [
       ChangeNotifierProvider<MarkerProvider>(create:(context) => MarkerProvider()),
       ChangeNotifierProvider<LocationProvider>(create:(context) => LocationProvider()),
+      ChangeNotifierProvider<CategoryProvider>(create:(context) => CategoryProvider()),
     ],
 
      child: FindMeApp()));

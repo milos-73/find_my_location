@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 
+import 'category_provider.dart';
 import 'edit_category_record.dart';
 import 'markers_category_model.dart';
 
@@ -68,6 +70,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                           markerCategoryDescriptionController.clear();
                           MyMarkersCategory data = MyMarkersCategory(markerCategoryTitle: title, markerCategoryDescription: description);
                           myMarkersCategoryList.add(data);
+                          Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(data.markerCategoryTitle!);
                           Navigator.pop(context);
 
                         },
@@ -106,7 +109,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                           Row(children: [
                             Column(children: [
                               IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
-                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
+                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.markerCategoryTitle!); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
                             ],)
                           ],)
                         ],),

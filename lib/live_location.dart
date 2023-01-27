@@ -24,10 +24,12 @@ import 'package:url_launcher/url_launcher.dart';
 import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'categories.dart';
+import 'category_provider.dart';
 import 'center_button.dart';
 import 'geo_location.dart';
 import 'get_address.dart';
 import 'location_provider.dart';
+import 'markers_category_model.dart';
 import 'markers_model.dart';
 import 'my_markers_list.dart';
 
@@ -44,17 +46,14 @@ class LiveLocationPage extends StatefulWidget {
 class LiveLocationPageState extends State<LiveLocationPage> {
 
 
-  final List<String> genderItems = [
-    'Male',
-    'Female',
-    '+ Add category'
-  ];
+  final List<String> categoryItems = ['+ Add category'];
 
 
    //LocationData? _currentLocation;
   late final MapController _mapController;
   late final MapController _mapController2;
   late Box<MyMarkers> myMarkersBox;
+  late Box<MyMarkersCategory> myCategoryBox;
   Position? currentLocation;
   String? currentAddress;
   String? currentStreet;
@@ -155,11 +154,33 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _bannerAd.load();
   }
 
+  Future<void> getCategoryTitles() async {
+    final category = await myCategoryBox.values.toList();
+    context.read<CategoryProvider>().myCategoryList.clear();
+    context.read<CategoryProvider>().addToCategoryList('+ Add category');
+
+
+    for (var i = 0; i < myCategoryBox.length; i++) {
+      print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
+      String? myCategoryTitle = category[i].markerCategoryTitle;
+
+      categoryItems.add(myCategoryTitle!);
+      context.read<CategoryProvider>().addToCategoryList(myCategoryTitle);
+
+      //Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(myCategoryTitle!);
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
     _loadBannerAd();
     myMarkersBox = Hive.box('myMarkersBox');
+    myCategoryBox = Hive.box('myMarkersCategoryBox');
+    getCategoryTitles();
+   //var categoryName = myCategoryBox.values.toList();
+
     _toggleServiceStatusStream();
     setState((){isLoading = true;});
     setState((){isAddressLoading = true;});
@@ -917,7 +938,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
                                         //TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryController),
-                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: genderItems.map((item) => DropdownMenuItem<String>(value: item,child: Text(item))).toList(),
+                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item,child: Text(item))).toList(),
                                             validator: (value) {if (value == null) { return 'No Category selected'; }},
                                           onChanged: (value){setState(() {
                                             markerCategory = value;
@@ -953,6 +974,8 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
   AlertDialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
 
+    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+
 
 
 
@@ -975,12 +998,34 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
           //TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryController),
 
-          DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, hint: Text('Select your category'),items: genderItems.map((item) => DropdownMenuItem<String>(value: item,child: Text(item))).toList(),
-            validator: (value) {if (value == null) { return 'No Category selected'; }},
-            onChanged: (value){setState(() {
-              value == '+ Add category' ? Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories())) :
-              markerCategory = value;
-            });},),
+
+        Consumer<CategoryProvider>(builder: (context, value, child) {
+
+
+          return
+          DropdownButtonFormField2(
+
+            decoration: InputDecoration(labelText: 'Categeroy list',),
+            isExpanded: true,
+            hint: Text('Select your category'),
+            items: categoryItemList.map((item) =>
+                DropdownMenuItem<String>(value: item, child: Text(item)))
+                .toList(),
+            validator: (value) {
+              if (value == null) {
+                return 'No Category selected';
+              }
+            },
+            onChanged: (value) {
+              setState(() {
+                value == '+ Add category' ? Navigator.push(
+                    context, MaterialPageRoute(
+                    builder: (context) => const MarkerCategories())) :
+                markerCategory = value;
+              });
+            },);
+
+        }),
 
           TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
@@ -1025,7 +1070,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         TextButton(onPressed: (){
           //final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory);
           var val = newCategoryController.text;
-          genderItems.add(newCategoryController.text);
+          categoryItems.add(newCategoryController.text);
           Navigator.of(ctx).pop(context);
         }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 
@@ -1061,10 +1106,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
   AlertDialog aboutInfo(BuildContext ctx) {
 
-    final Uri _url = Uri.parse('https://findme.salus-apps.eu');
-    final Uri _url2 = Uri.parse('https://findme.salus-apps.eu/privacy-policy');
+    final Uri _url = Uri.parse('https://mylocationnow.app');
+    final Uri _url2 = Uri.parse('https://mylocationnow.app/privacy-policy');
    // final Uri _url3 = Uri.parse('https://help.salus-apps.eu');
-    final Uri _url3 = Uri.parse('mailto:findme@salus-apps.eu');
+    final Uri _url3 = Uri.parse('mailto:support@mylocationnow.app');
 
     return AlertDialog(
       title: Center(child: const Text('')),
@@ -1072,13 +1117,13 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         child: Column(children: [
           Icon(FontAwesomeIcons.locationDot, size: 50, color: HexColor('#3B592D'),),
           SizedBox(height: 20,),
-          Text('FindMe', style: TextStyle(fontSize: 40,fontWeight: FontWeight.w600),),
-          Text('Find My Location', style: TextStyle(fontSize: 20,fontWeight: FontWeight.w400),),
+          Text('My Location Now', style: TextStyle(fontSize: 30,fontWeight: FontWeight.w600),),
+          Text('Send & Save my current location', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           SizedBox(height: 5,),
           Text('verzia 1.0.9', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
-          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('findme.salus-apps.eu'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
-          Text('support@salus-apps.eu', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('mylocationnow.app'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
+          Text('support@mylocationnow.app', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url2);}), child: const Text('Privacy Policy'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Padding(
             padding: const EdgeInsets.only(top: 10, bottom: 2),
