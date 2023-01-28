@@ -34,6 +34,8 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: () {
 
@@ -95,7 +97,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
               myMarkersCategoryList = markersCategoryItems;
               return Container(height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width,
                 child: ListView.builder(
-                    itemCount: markersCategoryItems.values.length,
+                    itemCount: myMarkersCategoryList.values.length,
                     itemBuilder: (BuildContext context, int index){
                       final category = myMarkersCategoryList.getAt(index) as MyMarkersCategory;
                       return Card(

@@ -937,7 +937,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                         TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-                                        //TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryController),
+
                                         DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item,child: Text(item))).toList(),
                                             validator: (value) {if (value == null) { return 'No Category selected'; }},
                                           onChanged: (value){setState(() {
@@ -996,7 +996,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-          //TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryController),
+
 
 
         Consumer<CategoryProvider>(builder: (context, value, child) {
@@ -1005,7 +1005,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           return
           DropdownButtonFormField2(
 
-            decoration: InputDecoration(labelText: 'Categeroy list',),
+            decoration: InputDecoration(labelText: 'Category list',),
             isExpanded: true,
             hint: Text('Select your category'),
             items: categoryItemList.map((item) =>
@@ -1038,7 +1038,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text,);
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory  );
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();

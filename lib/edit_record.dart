@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/markers_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
 import 'ad_helper_test.dart';
 import 'ad_helper.dart';
+import 'categories.dart';
+import 'category_provider.dart';
 
 class EditRecord extends StatefulWidget {
    final int index;
@@ -33,6 +37,7 @@ class _EditRecordState extends State<EditRecord> {
   bool isLoading = false;
   late Box<MyMarkers> myMarkersBox;
   late final MapController _mapController3;
+  String? markerCategory;
 
   // TODO: Add _interstitialAd
   InterstitialAd? _interstitialAd;
@@ -52,7 +57,7 @@ class _EditRecordState extends State<EditRecord> {
   TextEditingController subLocalityController = TextEditingController();
   TextEditingController administrativeAreaController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
-  TextEditingController markerCategoryController = TextEditingController();
+  //TextEditingController markerCategoryController = TextEditingController();
 
 
   @override
@@ -63,6 +68,7 @@ class _EditRecordState extends State<EditRecord> {
     _mapController3 = MapController();
     _createInterstitialAdCancel();
     _createInterstitialAdSave();
+
 
     setState((){nameController.text = widget.marker.name!;});
     setState((){latitudeController.text = '${widget.marker.lat}';});
@@ -157,6 +163,8 @@ class _EditRecordState extends State<EditRecord> {
 @override
   Widget build(BuildContext context) {
 
+  var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+
     return Scaffold(backgroundColor: HexColor('#d8ded5'),
       floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -171,7 +179,7 @@ class _EditRecordState extends State<EditRecord> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: FloatingActionButton.extended(onPressed: () {
-              final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text);
+              final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory:markerCategory );
               myMarkersBox.putAt(widget.index, newMarker);
               _showInterstitialAdSave();
               Navigator.pop(context);
@@ -257,10 +265,40 @@ class _EditRecordState extends State<EditRecord> {
                       child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Country Code', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: countryCodeController,),
                     ),
 
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController,minLines: 1,maxLines: 3,),
-                    ),
+
+
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Consumer<CategoryProvider>(builder: (context, value, child) {
+
+
+                          return
+                            DropdownButtonFormField2(
+value: widget.marker.markerCategory,
+                              decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),
+                              isExpanded: true,
+                              hint: Text('Select your category'),
+                              items: categoryItemList.map((item) =>
+                                  DropdownMenuItem<String>(value: item, child: Text(item)))
+                                  .toList(),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'No Category selected';
+                                }
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  value == '+ Add category' ? Navigator.push(
+                                      context, MaterialPageRoute(
+                                      builder: (context) => const MarkerCategories())) :
+                                      markerCategory = value;
+                                });
+                              },);
+
+                        }),
+                      ),
+
+
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),

@@ -22,7 +22,8 @@ class MyMarkers {
     this.zip,
     this.administrativeArea,
     this.subLocality,
-    this.countryCode
+    this.countryCode,
+    this.markerCategory
   });
 
   @HiveField(0)
@@ -69,6 +70,9 @@ class MyMarkers {
 
   @HiveField(14)
   String? countryCode;
+
+  @HiveField(15)
+  String? markerCategory;
 
 
 }

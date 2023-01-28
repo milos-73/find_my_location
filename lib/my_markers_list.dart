@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:find_me/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,10 +10,12 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:maps_launcher/maps_launcher.dart';
+import 'package:provider/provider.dart';
 
 import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'buttons.dart';
+import 'category_provider.dart';
 import 'edit_record.dart';
 import 'marker_details.dart';
 import 'markers_model.dart';
@@ -32,6 +36,9 @@ MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapCon
   LatLongConverter converter = LatLongConverter();
   Buttons buttons = Buttons();
   late Box<MyMarkers> markersList;
+  String? selectedCategory = '+ Add category';
+
+
 
   const int maxFailedLoadAttempts = 3;
 
@@ -115,6 +122,10 @@ class _MyMarkersListState extends State<MyMarkersList> {
   @override
   Widget build(BuildContext context) {
 
+    print('MENU ITEMS: ${context.watch<CategoryProvider>().myCategoryList}');
+    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+
+
     return Scaffold(backgroundColor: HexColor('#C1D96C'),
       body: FlutterMap(
           mapController: widget.mapController,
@@ -143,23 +154,80 @@ class _MyMarkersListState extends State<MyMarkersList> {
                   ),
                 ),
 
+// PopupMenuButton<String>(
+//
+//     onSelected: (value) {
+//
+//     },
+//     itemBuilder: (BuildContext context){
+//
+//       return context.watch<CategoryProvider>().myCategoryList.map((e) {
+//         return PopupMenuItem(
+//           value: e,
+//           child: Text(e),);
+//       }).toList();
+//     }),
+
+
+
+             Padding(
+               padding: const EdgeInsets.all(20.0),
+               child: Center(
+                 child: Consumer<CategoryProvider>(builder: (context, value, child) {
+                   return DropdownButtonHideUnderline(
+                     child: DropdownButton2(
+                       hint: Text('Select your category'),
+                      items: categoryItemList.map((item) => DropdownMenuItem<String>(value: item,child: Text(item, style: const TextStyle(
+                         fontSize: 14,
+                       ),),)).toList(),
+                       value: '+ Add category',
+                       onChanged: (value) {
+                         setState(() {
+                           selectedCategory = value;
+                         });
+                       },
+                       buttonHeight: 20,
+                       buttonWidth: 200,
+                       itemHeight: 20,),
+
+                   );
+
+
+    }
+
+                 )
+               ),
+             ),
+
 
               Container(
                 child: Expanded(
                   child: ValueListenableBuilder(
                     valueListenable: markersList.listenable(),
                     builder: (BuildContext context, Box<MyMarkers> myMarkers, Widget? child) {
-                      markersList = myMarkers;
-                    ///Remove ListView Top padding with MediaQuery.removePadding
+
+                    List<int> markerKeys;
+
+                      if (selectedCategory == '+ Add category') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
+
+                      markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategory == selectedCategory).toList();}
+
+
+
+                      ///Remove ListView Top padding with MediaQuery.removePadding
                       return MediaQuery.removePadding(removeTop: true,
                       context: context,
                       child: ListView.builder(
-                          itemCount: myMarkers.values.length,
+                          itemCount: markerKeys.length,
                           itemBuilder: (BuildContext context, int index){
 
-                            final marker = markersList.getAt(index) as MyMarkers;
-                            final latDms = converter.getDegreeFromDecimal(marker.lat!);
-                            final longDms = converter.getDegreeFromDecimal(marker.long!);
+                            final int key = markerKeys[index];
+                            final MyMarkers? markers = myMarkers.get(key);
+
+                            final latDms = converter.getDegreeFromDecimal(markers!.lat!);
+                            final longDms = converter.getDegreeFromDecimal(markers.long!);
+
+
 
                             return ClipRect(
                               child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 7,sigmaY: 7),
@@ -178,7 +246,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                 padding: const EdgeInsets.only(top: 12),
                                                 child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Text('${marker.name}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
+                                                    Text('${markers.name}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                     const Padding(
                                                       padding: EdgeInsets.only(top: 5, bottom: 4, left: 15, right: 15),
                                                       child: Divider(height: 1,color: Colors.black,),
@@ -196,19 +264,19 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                           children: [
                                                             Column(crossAxisAlignment:CrossAxisAlignment.start ,children: [
                                                               latDms?[0] > 0
-                                                                  ? Text("Lat: ${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),)
-                                                                  : Text("Lat: ${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${marker.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),),
-                                                              Text('DD: ${marker.lat?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
+                                                                  ? Text("Lat: ${latDms?[0]}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${markers.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),)
+                                                                  : Text("Lat: ${latDms?[0].toString().substring(1)}° ${latDms?[1]}' ${latDms?[2].toString().substring(0,7)}\" ${markers.lat! > 0 ? 'N' : 'S'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.3),offset: const Offset(0,1),blurRadius: 0)]),),
+                                                              Text('DD: ${markers.lat?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
                                                             ],),],
                                                         ),
                                                         const SizedBox(height: 10,),
                                                         Column(crossAxisAlignment:CrossAxisAlignment.start ,children: [
                                                           longDms?[0] > 0
-                                                              ? Text("Long: ${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${marker.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),)
-                                                              : Text("Long: ${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${marker.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
+                                                              ? Text("Long: ${longDms?[0]}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${markers.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),)
+                                                              : Text("Long: ${longDms?[0].toString().substring(1)}° ${longDms?[1]}' ${longDms?[2].toString().substring(0,7)}\" ${markers.long! > 0 ? 'E' : 'W'}",style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: HexColor('#8C4332'), shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                           Padding(
                                                             padding: const EdgeInsets.only(top: 3),
-                                                            child: Text('DD: ${marker.long?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
+                                                            child: Text('DD: ${markers.long?.toStringAsFixed(9)}',style: TextStyle(fontSize: 13,color: HexColor('#8C4332').withAlpha(180)),),
                                                           ),
                                                         ],),
 
@@ -218,7 +286,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                       children: [
                                                         Column(crossAxisAlignment: CrossAxisAlignment.center,
                                                           children: [
-                                                            IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: marker, markerLat: marker.lat,markerLong: marker.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                                                            IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: markers, markerLat: markers.lat,markerLong: markers.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
                                                           ],
                                                         ),
                                                         Column(crossAxisAlignment: CrossAxisAlignment.center,
@@ -246,7 +314,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                       Row(children: [
                                                         FaIcon(FontAwesomeIcons.mountainSun,color: HexColor('#3B592D'),size: 18,),
                                                         const SizedBox(width: 10,),
-                                                        Text('${marker.altitude?.toStringAsFixed(2)} m', style: TextStyle(color: HexColor('#3B592D'),
+                                                        Text('${markers.altitude?.toStringAsFixed(2)} m', style: TextStyle(color: HexColor('#3B592D'),
                                                             shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                         ),)
                                                       ],),
@@ -258,7 +326,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                       Row(children: [
                                                         FaIcon(FontAwesomeIcons.ruler,color: HexColor('#3B592D'),size: 18,),
                                                         const SizedBox(width: 10,),
-                                                        Text('${marker.accuracy?.toStringAsFixed(2)} m', style: TextStyle(color: HexColor('#3B592D'),
+                                                        Text('${markers.accuracy?.toStringAsFixed(2)} m', style: TextStyle(color: HexColor('#3B592D'),
                                                             shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                         ),)
                                                       ],),
@@ -275,46 +343,43 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                               Row( mainAxisAlignment: MainAxisAlignment.center,children: [
                                                 Column(children: [
+
+
+
                                                   Container(
                                                     child: Row(children: [
-                                                      Text('${marker.street}', style: TextStyle(color: HexColor('#049DBF'),
+                                                      Text('${markers.street}', style: TextStyle(color: HexColor('#049DBF'),
                                                           shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                       ))
                                                     ],
                                                     ),
                                                   ),
-                                                  marker.city !='' ?
 
-                                                  Row(children: [Text('${marker.zip} ${marker.city}', style: TextStyle(color: HexColor('#049DBF'),
+                                                  markers.city !='' ?
+
+                                                  Row(children: [Text('${markers.zip} ${markers.city}', style: TextStyle(color: HexColor('#049DBF'),
                                                      shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                     ),)
                                                   ],
                                                   ) :
 
-                                                  Row(children: [Text('${marker.zip}', style: TextStyle(color: HexColor('#049DBF'),
+                                                  Row(children: [Text('${markers.zip}', style: TextStyle(color: HexColor('#049DBF'),
                                                       shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                   ),),
                                                     Text(' City Name', style: TextStyle(color: HexColor('#0468BF'),
                                                         shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),)
                                                   ],
                                                   ),
-                                                  Row(children: [Text('${marker.state}', style: TextStyle(color: HexColor('#049DBF'),
+                                                  Row(children: [Text('${markers.state}', style: TextStyle(color: HexColor('#049DBF'),
                                                       shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
-                                                  ))
-                                                  ],
+                                                  )),
+                                                   ],
                                                   ),
-
                                                 ],
-
-
-
-
-
-
-
                                                 ),
                                               ],
                                               ),
+                                              SizedBox(height: 5,),
 
                                               Padding(
                                                 padding: const EdgeInsets.only(left: 20, right: 20),
@@ -323,23 +388,47 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     children: [
                                                       Padding(
                                                         padding: const EdgeInsets.only(right: 5),
-                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10),onPressed: (){
-                                                          _showInterstitialAd();
-                                                          Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: marker.lat , longitude: marker.long, marker: marker, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                        child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10, right: 15),onPressed: (){
+                                                              _showInterstitialAd();
+                                                              Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: markers.lat , longitude: markers.long, marker: markers, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                          ],
+                                                        ),
                                                       ),
-                                                      Text(DateFormat().format(marker.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
+                                                      Column(
+                                                        children: [
+
+                                                          Text(DateFormat().format(markers.dateTime!),style: TextStyle(fontSize: 15,color: Colors.white, shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 3)]),),
+                                                        ],
+                                                      ),
                                                       Padding(
                                                         padding: const EdgeInsets.only(left: 5),
-                                                        child: Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue,padding: EdgeInsets.only(bottom: 10),onPressed: (){
-                                                          //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
-                                                          MapsLauncher.launchCoordinates(marker.lat!, marker.long!);
-                                                          }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),))),
-                                                      )
+                                                        child: Column(
+                                                          children: [
+                                                            Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue,padding: EdgeInsets.only(bottom: 10, left: 15),onPressed: (){
+                                                              //buttons.openDirectionOnGoogleMap(widget.currentLat, widget.currentLong, marker.lat, marker.long);
+                                                              MapsLauncher.launchCoordinates(markers.lat!, markers.long!);
+                                                              }, icon: FaIcon(FontAwesomeIcons.mapLocation,size: 30, color: HexColor('#592d3b'),))),
+
+
+
+                                                          ],
+                                                                                                                  ),
+                                                      ),
+
 
                                                     ],
                                                   ),
                                                 ),
-                                              )
+                                              ),
+
+                                              Padding(
+                                                padding: const EdgeInsets.only(bottom: 7),
+                                                child: Text('${markers.markerCategory ?? 'uncategorized'}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
+                                                    shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
+                                                )),
+                                              ),
                                             ],
                                           )
 
