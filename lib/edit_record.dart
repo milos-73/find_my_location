@@ -69,7 +69,7 @@ class _EditRecordState extends State<EditRecord> {
     _createInterstitialAdCancel();
     _createInterstitialAdSave();
 
-
+    setState((){markerCategory = widget.marker.markerCategory!;});
     setState((){nameController.text = widget.marker.name!;});
     setState((){latitudeController.text = '${widget.marker.lat}';});
     setState((){longitudeController.text = '${widget.marker.long}';});
@@ -171,7 +171,7 @@ class _EditRecordState extends State<EditRecord> {
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
-              _showInterstitialAdCancel();
+             // _showInterstitialAdCancel();
                Navigator.pop(context);
      }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
           ),
@@ -181,7 +181,7 @@ class _EditRecordState extends State<EditRecord> {
             child: FloatingActionButton.extended(onPressed: () {
               final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory:markerCategory );
               myMarkersBox.putAt(widget.index, newMarker);
-              _showInterstitialAdSave();
+             // _showInterstitialAdSave();
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),
@@ -274,12 +274,12 @@ class _EditRecordState extends State<EditRecord> {
 
                           return
                             DropdownButtonFormField2(
-value: widget.marker.markerCategory,
+                              value: markerCategory,
                               decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),
                               isExpanded: true,
                               hint: Text('Select your category'),
                               items: categoryItemList.map((item) =>
-                                  DropdownMenuItem<String>(value: item, child: Text(item)))
+                                  DropdownMenuItem<String>(value: item.markerCategoryTitle, child: Text(item.markerCategoryTitle!)))
                                   .toList(),
                               validator: (value) {
                                 if (value == null) {

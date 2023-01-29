@@ -70,6 +70,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   String? administrativeArea;
   String? countryCode;
   String? markerCategory;
+  int? markerCategoryKey;
 
 
   double? accuracy;
@@ -102,7 +103,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   bool positionStreamStarted = false;
 
 
-  TextEditingController newCategoryController = TextEditingController();
+  //TextEditingController newCategoryController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
@@ -157,14 +158,14 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   Future<void> getCategoryTitles() async {
     final category = await myCategoryBox.values.toList();
     context.read<CategoryProvider>().myCategoryList.clear();
-    context.read<CategoryProvider>().addToCategoryList('+ Add category');
+    context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category '));
 
 
     for (var i = 0; i < myCategoryBox.length; i++) {
       print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
-      String? myCategoryTitle = category[i].markerCategoryTitle;
+      MyMarkersCategory? myCategoryTitle = category[i];
 
-      categoryItems.add(myCategoryTitle!);
+      categoryItems.add(myCategoryTitle.markerCategoryTitle!);
       context.read<CategoryProvider>().addToCategoryList(myCategoryTitle);
 
       //Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(myCategoryTitle!);
@@ -976,9 +977,6 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
     var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
 
-
-
-
     return AlertDialog(
       title: const Text('Add this location to My List'),
       content: SingleChildScrollView(
@@ -997,10 +995,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
 
-
-
         Consumer<CategoryProvider>(builder: (context, value, child) {
-
 
           return
           DropdownButtonFormField2(
@@ -1008,22 +1003,35 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
             decoration: InputDecoration(labelText: 'Category list',),
             isExpanded: true,
             hint: Text('Select your category'),
-            items: categoryItemList.map((item) =>
-                DropdownMenuItem<String>(value: item, child: Text(item)))
-                .toList(),
-            validator: (value) {
-              if (value == null) {
-                return 'No Category selected';
-              }
-            },
-            onChanged: (value) {
-              setState(() {
-                value == '+ Add category' ? Navigator.push(
-                    context, MaterialPageRoute(
-                    builder: (context) => const MarkerCategories())) :
-                markerCategory = value;
-              });
-            },);
+            items: categoryItemList.map((item) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
+
+
+                child:
+
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(item.markerCategoryTitle!),
+                    ],
+                ),
+                item.markerCategoryTitle != '+Add' ?
+
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+               Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
+                 FaIcon(FontAwesomeIcons.pencil,size: 15,)
+               ],),
+               Padding(
+                 padding: const EdgeInsets.only(left: 15),
+                 child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
+                   FaIcon(FontAwesomeIcons.trashCan,size: 15,)
+                 ],),
+               )
+             ],) : Row(children: [],)
+              ],
+            ))).toList() ,
+            validator: (value) { if (value == null) {return 'No Category selected'; }},
+            onChanged: (value) {setState(() {value == '+Add' ? Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories())) : markerCategory = value;}); },);
 
         }),
 
@@ -1038,7 +1046,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory  );
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory,markerCategoryKey: markerCategoryKey);
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
@@ -1050,48 +1058,31 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
     );
   }
 
-
-
-  AlertDialog addCategory(BuildContext ctx) {
-
-    return AlertDialog(
-      title: const Text('Add category for My List'),
-      content: SingleChildScrollView(
-        child: Column(children: [
-          TextFormField(decoration: const InputDecoration(labelText: 'New Category',),controller: newCategoryController,),
-
-        ],),
-      ),
-      actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
-        TextButton(onPressed: (){
-         Navigator.of(ctx).pop();
-        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
-
-        TextButton(onPressed: (){
-          //final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory);
-          var val = newCategoryController.text;
-          categoryItems.add(newCategoryController.text);
-          Navigator.of(ctx).pop(context);
-        }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
-
-      ],)
-
-      ],
-    );
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
+  // AlertDialog addCategory(BuildContext ctx) {
+  //
+  //   return AlertDialog(
+  //     title: const Text('Add category for My List'),
+  //     content: SingleChildScrollView(
+  //       child: Column(children: [
+  //         TextFormField(decoration: const InputDecoration(labelText: 'New Category',),controller: newCategoryController,),
+  //
+  //       ],),
+  //     ),
+  //     actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
+  //       TextButton(onPressed: (){
+  //        Navigator.of(ctx).pop();
+  //       }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
+  //
+  //       TextButton(onPressed: (){
+  //         categoryItems.add(newCategoryController.text);
+  //         Navigator.of(ctx).pop(context);
+  //       }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
+  //
+  //     ],)
+  //
+  //     ],
+  //   );
+  // }
 
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
@@ -1171,5 +1162,3 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
   }
 
 }
-
-

@@ -4,29 +4,29 @@ import 'markers_category_model.dart';
 
 class CategoryProvider with ChangeNotifier {
 
-  List<String> _categoryList = <String>[];
+  List<MyMarkersCategory> _categoryList = <MyMarkersCategory>[];
 
     void initialValues() {
-    _categoryList = <String>[];
+    _categoryList = <MyMarkersCategory>[];
     notifyListeners();
   }
 
   // Favorite movies (that will be shown on the MyList screen)
-  final List<String> _myCategoryList = [];
+  final List<MyMarkersCategory> _myCategoryList = [];
 
 
   // Retrieve favorite movies
-  List<String> get myCategoryList => _myCategoryList;
+  List<MyMarkersCategory> get myCategoryList => _myCategoryList;
 
   // Adding a movie to the favorites list
-  Future<void> addToCategoryList(String categoryTitle) async {
-    _myCategoryList.add(categoryTitle);
+  Future<void> addToCategoryList(MyMarkersCategory category) async {
+    _myCategoryList.add(category);
      notifyListeners();
   }
 
     // Removing a movie from the favorites list
-  Future<void> removeFromList(String categoryTitle) async {
-    _myCategoryList.remove(categoryTitle);
+  Future<void> removeFromList(MyMarkersCategory category) async {
+    _myCategoryList.remove(category);
    notifyListeners();
   }
 }

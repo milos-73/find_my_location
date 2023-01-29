@@ -72,7 +72,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                           markerCategoryDescriptionController.clear();
                           MyMarkersCategory data = MyMarkersCategory(markerCategoryTitle: title, markerCategoryDescription: description);
                           myMarkersCategoryList.add(data);
-                          Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(data.markerCategoryTitle!);
+                          Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(data);
                           Navigator.pop(context);
 
                         },
@@ -108,10 +108,11 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                         child: Column(children: [
                           Text('${category.markerCategoryTitle}'),
                           Text('${category.markerCategoryDescription}'),
+
                           Row(children: [
                             Column(children: [
-                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
-                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.markerCategoryTitle!); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
+                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
                             ],)
                           ],)
                         ],),

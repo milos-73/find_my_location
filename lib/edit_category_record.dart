@@ -9,9 +9,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
 import 'ad_helper_test.dart';
 import 'ad_helper.dart';
+import 'category_provider.dart';
 import 'markers_category_model.dart';
 
 class EditCategoryRecord extends StatefulWidget {
@@ -135,7 +137,7 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
-              _showInterstitialAdCancel();
+              //_showInterstitialAdCancel();
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
           ),
@@ -145,7 +147,8 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
             child: FloatingActionButton.extended(onPressed: () {
               final newCategory = MyMarkersCategory(markerCategoryTitle: categoryTitleController.text, markerCategoryDescription: categoryDescriptionController.text);
               myCategoryBox.putAt(widget.index, newCategory);
-              _showInterstitialAdSave();
+             // _showInterstitialAdSave();
+              Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(newCategory);
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),

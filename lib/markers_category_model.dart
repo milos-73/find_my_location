@@ -3,7 +3,7 @@ part 'markers_category_model.g.dart';
 
 @HiveType(typeId: 2)
 
-class MyMarkersCategory {
+class MyMarkersCategory extends HiveObject {
 
   MyMarkersCategory({
     this.markerCategoryTitle,

@@ -5,7 +5,7 @@ part 'markers_model.g.dart';
 
 @HiveType(typeId: 1)
 
-class MyMarkers {
+class MyMarkers extends HiveObject {
 
   MyMarkers({
     this.dateTime,
@@ -23,7 +23,8 @@ class MyMarkers {
     this.administrativeArea,
     this.subLocality,
     this.countryCode,
-    this.markerCategory
+    this.markerCategory,
+    this.markerCategoryKey
   });
 
   @HiveField(0)
@@ -74,5 +75,6 @@ class MyMarkers {
   @HiveField(15)
   String? markerCategory;
 
-
+  @HiveField(16)
+  int? markerCategoryKey;
 }

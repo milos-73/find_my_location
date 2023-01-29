@@ -177,7 +177,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                    return DropdownButtonHideUnderline(
                      child: DropdownButton2(
                        hint: Text('Select your category'),
-                      items: categoryItemList.map((item) => DropdownMenuItem<String>(value: item,child: Text(item, style: const TextStyle(
+                      items: categoryItemList.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!, style: const TextStyle(
                          fontSize: 14,
                        ),),)).toList(),
                        value: '+ Add category',
@@ -246,6 +246,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                 padding: const EdgeInsets.only(top: 12),
                                                 child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
+                                                    Text('${markers.markerCategoryKey}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                     Text('${markers.name}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                     const Padding(
                                                       padding: EdgeInsets.only(top: 5, bottom: 4, left: 15, right: 15),
@@ -286,7 +287,9 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                       children: [
                                                         Column(crossAxisAlignment: CrossAxisAlignment.center,
                                                           children: [
-                                                            IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: markers, markerLat: markers.lat,markerLong: markers.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                                                            IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {
+                                                              //Provider.of<CategoryProvider>(context, listen: false).removeFromList(markers.markerCategory!);
+                                                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: index, marker: markers, markerLat: markers.lat,markerLong: markers.long, mapController: widget.mapController))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
                                                           ],
                                                         ),
                                                         Column(crossAxisAlignment: CrossAxisAlignment.center,
