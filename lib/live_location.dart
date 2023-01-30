@@ -1229,7 +1229,7 @@ class _CategoryPickerDIalogState extends State<CategoryPickerDIalog> {
                 padding: const EdgeInsets.only(left: 10,right: 10),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Radio(activeColor: Colors.green,value: currentCategoryTitles.markerCategoryTitle, groupValue: selectedRadio, onChanged:(val) {print(val); setSelectedRadio(val!);} ),
+                    Radio(activeColor: Colors.green,value: currentCategoryTitles.markerCategoryTitle, groupValue: selectedRadio, onChanged:(val) {print(val); setSelectedRadio(val!);Navigator.pop(context,selectedRadio);} ),
                     Expanded(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -1251,9 +1251,9 @@ class _CategoryPickerDIalogState extends State<CategoryPickerDIalog> {
 
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               ElevatedButton(onPressed:() {Navigator.pop(context);}, child: Text('Cancel')),
-              ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
+              //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
             ],),
           )
 
