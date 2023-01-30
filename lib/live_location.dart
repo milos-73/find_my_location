@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/marker_provider.dart';
+import 'package:find_me/widgets/dialog_category_list.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -990,7 +991,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDIalog(); }); setState(() {
+          TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
             markerCategoryTitle != null ?
             markerCategoryTitleController.text = markerCategoryTitle : null;
           });}),
@@ -1166,100 +1167,6 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
    _bannerAd.dispose();
   }
 
-
-
 }
 
-class CategoryPickerDIalog extends StatefulWidget {
 
-  const CategoryPickerDIalog({
-    Key? key,
-  }) : super(key: key);
-
-
-  @override
-  State<CategoryPickerDIalog> createState() => _CategoryPickerDIalogState();
-}
-
-class _CategoryPickerDIalogState extends State<CategoryPickerDIalog> {
-
-
-  late Box<MyMarkers> myMarkersBox;
-  late Box<MyMarkersCategory> myCategoryBox;
-
-  String? categoryTitle;
-  String? selectedRadio;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedRadio = '';
-    myMarkersBox = Hive.box('myMarkersBox');
-    myCategoryBox = Hive.box('myMarkersCategoryBox');
-     }
-
-  // Changes the selected value on 'onChanged' click on each radio button
-  setSelectedRadio(String val) {
-    setState(() {selectedRadio = val;});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    final categoryItemList = context.watch<CategoryProvider>().myCategoryList;
-
-    return Dialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-  child: Container(
-  width: 200,height: 400, child:
-
-  categoryItemList.length < 0 ?
-
-  Column(children: [
-    Text('No category set up'),
-  ],):
-      Container(width: double.maxFinite,
-        child: Column(children: [
-          Text('Some Categories in list'),
-          TextButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories()));}, child: Text('Add category')),
-          Expanded(
-            child: ListView.builder(itemCount: categoryItemList.length, itemBuilder: (_,index){
-              final currentCategoryTitles = categoryItemList[index];
-              return Padding(
-                padding: const EdgeInsets.only(left: 10,right: 10),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Radio(activeColor: Colors.green,value: currentCategoryTitles.markerCategoryTitle, groupValue: selectedRadio, onChanged:(val) {print(val); setSelectedRadio(val!);Navigator.pop(context,selectedRadio);} ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Text(currentCategoryTitles.markerCategoryTitle!,softWrap: true,overflow: TextOverflow.fade,maxLines: 2,),
-                      ),
-                    ),
-                    //Text('${currentCategoryTitles.key!}'),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 5),
-                      child: IconButton(onPressed: () {  }, icon: FaIcon(FontAwesomeIcons.pencil, size: 15,),padding: EdgeInsets.zero,constraints: BoxConstraints(),),
-                    ),
-                    IconButton(onPressed: () { Provider.of<CategoryProvider>(context, listen: false).removeFromList(currentCategoryTitles);  myCategoryBox.delete(currentCategoryTitles.key); }, icon: FaIcon(FontAwesomeIcons.trashCan, size: 15,),padding: EdgeInsets.zero,constraints: BoxConstraints(),),
-
-                  ],
-                ),
-              );
-            } ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              ElevatedButton(onPressed:() {Navigator.pop(context);}, child: Text('Cancel')),
-              //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
-            ],),
-          )
-
-        ],),
-      )
-  ),
-    );
-  }
-}
