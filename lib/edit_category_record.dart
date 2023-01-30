@@ -18,9 +18,10 @@ import 'markers_category_model.dart';
 
 class EditCategoryRecord extends StatefulWidget {
   final int index;
+  final int categoryKey;
   final MyMarkersCategory category;
 
-  EditCategoryRecord({Key? key, required this.index, required this.category}) : super(key: key);
+  EditCategoryRecord({Key? key, required this.index, required this.category, required this.categoryKey}) : super(key: key);
 
   @override
   State<EditCategoryRecord> createState() => _EditCategoryRecordState();
@@ -40,8 +41,6 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
 
   TextEditingController categoryTitleController = TextEditingController();
   TextEditingController categoryDescriptionController = TextEditingController();
-
-
 
   @override
   void initState() {
@@ -131,6 +130,8 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
   @override
   Widget build(BuildContext context) {
 
+
+
     return Scaffold(backgroundColor: HexColor('#d8ded5'),
       floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -146,8 +147,13 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
             padding: const EdgeInsets.only(right: 10),
             child: FloatingActionButton.extended(onPressed: () {
               final newCategory = MyMarkersCategory(markerCategoryTitle: categoryTitleController.text, markerCategoryDescription: categoryDescriptionController.text);
-              myCategoryBox.putAt(widget.index, newCategory);
+              //print('WIDGET EDIT CATEGORY KEY: ${widget.categoryKey}');
+              print('WIDGET NEW CATEGORY TITLE: ${newCategory.markerCategoryTitle}');
+
              // _showInterstitialAdSave();
+              Provider.of<CategoryProvider>(context, listen: false).updateCategoryList(newCategory, widget.categoryKey);
+              myCategoryBox.putAt(widget.index, newCategory);
+              //myCategoryBox.put(widget.categoryKey, newCategory);
               Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(newCategory);
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:find_me/main.dart';
+import 'package:find_me/markers_category_model.dart';
+import 'package:find_me/widgets/dialog_category_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,8 +12,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:provider/provider.dart';
-
-import 'ad_helper_test.dart';
 import 'ad_helper.dart';
 import 'buttons.dart';
 import 'category_provider.dart';
@@ -36,9 +35,8 @@ MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapCon
   LatLongConverter converter = LatLongConverter();
   Buttons buttons = Buttons();
   late Box<MyMarkers> markersList;
-  String? selectedCategory = '+ Add category';
-
-
+  late Box<MyMarkersCategory> markersCategoryList;
+  String? selectedCategory = '';
 
   const int maxFailedLoadAttempts = 3;
 
@@ -81,6 +79,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
     _loadBannerAd();
     _createInterstitialAd();
     markersList = Hive.box('myMarkersBox');
+    markersCategoryList = Hive.box('myMarkersCategoryBox');
   }
 
   void _createInterstitialAd() {
@@ -122,8 +121,8 @@ class _MyMarkersListState extends State<MyMarkersList> {
   @override
   Widget build(BuildContext context) {
 
-    print('MENU ITEMS: ${context.watch<CategoryProvider>().myCategoryList}');
-    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+    //print('MENU ITEMS: ${context.watch<CategoryProvider>().myCategoryList}');
+    //var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
 
 
     return Scaffold(backgroundColor: HexColor('#C1D96C'),
@@ -170,34 +169,44 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
 
 
-             Padding(
-               padding: const EdgeInsets.all(20.0),
-               child: Center(
-                 child: Consumer<CategoryProvider>(builder: (context, value, child) {
-                   return DropdownButtonHideUnderline(
-                     child: DropdownButton2(
-                       hint: Text('Select your category'),
-                      items: categoryItemList.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!, style: const TextStyle(
-                         fontSize: 14,
-                       ),),)).toList(),
-                       value: '+ Add category',
-                       onChanged: (value) {
-                         setState(() {
-                           selectedCategory = value;
-                         });
-                       },
-                       buttonHeight: 20,
-                       buttonWidth: 200,
-                       itemHeight: 20,),
+    //          Padding(
+    //            padding: const EdgeInsets.all(20.0),
+    //            child: Center(
+    //              child: Consumer<CategoryProvider>(builder: (context, value, child) {
+    //                return DropdownButtonHideUnderline(
+    //                  child: DropdownButton2(
+    //                    hint: Text('Select your category'),
+    //                   items: categoryItemList.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!, style: const TextStyle(
+    //                      fontSize: 14,
+    //                    ),),)).toList(),
+    //                    value: 'Show All',
+    //                    onChanged: (value) {
+    //                      setState(() {
+    //                        selectedCategory = value;
+    //                      });
+    //                    },
+    //                    buttonHeight: 20,
+    //                    buttonWidth: 200,
+    //                    itemHeight: 20,),
+    //
+    //                );
+    //
+    //
+    // }
+    //
+    //              )
+    //            ),
+    //          ),
 
-                   );
 
 
-    }
+              ElevatedButton(onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                markerCategoryTitle != null ?
+                selectedCategory = markerCategoryTitle : null;
+              });}, child: Text('Select category filter')),
 
-                 )
-               ),
-             ),
+
+
 
 
               Container(
@@ -208,7 +217,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                     List<int> markerKeys;
 
-                      if (selectedCategory == '+ Add category') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
+                      if (selectedCategory == 'Show All') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
 
                       markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategory == selectedCategory).toList();}
 

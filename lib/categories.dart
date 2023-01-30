@@ -112,8 +112,8 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
 
                           Row(children: [
                             Column(children: [
-                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.key); Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
-                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.key); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
+                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {print('${category.key}');Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category, categoryKey: category.key,))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
                             ],)
                           ],)
                         ],),

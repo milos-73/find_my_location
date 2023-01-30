@@ -76,5 +76,5 @@ class MyMarkers extends HiveObject {
   String? markerCategory;
 
   @HiveField(16)
-  int? markerCategoryKey;
+  String? markerCategoryKey;
 }

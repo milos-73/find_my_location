@@ -33,7 +33,7 @@ class MyMarkersAdapter extends TypeAdapter<MyMarkers> {
       subLocality: fields[12] as String?,
       countryCode: fields[14] as String?,
       markerCategory: fields[15] as String?,
-      markerCategoryKey: fields[16] as int?,
+      markerCategoryKey: fields[16] as String?,
     );
   }
 

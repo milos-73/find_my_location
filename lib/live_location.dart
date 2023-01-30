@@ -70,7 +70,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
   String? markerCategoryTitle;
   MyMarkersCategory? markerCategory;
-  int? markerCategoryKey;
+  String? markerCategoryKey;
 
   double? accuracy;
   double? altitude;
@@ -155,7 +155,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   Future<void> getCategoryItems() async {
     final category = await myCategoryBox.values.toList();
     context.read<CategoryProvider>().myCategoryList.clear();
-    //context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category '));
+    context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'Show All',markerCategoryDescription: 'Show the whole category list'));
 
       for (var i = 0; i < myCategoryBox.length; i++) {
       print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
@@ -1052,7 +1052,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory?.markerCategoryTitle,markerCategoryKey: markerCategoryKey);
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: markerCategoryKey);
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
@@ -1098,8 +1098,6 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
       throw 'Could not launch $url';
     }
   }
-
-
 
   AlertDialog aboutInfo(BuildContext ctx) {
 
