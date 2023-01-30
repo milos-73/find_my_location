@@ -46,7 +46,7 @@ class LiveLocationPage extends StatefulWidget {
 class LiveLocationPageState extends State<LiveLocationPage> {
 
 
-  final List<String> categoryItems = ['+ Add category'];
+  final List<MyMarkersCategory> categoryItems = [];
 
 
    //LocationData? _currentLocation;
@@ -61,23 +61,20 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   String? currentCounty;
   String? currentPostalCode;
   String? currentState;
-  String? newCategory;
-
-
 
   String? name;
   String? subLocality;
   String? administrativeArea;
   String? countryCode;
-  String? markerCategory;
-  int? markerCategoryKey;
 
+  String? markerCategoryTitle;
+  MyMarkersCategory? markerCategory;
+  int? markerCategoryKey;
 
   double? accuracy;
   double? altitude;
   List<num>? latDms;
   List<num>? longDms;
-
 
   String? latDmsLocation;
   String? longDmsLocation;
@@ -103,7 +100,6 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   bool positionStreamStarted = false;
 
 
-  //TextEditingController newCategoryController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
@@ -119,7 +115,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   TextEditingController subLocalityController = TextEditingController();
   TextEditingController administrativeAreaController = TextEditingController();
   TextEditingController countryCodeController = TextEditingController();
-  //TextEditingController markerCategoryController = TextEditingController();
+  TextEditingController markerCategoryTitleController = TextEditingController();
 
   int interActiveFlags = InteractiveFlag.all;
 
@@ -155,22 +151,19 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _bannerAd.load();
   }
 
-  Future<void> getCategoryTitles() async {
+  Future<void> getCategoryItems() async {
     final category = await myCategoryBox.values.toList();
     context.read<CategoryProvider>().myCategoryList.clear();
-    context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category '));
+    //context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category '));
 
-
-    for (var i = 0; i < myCategoryBox.length; i++) {
+      for (var i = 0; i < myCategoryBox.length; i++) {
       print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
-      MyMarkersCategory? myCategoryTitle = category[i];
+      MyMarkersCategory? myCategoryItem = category[i];
 
-      categoryItems.add(myCategoryTitle.markerCategoryTitle!);
-      context.read<CategoryProvider>().addToCategoryList(myCategoryTitle);
+      categoryItems.add(myCategoryItem);
+      context.read<CategoryProvider>().addToCategoryList(myCategoryItem);
 
-      //Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(myCategoryTitle!);
     }
-
   }
 
   @override
@@ -179,7 +172,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     _loadBannerAd();
     myMarkersBox = Hive.box('myMarkersBox');
     myCategoryBox = Hive.box('myMarkersCategoryBox');
-    getCategoryTitles();
+    getCategoryItems();
    //var categoryName = myCategoryBox.values.toList();
 
     _toggleServiceStatusStream();
@@ -224,7 +217,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){subLocalityController.text = subLocality ?? '';}))
         .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
         .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
-        //.then((value) => setState((){markerCategoryController.text = markerCategory ?? '';}))
+        .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? 'Select your category';}))
     ;
   }
 
@@ -784,7 +777,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                               .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
                                               .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
                                               .then((value) => setState((){descriptionController.text = '';}))
-                                              //.then((value) => setState((){markerCategoryController.text = markerCategory ?? '';}))
+                                              .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? '';}))
                                               .then((value) => setState((){isLoading = false;}))
                                           ;},
 
@@ -939,10 +932,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
 
-                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item,child: Text(item))).toList(),
+                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!))).toList(),
                                             validator: (value) {if (value == null) { return 'No Category selected'; }},
                                           onChanged: (value){setState(() {
-                                            markerCategory = value;
+                                            markerCategory?.markerCategoryTitle = value;
                                           });},),
 
 
@@ -975,7 +968,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
   AlertDialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
 
-    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+
+
+    //var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+    //print('CATEGORY ITEM LIST LENGTH: ${categoryItemList.length}');
 
     return AlertDialog(
       title: const Text('Add this location to My List'),
@@ -994,46 +990,55 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
           TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
+          TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDIalog(); }); setState(() {
+            markerCategoryTitle != null ?
+            markerCategoryTitleController.text = markerCategoryTitle : null;
+          });}),
 
-        Consumer<CategoryProvider>(builder: (context, value, child) {
-
-          return
-          DropdownButtonFormField2(
-
-            decoration: InputDecoration(labelText: 'Category list',),
-            isExpanded: true,
-            hint: Text('Select your category'),
-            items: categoryItemList.map((item) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
-
-
-                child:
-
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(item.markerCategoryTitle!),
-                    ],
-                ),
-                item.markerCategoryTitle != '+Add' ?
-
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-               Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
-                 FaIcon(FontAwesomeIcons.pencil,size: 15,)
-               ],),
-               Padding(
-                 padding: const EdgeInsets.only(left: 15),
-                 child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
-                   FaIcon(FontAwesomeIcons.trashCan,size: 15,)
-                 ],),
-               )
-             ],) : Row(children: [],)
-              ],
-            ))).toList() ,
-            validator: (value) { if (value == null) {return 'No Category selected'; }},
-            onChanged: (value) {setState(() {value == '+Add' ? Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories())) : markerCategory = value;}); },);
-
-        }),
+        // Consumer<CategoryProvider>(builder: (context, value, child) {
+        //
+        //   return
+        //   DropdownButtonFormField2(
+        //
+        //     decoration: InputDecoration(labelText: 'Category list',),
+        //     isExpanded: true,
+        //     hint: Text('Select your category'),
+        //     items: categoryItemList.map((item) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
+        //     //items: Provider.of<Cat>(context)) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
+        //
+        //
+        //         child:
+        //
+        //     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //       children: [
+        //         Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
+        //           children: [
+        //             Text(item.markerCategoryTitle!),
+        //             ],
+        //         ),
+        //         item.markerCategoryTitle != '+Add' ?
+        //
+        //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+        //        Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
+        //          IconButton(padding: EdgeInsets.zero,constraints: BoxConstraints(),onPressed: (){}, icon: FaIcon(FontAwesomeIcons.pencil,size: 15,))
+        //
+        //        ],),
+        //        Padding(
+        //          padding: const EdgeInsets.only(left: 5),
+        //          child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
+        //            IconButton(padding: EdgeInsets.zero,constraints: BoxConstraints(),onPressed: (){print('ITEM KEY: ${item.key}');print('ITEM TITLE: ${item.markerCategoryTitle}');Provider.of<CategoryProvider>(context, listen: false).removeFromList(item.key); myCategoryBox.delete(item.key); setState(() {
+        //              //categoryItemList = [MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category ')];
+        //            });  }, icon: FaIcon(FontAwesomeIcons.trashCan,size: 15,))
+        //
+        //          ],),
+        //        )
+        //      ],) : Row(children: [],)
+        //       ],
+        //     ))).toList() ,
+        //     validator: (value) { if (value == null) {return 'No Category selected'; }},
+        //     onChanged: (value) {setState(() {value == '+Add' ? Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories())) : markerCategory?.markerCategoryTitle = value;}); },);
+        //
+        // }),
 
           TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
 
@@ -1046,7 +1051,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
         TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory,markerCategoryKey: markerCategoryKey);
+          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategory?.markerCategoryTitle,markerCategoryKey: markerCategoryKey);
           addMyMarker(newMarker);
           print('STREAM: $positionStreamStarted');
           Navigator.of(ctx).pop();
@@ -1161,4 +1166,100 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
    _bannerAd.dispose();
   }
 
+
+
+}
+
+class CategoryPickerDIalog extends StatefulWidget {
+
+  const CategoryPickerDIalog({
+    Key? key,
+  }) : super(key: key);
+
+
+  @override
+  State<CategoryPickerDIalog> createState() => _CategoryPickerDIalogState();
+}
+
+class _CategoryPickerDIalogState extends State<CategoryPickerDIalog> {
+
+
+  late Box<MyMarkers> myMarkersBox;
+  late Box<MyMarkersCategory> myCategoryBox;
+
+  String? categoryTitle;
+  String? selectedRadio;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedRadio = '';
+    myMarkersBox = Hive.box('myMarkersBox');
+    myCategoryBox = Hive.box('myMarkersCategoryBox');
+     }
+
+  // Changes the selected value on 'onChanged' click on each radio button
+  setSelectedRadio(String val) {
+    setState(() {selectedRadio = val;});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+
+    return Dialog(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  child: Container(
+  width: 200,height: 400, child:
+
+  categoryItemList.length < 0 ?
+
+  Column(children: [
+    Text('No category set up'),
+  ],):
+      Container(width: double.maxFinite,
+        child: Column(children: [
+          Text('Some Categories in list'),
+          TextButton(onPressed: (){Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories()));}, child: Text('Add category')),
+          Expanded(
+            child: ListView.builder(itemCount: categoryItemList.length, itemBuilder: (_,index){
+              final currentCategoryTitles = categoryItemList[index];
+              return Padding(
+                padding: const EdgeInsets.only(left: 10,right: 10),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Radio(activeColor: Colors.green,value: currentCategoryTitles.markerCategoryTitle, groupValue: selectedRadio, onChanged:(val) {print(val); setSelectedRadio(val!);} ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Text(currentCategoryTitles.markerCategoryTitle!,softWrap: true,overflow: TextOverflow.fade,maxLines: 2,),
+                      ),
+                    ),
+                    //Text('${currentCategoryTitles.key!}'),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: IconButton(onPressed: () {  }, icon: FaIcon(FontAwesomeIcons.pencil, size: 15,),padding: EdgeInsets.zero,constraints: BoxConstraints(),),
+                    ),
+                    IconButton(onPressed: () { Provider.of<CategoryProvider>(context, listen: false).removeFromList(currentCategoryTitles);  myCategoryBox.delete(currentCategoryTitles.key); }, icon: FaIcon(FontAwesomeIcons.trashCan, size: 15,),padding: EdgeInsets.zero,constraints: BoxConstraints(),),
+
+                  ],
+                ),
+              );
+            } ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              ElevatedButton(onPressed:() {Navigator.pop(context);}, child: Text('Cancel')),
+              ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
+            ],),
+          )
+
+        ],),
+      )
+  ),
+    );
+  }
 }

@@ -106,13 +106,14 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                         margin: const EdgeInsets.all(10),
                         color: Colors.white.withOpacity(0.5),
                         child: Column(children: [
+                          Text('${category.key}'),
                           Text('${category.markerCategoryTitle}'),
                           Text('${category.markerCategoryDescription}'),
 
                           Row(children: [
                             Column(children: [
-                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
-                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
+                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.key); Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
+                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category.key); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
                             ],)
                           ],)
                         ],),
