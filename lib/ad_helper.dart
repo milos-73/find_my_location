@@ -74,4 +74,18 @@ class AdHelper {
       throw new UnsupportedError("Unsupported platform");
     }
   }
+  static String get markerList2 {
+    if (Platform.isAndroid) {
+      return 'ca-app-pub-2661558273173422~6523641826';
+    } else if (Platform.isIOS) {
+      return 'ca-app-pub-2661558273173422~6807947354';
+    } else {
+      throw new UnsupportedError('Unsupported platform');
+    }
+  }
+
+
+
+
+
 }
