@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +37,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
   Widget build(BuildContext context) {
 
 
-    return Scaffold(
+    return Scaffold(backgroundColor: HexColor('#899b81'),
       floatingActionButton: FloatingActionButton(onPressed: () {
 
         showDialog(
@@ -58,7 +59,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                       ),
                       TextField(
                         decoration: InputDecoration(hintText: "Description"),
-                        controller: markerCategoryDescriptionController,
+                        controller: markerCategoryDescriptionController,maxLines: 6, minLines:1
                       ),
                       SizedBox(
                         height: 8,
@@ -106,16 +107,24 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                         margin: const EdgeInsets.all(10),
                         color: Colors.white.withOpacity(0.5),
                         child: Column(children: [
-                          Text('${category.key}'),
-                          Text('${category.markerCategoryTitle}'),
-                          Text('${category.markerCategoryDescription}'),
+                          //Text('${category.key}'),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 15,bottom: 15,left: 10,right: 10),
+                            child: Text('${category.markerCategoryTitle}',style: TextStyle(fontSize: 20,color: HexColor('#8C4332'),fontWeight: FontWeight.w600)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15,right: 15,bottom: 0),
+                            child: Text('${category.markerCategoryDescription}',style: TextStyle(fontSize: 15,color: HexColor('#0c0c0c'),fontWeight: FontWeight.w300)),
+                          ),
 
-                          Row(children: [
-                            Column(children: [
-                              IconButton(highlightColor: Colors.green,color: Colors.black54, onPressed: () {print('${category.key}');Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category, categoryKey: category.key,))); }, icon: const FaIcon(FontAwesomeIcons.pencil),),
-                              IconButton(highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); }, icon: const FaIcon(FontAwesomeIcons.trashCan),),
-                            ],)
-                          ],)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20,right: 20,top: 15,bottom: 10),
+                            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                              IconButton(padding: EdgeInsets.zero, constraints: BoxConstraints(),highlightColor: Colors.red,color: Colors.black54, onPressed: () {myMarkersCategoryList.deleteAt(index);  Provider.of<CategoryProvider>(context, listen: false).removeFromList(category); }, icon: const FaIcon(FontAwesomeIcons.trashCan,size: 20,color: Colors.red),),
+                              IconButton(padding: EdgeInsets.zero, constraints: BoxConstraints(),highlightColor: Colors.green,color: Colors.black54, onPressed: () {print('${category.key}');Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: category, categoryKey: category.key,))); }, icon: FaIcon(FontAwesomeIcons.pencil,size: 20,color: HexColor('#3B592D'),),),
+
+                            ],),
+                          )
                         ],),
                       );
                 }),

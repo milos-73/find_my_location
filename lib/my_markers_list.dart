@@ -122,7 +122,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
   Widget build(BuildContext context) {
 
     //print('MENU ITEMS: ${context.watch<CategoryProvider>().myCategoryList}');
-    //var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
 
 
     return Scaffold(backgroundColor: HexColor('#C1D96C'),
