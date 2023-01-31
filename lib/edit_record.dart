@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/markers_model.dart';
+import 'package:find_me/widgets/dialog_category_list.dart';
 import 'package:find_me/widgets/dialog_category_list_filter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -268,7 +269,7 @@ class _EditRecordState extends State<EditRecord> {
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogFilter(); }); setState(() {
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
                         markerCategoryTitle != null ?
                         markerCategoryController.text = markerCategoryTitle : null;
                       });}),

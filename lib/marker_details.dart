@@ -134,11 +134,25 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                     //Center(child: Text('${widget.marker.markerCategory}',style: TextStyle(fontSize: 18, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)),
                     SizedBox(height: 10,),
                     Center(child: Text('${widget.marker.name}',style: TextStyle(fontSize: 25, color: HexColor('#8C4332'),fontWeight: FontWeight.w500),)),
+                    Center(child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FaIcon(FontAwesomeIcons.tag,size: 15,color: HexColor('#3B592D'),),
+                        SizedBox(width: 7,),
+                        Text('${widget.marker.markerCategory}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
+                      ],
+                    )),
                     Padding(
-                      padding: const EdgeInsets.only(top: 8,bottom: 15,left: 20,right: 20),
-                      child: Center(child: Text('${widget.marker.description}',style: TextStyle(fontSize: 18),)),
+                      padding: const EdgeInsets.only(top: 10,left: 15,right: 15),
+                      child: Divider(height: 5,),
                     ),
-
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8,bottom: 0,left: 20,right: 20),
+                      child: Center(child: Text('${widget.marker.description}',style: TextStyle(fontSize: 16),)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 15, left: 15,right: 15),
+                      child: Divider(height: 5,),
+                    ),
                     Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(width: MediaQuery.of(context).size.width*0.85, alignment: Alignment.center, height: 65, margin: const EdgeInsets.only(bottom: 20),
