@@ -967,100 +967,82 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                   );
   }
 
-  AlertDialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
+  Dialog saveAndEditLocationAlertDialogStreamOff(BuildContext ctx) {
 
 
 
     //var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
     //print('CATEGORY ITEM LIST LENGTH: ${categoryItemList.length}');
 
-    return AlertDialog(
-      title: const Text('Add this location to My List'),
-      content: SingleChildScrollView(
-        child: Column(children: [
-          TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
-          TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
-          TextFormField(decoration: const InputDecoration(labelText: 'City area',),controller:subLocalityController),
-          TextFormField(decoration: const InputDecoration(labelText: 'District',),controller:countyController),
-          TextFormField(decoration: const InputDecoration(labelText: 'County/State',),controller:administrativeAreaController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-          TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
-            markerCategoryTitle != null ?
-            markerCategoryTitleController.text = markerCategoryTitle : null;
-          });}),
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Container(color: HexColor('#d8ded5'),
+        child: Column(
+          children: [Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10,left: 15,right: 15,bottom: 10),
+              child: Text('Add to favorites', style: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w500),),
+            )
+          ],),
+            
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(children: [
 
-        // Consumer<CategoryProvider>(builder: (context, value, child) {
-        //
-        //   return
-        //   DropdownButtonFormField2(
-        //
-        //     decoration: InputDecoration(labelText: 'Category list',),
-        //     isExpanded: true,
-        //     hint: Text('Select your category'),
-        //     items: categoryItemList.map((item) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
-        //     //items: Provider.of<Cat>(context)) => DropdownMenuItem<dynamic>(value: item.markerCategoryTitle,
-        //
-        //
-        //         child:
-        //
-        //     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //       children: [
-        //         Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
-        //           children: [
-        //             Text(item.markerCategoryTitle!),
-        //             ],
-        //         ),
-        //         item.markerCategoryTitle != '+Add' ?
-        //
-        //         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-        //        Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
-        //          IconButton(padding: EdgeInsets.zero,constraints: BoxConstraints(),onPressed: (){}, icon: FaIcon(FontAwesomeIcons.pencil,size: 15,))
-        //
-        //        ],),
-        //        Padding(
-        //          padding: const EdgeInsets.only(left: 5),
-        //          child: Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,children: [
-        //            IconButton(padding: EdgeInsets.zero,constraints: BoxConstraints(),onPressed: (){print('ITEM KEY: ${item.key}');print('ITEM TITLE: ${item.markerCategoryTitle}');Provider.of<CategoryProvider>(context, listen: false).removeFromList(item.key); myCategoryBox.delete(item.key); setState(() {
-        //              //categoryItemList = [MyMarkersCategory(markerCategoryTitle:'+Add',markerCategoryDescription: 'add category ')];
-        //            });  }, icon: FaIcon(FontAwesomeIcons.trashCan,size: 15,))
-        //
-        //          ],),
-        //        )
-        //      ],) : Row(children: [],)
-        //       ],
-        //     ))).toList() ,
-        //     validator: (value) { if (value == null) {return 'No Category selected'; }},
-        //     onChanged: (value) {setState(() {value == '+Add' ? Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories())) : markerCategory?.markerCategoryTitle = value;}); },);
-        //
-        // }),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15,right: 15),
+                  child: Column(children: [
+                    TextFormField(decoration: const InputDecoration(labelText: 'Name',),controller: nameController,),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Latitude',),controller: latitudeController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Longitude',),controller:longitudeController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Altitude',),controller:altitudeController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Accuracy',),controller:accuracyController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Street',),controller: streetController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Town',),controller:townController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'City area',),controller:subLocalityController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'District',),controller:countyController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'County/State',),controller:administrativeAreaController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                      markerCategoryTitle != null ?
+                      markerCategoryTitleController.text = markerCategoryTitle : null;
+                    });}),
+                    TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+                  ],),
+                ),
+          ],),
+              ),
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
+                    TextButton(onPressed: (){
+                      print('STREAM: $positionStreamStarted');
+                      Navigator.of(ctx).pop();
+                    }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
-          TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
+                    TextButton(onPressed: (){
+                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: markerCategoryKey);
+                      addMyMarker(newMarker);
+                      print('STREAM: $positionStreamStarted');
+                      Navigator.of(ctx).pop();
+                    }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 
-        ],),
+                  ],),
+                )
+
+              ],
+            ),
+            ],
+        ),
       ),
-      actions: <Widget>[Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
-        TextButton(onPressed: (){
-          print('STREAM: $positionStreamStarted');
-          Navigator.of(ctx).pop();
-        }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
-        TextButton(onPressed: (){
-          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: markerCategoryKey);
-          addMyMarker(newMarker);
-          print('STREAM: $positionStreamStarted');
-          Navigator.of(ctx).pop();
-        }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 
-      ],)
 
-      ],
     );
   }
 

@@ -36,7 +36,7 @@ MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapCon
   Buttons buttons = Buttons();
   late Box<MyMarkers> markersList;
   late Box<MyMarkersCategory> markersCategoryList;
-  String? selectedCategory = '';
+  String? selectedCategory;
 
   const int maxFailedLoadAttempts = 3;
 
@@ -80,6 +80,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
     _createInterstitialAd();
     markersList = Hive.box('myMarkersBox');
     markersCategoryList = Hive.box('myMarkersCategoryBox');
+    selectedCategory = '';
   }
 
   void _createInterstitialAd() {
@@ -122,7 +123,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
   Widget build(BuildContext context) {
 
     //print('MENU ITEMS: ${context.watch<CategoryProvider>().myCategoryList}');
-    var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
+    //var categoryItemList = context.watch<CategoryProvider>().myCategoryList;
 
 
     return Scaffold(backgroundColor: HexColor('#C1D96C'),
@@ -200,10 +201,13 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
 
 
-              ElevatedButton(onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
-                markerCategoryTitle != null ?
-                selectedCategory = markerCategoryTitle : null;
-              });}, child: Text('Select category filter')),
+              Padding(
+                padding: const EdgeInsets.only(top: 30, bottom: 5),
+                child: ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                  markerCategoryTitle != null ?
+                  selectedCategory = markerCategoryTitle : null;
+                });}, child: Text('Filter by category')),
+              ),
 
 
 
@@ -217,7 +221,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                     List<int> markerKeys;
 
-                      if (selectedCategory == 'Show All') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
+                      if (selectedCategory == '') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
 
                       markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategory == selectedCategory).toList();}
 
@@ -255,7 +259,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                 padding: const EdgeInsets.only(top: 12),
                                                 child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Text('${markers.markerCategoryKey}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
+                                                    //Text('${markers.markerCategoryKey}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                     Text('${markers.name}',style: TextStyle(fontSize: 20,color: HexColor('#0468BF'),fontWeight: FontWeight.w500,shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]),),
                                                     const Padding(
                                                       padding: EdgeInsets.only(top: 5, bottom: 4, left: 15, right: 15),
