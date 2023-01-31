@@ -21,10 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'ad_helper_test.dart';
 import 'ad_helper.dart';
-import 'categories.dart';
 import 'category_provider.dart';
 import 'center_button.dart';
 import 'geo_location.dart';

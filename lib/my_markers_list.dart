@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/markers_category_model.dart';
-import 'package:find_me/widgets/dialog_category_list.dart';
+import 'package:find_me/widgets/dialog_category_list_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -203,7 +203,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
               Padding(
                 padding: const EdgeInsets.only(top: 30, bottom: 5),
-                child: ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                child: ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogFilter(); }); setState(() {
                   markerCategoryTitle != null ?
                   selectedCategory = markerCategoryTitle : null;
                 });}, child: Text('Filter by category')),
