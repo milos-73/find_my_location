@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Container(
+      child: Container(color: HexColor('#d8ded5'),
           width: 200, height: 400, child:
 
       myCategoryBox.length < 0 ?
@@ -63,11 +64,14 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
       ],) :
       Container(width: double.maxFinite,
         child: Column(children: [
-          Text('Some Categories in list'),
+          Padding(
+            padding: const EdgeInsets.only(top: 20,left: 15,right: 15,bottom: 0),
+            child: Text('Select a category',style: TextStyle(fontSize: 20,color: HexColor('#8C4332'),fontWeight: FontWeight.w500),),
+          ),
           TextButton(onPressed: () {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const MarkerCategories()));
-          }, child: Text('Add category')),
+          }, child: Text('Add new category')),
           Container(
             child: Expanded(
               child: ValueListenableBuilder(
@@ -111,21 +115,21 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                               maxLines: 2,),
                           ),
                         ),
-                        Text('${categories?.key!}'),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 5),
-                          child: IconButton(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: categories!, categoryKey: categories.key,)));},
-                            icon: FaIcon(FontAwesomeIcons.pencil, size: 15,),
-                            padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(),),
-                        ),
+                        //Text('${categories?.key!}'),
                         IconButton(onPressed: () {
-                          Provider.of<CategoryProvider>(context, listen: false).removeFromList(categories!);
-                          myCategoryBox.delete(categories.key);
+                          //Provider.of<CategoryProvider>(context, listen: false).removeFromList(categories!);
+                          myCategoryBox.delete(categories?.key);
                         },
                           icon: FaIcon(FontAwesomeIcons.trashCan, size: 15,),
                           padding: EdgeInsets.zero,
-                          constraints: BoxConstraints(),),
+                          constraints: BoxConstraints(),color: Colors.red,),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10,right: 10),
+                          child: IconButton(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: categories!, categoryKey: categories.key,)));},
+                            icon: FaIcon(FontAwesomeIcons.pencil, size: 15,),
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(),color: HexColor('#3B592D'),),
+                        ),
 
                       ],
                     ),
@@ -139,7 +143,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              ElevatedButton(onPressed: () {
+              ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () {
                 Navigator.pop(context);
               }, child: Text('Cancel')),
               //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
