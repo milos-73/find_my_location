@@ -55,7 +55,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Container(color: HexColor('#d8ded5'),
-          width: 200, height: 400, child:
+          width: 200,  child:
 
       myCategoryBox.length < 0 ?
 
@@ -66,12 +66,84 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.only(top: 20,left: 15,right: 15,bottom: 0),
-            child: Text('Select a category',style: TextStyle(fontSize: 20,color: HexColor('#8C4332'),fontWeight: FontWeight.w500),),
+            child: Text('Select a category'.toUpperCase(),style: TextStyle(fontSize: 20,color: HexColor('#8C4332'),fontWeight: FontWeight.w500),),
           ),
           TextButton(onPressed: () {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const MarkerCategories()));
-          }, child: Text('Add new category')),
+          },
+              child: Text('Add new category'.toUpperCase())),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child:   Divider(height: 4,),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Radio(activeColor: Colors.green,
+                    value: 'Uncategorized',
+                    groupValue: selectedRadio,
+                    onChanged: (val) {
+                      print(val);
+                      setSelectedRadio(val!);
+                      Navigator.pop(context, 'uncategorized');
+                    }),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text('Uncategorized',
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                      maxLines: 1,),
+                  ),
+                ),
+                //Text('${categories?.key!}'),
+
+
+              ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child:   Divider(height: 4,),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Radio(activeColor: Colors.green,
+                    value: 'Show All',
+                    groupValue: selectedRadio,
+                    onChanged: (val) {
+                      print(val);
+                      setSelectedRadio(val!);
+                      Navigator.pop(context, '');
+                    }),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text('Show All',
+                      softWrap: true,
+                      overflow: TextOverflow.fade,
+                      maxLines: 1,style: TextStyle(fontWeight: FontWeight.w500),),
+
+                  ),
+                ),
+                //Text('${categories?.key!}'),
+
+
+              ],
+            ),
+          ),
+Padding(
+  padding: const EdgeInsets.only(left: 10,right: 10),
+  child:   Divider(height: 4,),
+),
+
           Container(
             child: Expanded(
               child: ValueListenableBuilder(
@@ -144,7 +216,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
             padding: const EdgeInsets.all(8.0),
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, '');
               }, child: Text('Cancel')),
               //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
             ],),

@@ -218,7 +218,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){subLocalityController.text = subLocality ?? '';}))
         .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
         .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
-        .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? 'Select your category';}))
+        .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? '';}))
     ;
   }
 
@@ -933,7 +933,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                                         TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
 
-                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Categeroy list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!))).toList(),
+                                        DropdownButtonFormField2(decoration: InputDecoration(labelText: 'Category list',),isExpanded: true, items: categoryItems.map((item) => DropdownMenuItem<String>(value: item.markerCategoryTitle,child: Text(item.markerCategoryTitle!))).toList(),
                                             validator: (value) {if (value == null) { return 'No Category selected'; }},
                                           onChanged: (value){setState(() {
                                             markerCategory?.markerCategoryTitle = value;
@@ -981,7 +981,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           children: [Row(mainAxisAlignment: MainAxisAlignment.center,children: [
             Padding(
               padding: const EdgeInsets.only(top: 10,left: 15,right: 15,bottom: 10),
-              child: Text('Add to favorites', style: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w500),),
+              child: Text('Add to favorites'.toUpperCase(), style: TextStyle(color: HexColor('#8C4332'),fontSize: 17,fontWeight: FontWeight.w500),),
             )
           ],),
             
@@ -1005,7 +1005,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                     TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
                     TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                     TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-                    TextFormField(decoration: const InputDecoration(labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                    TextFormField(decoration: const InputDecoration(hintText: 'Select your category',labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
                       markerCategoryTitle != null ?
                       markerCategoryTitleController.text = markerCategoryTitle : null;
                     });}),

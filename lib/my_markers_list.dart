@@ -221,7 +221,8 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                     List<int> markerKeys;
 
-                      if (selectedCategory == '') { markerKeys = myMarkers.keys.cast<int>().toList();} else {
+                      if (selectedCategory == '') { markerKeys = myMarkers.keys.cast<int>().toList();} else if (selectedCategory == 'uncategorized') {
+                      markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategory == '').toList();} else {
 
                       markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategory == selectedCategory).toList();}
 
@@ -441,7 +442,10 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                               Padding(
                                                 padding: const EdgeInsets.only(bottom: 7),
-                                                child: Text('${markers.markerCategory ?? 'uncategorized'}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
+                                                child: markers.markerCategory == '' ?
+                                                Text('uncategorized', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
+                                                    shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
+                                                )) : Text('${markers.markerCategory}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
                                                     shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                 )),
                                               ),
