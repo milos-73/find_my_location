@@ -138,6 +138,7 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                       children: [
                         FaIcon(FontAwesomeIcons.tag,size: 15,color: HexColor('#3B592D'),),
                         SizedBox(width: 7,),
+                        widget.marker.markerCategory == '' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),):
                         Text('${widget.marker.markerCategory}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
                       ],
                     )),
@@ -147,7 +148,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 8,bottom: 0,left: 20,right: 20),
-                      child: Center(child: Text('${widget.marker.description}',style: TextStyle(fontSize: 16),)),
+                      child: Center(child: widget.marker.description == '' ?  Text('${'No comments added'}',style: TextStyle(fontSize: 16),) :
+                      Text('${widget.marker.description }',style: TextStyle(fontSize: 16),)),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10, bottom: 15, left: 15,right: 15),
