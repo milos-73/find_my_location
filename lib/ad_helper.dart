@@ -64,26 +64,35 @@ class AdHelper {
   }
 
 
-
-  static String get rewardedAdUnitId {
-    if (Platform.isAndroid) {
-      return "ca-app-pub-3940256099942544/5224354917";
-    } else if (Platform.isIOS) {
-      return "ca-app-pub-3940256099942544/1712485313";
-    } else {
-      throw new UnsupportedError("Unsupported platform");
-    }
-  }
   static String get markerList2 {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-2661558273173422~6523641826';
+      return 'ca-app-pub-2661558273173422/5958868680';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-2661558273173422~6807947354';
+      return 'ca-app-pub-2661558273173422/1828036071';
     } else {
       throw new UnsupportedError('Unsupported platform');
     }
   }
 
+  static String get markerSaveForm {
+    if (Platform.isAndroid) {
+      return "ca-app-pub-2661558273173422/5867353430";
+    } else if (Platform.isIOS) {
+      return "ca-app-pub-2661558273173422/9559202343";
+    } else {
+      throw new UnsupportedError("Unsupported platform");
+    }
+  }
+
+  static String get editCategory {
+    if (Platform.isAndroid) {
+      return 'ca-app-pub-2661558273173422/7488692331';
+    } else if (Platform.isIOS) {
+      return 'ca-app-pub-2661558273173422/3905235199';
+    } else {
+      throw new UnsupportedError('Unsupported platform');
+    }
+  }
 
 
 

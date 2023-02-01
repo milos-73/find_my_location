@@ -127,6 +127,10 @@ class LiveLocationPageState extends State<LiveLocationPage> {
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
 
+  // TODO: Add _interstitialAd
+  InterstitialAd? _interstitialAd;
+  int _interstitialLoadAttempts = 1;
+
   void _loadBannerAd() {
     _bannerAd = BannerAd(
       adUnitId: AdHelper.mainScreen,
@@ -148,6 +152,45 @@ class LiveLocationPageState extends State<LiveLocationPage> {
 
     _bannerAd.load();
   }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.markerSaveForm,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          _interstitialAd = ad;
+          _interstitialLoadAttempts = 0;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          _interstitialLoadAttempts += 1;
+          _interstitialAd = null;
+          if (_interstitialLoadAttempts <= maxFailedLoadAttempts) {
+            _createInterstitialAd();
+          }
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (InterstitialAd ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+
+
 
   Future<void> getCategoryItems() async {
     final category = await myCategoryBox.values.toList();
@@ -171,6 +214,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     myMarkersBox = Hive.box('myMarkersBox');
     myCategoryBox = Hive.box('myMarkersCategoryBox');
     getCategoryItems();
+    _createInterstitialAd();
    //var categoryName = myCategoryBox.values.toList();
 
     _toggleServiceStatusStream();
@@ -1024,6 +1068,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
                     TextButton(onPressed: (){
                       final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: markerCategoryKey);
+                      _showInterstitialAd();
                       addMyMarker(newMarker);
                       print('STREAM: $positionStreamStarted');
                       Navigator.of(ctx).pop();
@@ -1091,8 +1136,9 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
         child: Column(children: [
           Icon(FontAwesomeIcons.locationDot, size: 50, color: HexColor('#3B592D'),),
           SizedBox(height: 20,),
-          Text('My Location Now', style: TextStyle(fontSize: 30,fontWeight: FontWeight.w600),),
-          Text('Send & Save my current location', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
+          Text('My Location Now'.toUpperCase(), style: TextStyle(fontSize: 27,fontWeight: FontWeight.w600),textAlign: TextAlign.center,),
+          Text('Find, Send & Save', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
+          //Text('my current location', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           SizedBox(height: 5,),
           Text('verzia 1.0.9', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
