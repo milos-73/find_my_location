@@ -94,6 +94,16 @@ class AdHelper {
     }
   }
 
+  static String get categoryList {
+    if (Platform.isAndroid) {
+      return 'ca-app-pub-2661558273173422/9616162228';
+    } else if (Platform.isIOS) {
+      return 'ca-app-pub-2661558273173422/9807733919';
+    } else {
+      throw new UnsupportedError('Unsupported platform');
+    }
+  }
+
 
 
 

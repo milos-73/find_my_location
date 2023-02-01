@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 
+import 'ad_helper.dart';
 import 'category_provider.dart';
 import 'edit_category_record.dart';
 import 'markers_category_model.dart';
@@ -24,14 +26,41 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
   final TextEditingController markerCategoryTitleController = TextEditingController();
   final TextEditingController markerCategoryDescriptionController = TextEditingController();
 
+  late BannerAd _bannerAd;
+  bool _isBannerAdReady = false;
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _loadBannerAd();
     myMarkersCategoryList = Hive.box<MyMarkersCategory>('myMarkersCategoryBox');
   }
 
+
+  //TODO: put to a separate file
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.categoryList,
+      request: AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          //print(_isBannerAdReady);
+          setState(() {
+            _isBannerAdReady = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          _isBannerAdReady = false;
+          ad.dispose();
+        },
+      ),
+    );
+
+    _bannerAd.load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +122,24 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
+
+            //TODO: Put to separate file 
+            Padding(
+              padding: const EdgeInsets.only(top: 40, bottom: 30),
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: _bannerAd.size.width.toDouble(),
+                  height: _bannerAd.size.height.toDouble(),
+                  child: AdWidget(ad: _bannerAd),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text('Category List'.toUpperCase(),style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500,color: HexColor('#0468BF')),),
+            ),
             ValueListenableBuilder(valueListenable: myMarkersCategoryList.listenable(),
                 builder: (context, Box<MyMarkersCategory> markersCategoryItems, Widget? child){
               myMarkersCategoryList = markersCategoryItems;
