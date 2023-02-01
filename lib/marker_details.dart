@@ -8,11 +8,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:share_plus/share_plus.dart';
 import 'ad_helper.dart';
 import 'center_button_detail_screen.dart';
 import 'package:intl/intl.dart';
+
+import 'markers_category_model.dart';
 
 class MarkerDetails extends StatefulWidget {
 
@@ -38,12 +41,10 @@ class _MarkerDetailsState extends State<MarkerDetails> {
   String? latDmsLocation;
   String? longDmsLocation;
 
-  ///TO-DO move to separate file
-  void _loadBannerAd() {_bannerAd = BannerAd(adUnitId: AdHelper.detailedScreen,request: AdRequest(),size: AdSize.banner,listener: BannerAdListener(
-        onAdLoaded: (_) {setState(() {_isBannerAdReady = true;});},
-        onAdFailedToLoad: (ad, err) {_isBannerAdReady = false; ad.dispose();},),);
-    _bannerAd.load();
-  }
+  String? myCategoryTitle;
+  late Box<MyMarkersCategory> markersCategoryList;
+
+
 
 
   Future <void> getDmsLat(List<num>? latitideList) async {
@@ -74,16 +75,38 @@ class _MarkerDetailsState extends State<MarkerDetails> {
     } setState(() {longDmsLocation = dmsLongitude;});
   }
 
+  //TODO move to separate file
+  void _loadBannerAd() {_bannerAd = BannerAd(adUnitId: AdHelper.detailedScreen,request: AdRequest(),size: AdSize.banner,listener: BannerAdListener(
+    onAdLoaded: (_) {setState(() {_isBannerAdReady = true;});},
+    onAdFailedToLoad: (ad, err) {_isBannerAdReady = false; ad.dispose();},),);
+  _bannerAd.load();
+  }
+
+
 
 
 
   @override
   void initState() {
     super.initState();
-
+    markersCategoryList = Hive.box('myMarkersCategoryBox');
+    categoryTitle();
     _loadBannerAd();
+
    _mapController3 = MapController();
       }
+
+//TODO: put all to separate file
+  String? categoryTitle(){
+
+    widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '' ? myCategoryTitle = markersCategoryList?.get(int.parse(widget.marker.markerCategoryKey!))!.markerCategoryTitle! : '';
+    print('CATEGORY TITLE: $myCategoryTitle');
+
+    return myCategoryTitle;
+
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +161,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                       children: [
                         FaIcon(FontAwesomeIcons.tag,size: 15,color: HexColor('#3B592D'),),
                         SizedBox(width: 7,),
-                        widget.marker.markerCategory == '' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),):
-                        Text('${widget.marker.markerCategory}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
+                        myCategoryTitle == '' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),):
+                        Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
                       ],
                     )),
                     Padding(

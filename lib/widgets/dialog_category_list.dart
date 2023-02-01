@@ -105,7 +105,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Radio(activeColor: Colors.green,
-                                          value: categories?.markerCategoryTitle,
+                                          value: categories?.key.toString(),
                                           groupValue: selectedRadio,
                                           onChanged: (val) {
                                             print(val);

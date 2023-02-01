@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:find_me/markers_category_model.dart';
 import 'package:find_me/markers_model.dart';
 import 'package:find_me/widgets/dialog_category_list.dart';
 import 'package:find_me/widgets/dialog_category_list_filter.dart';
@@ -38,8 +39,11 @@ class _EditRecordState extends State<EditRecord> {
 
   bool isLoading = false;
   late Box<MyMarkers> myMarkersBox;
+  late Box<MyMarkersCategory> myMarkersCategoryBox;
   late final MapController _mapController3;
   String? markerCategory;
+  String? myMarkerCategoryKey;
+  String? myCategoryTitle;
 
   // TODO: Add _interstitialAd
   InterstitialAd? _interstitialAd;
@@ -67,7 +71,9 @@ class _EditRecordState extends State<EditRecord> {
     super.initState();
    setState((){isLoading = true;});
     myMarkersBox = Hive.box('myMarkersBox');
+    myMarkersCategoryBox = Hive.box('myMarkersCategoryBox');
     _mapController3 = MapController();
+    categoryTitle();
     _createInterstitialAdCancel();
     _createInterstitialAdSave();
 
@@ -87,8 +93,19 @@ class _EditRecordState extends State<EditRecord> {
     setState((){subLocalityController.text = widget.marker.subLocality ?? '';});
     setState((){administrativeAreaController.text = widget.marker.administrativeArea ?? '';});
     setState((){countryCodeController.text = widget.marker.countryCode ?? '';});
-    setState((){markerCategoryController.text = widget.marker.markerCategory ?? '';});
+    setState((){markerCategoryController.text = myCategoryTitle ?? '';});
   }
+
+//TODO: put all to separate file
+  String? categoryTitle(){
+
+    widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '' ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))!.markerCategoryTitle! : '';
+    print('CATEGORY TITLE: $myCategoryTitle');
+
+    return myCategoryTitle;
+
+  }
+
 
   void _createInterstitialAdSave() {
     InterstitialAd.load(
@@ -181,7 +198,12 @@ class _EditRecordState extends State<EditRecord> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: FloatingActionButton.extended(onPressed: () {
-              final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory:markerCategoryController.text );
+
+              print('Category: ${myMarkerCategoryKey.runtimeType}');
+              print('KEY: ${myMarkerCategoryKey}');
+
+
+              final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory:markerCategoryController.text, markerCategoryKey: myMarkerCategoryKey);
               myMarkersBox.putAt(widget.index, newMarker);
              // _showInterstitialAdSave();
               Navigator.pop(context);
@@ -269,9 +291,16 @@ class _EditRecordState extends State<EditRecord> {
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
-                        markerCategoryTitle != null ?
-                        markerCategoryController.text = markerCategoryTitle : null;
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+
+                        print('CATEGORY KEY: $markerCategoryKey');
+                        print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
+                        print( 'KEY FROM BOX: ${myMarkersCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
+                        markerCategoryKey != null || markerCategoryKey != '' ? myMarkerCategoryKey = markerCategoryKey : markerCategoryKey = '';
+                        markerCategoryKey != null || markerCategoryKey != '' ? markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle! : '';
+
+                        print('CATEGORY KEY: $myMarkerCategoryKey');
+
                       });}),
                     ),
 

@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/markers_category_model.dart';
 import 'package:find_me/widgets/dialog_category_list_filter.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +10,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:maps_launcher/maps_launcher.dart';
-import 'package:provider/provider.dart';
 import 'ad_helper.dart';
 import 'buttons.dart';
-import 'category_provider.dart';
 import 'edit_record.dart';
 import 'marker_details.dart';
 import 'markers_model.dart';
@@ -97,6 +94,8 @@ class _MyMarkersListState extends State<MyMarkersList> {
   // TODO: Add _interstitialAd
   InterstitialAd? _interstitialAd;
   int _interstitialLoadAttempts = 1;
+
+
 
   @override
   void initState() {
@@ -259,6 +258,8 @@ class _MyMarkersListState extends State<MyMarkersList> {
                       context: context,
                       child: ListView.builder(
 
+
+
                           itemCount: markerKeys.length,
                           itemBuilder: (BuildContext context, int index) {
 
@@ -269,7 +270,18 @@ class _MyMarkersListState extends State<MyMarkersList> {
                             final latDms = converter.getDegreeFromDecimal(markers!.lat!);
                             final longDms = converter.getDegreeFromDecimal(markers.long!);
 
-                            //print('INDEX2: ${index.toString().length}');
+
+                             final categoryTitle = markers.markerCategoryKey != null || markers.markerCategoryKey != '' ?
+
+                             markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle
+                             //markersCategoryList.get(int.parse('${markers.markerCategoryKey}'))?.markerCategoryTitle
+                              : '';
+
+                            //final categoryTitle = markersCategoryList.get(18)?.markerCategoryTitle;
+                            print('Category: ${categoryTitle}');
+                            print('KEY: ${markers.markerCategoryKey}');
+                              print('KEY TYPE: ${markers.markerCategoryKey}'.runtimeType);
+
 
                             return Column(
                               children: [
@@ -472,13 +484,14 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                                   Padding(
                                                     padding: const EdgeInsets.only(bottom: 7),
-                                                    child: markers.markerCategory == '' ?
+                                                    child: categoryTitle == '' ?
                                                     Text('uncategorized', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
                                                         shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
-                                                    )) : Text('${markers.markerCategory}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
+                                                    )) : Text('${categoryTitle}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
                                                         shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                     )),
                                                   ),
+                                                  //Text('${markers.markerCategoryKey}')
                                                 ],
                                               )
 
@@ -512,7 +525,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                               ?
 
                             Padding(
-                                padding: const EdgeInsets.only(top: 40, bottom: 10),
+                                padding: const EdgeInsets.only(top: 10, bottom: 5),
                                 child: Align(
                                   alignment: Alignment.center,
                                   child: Container(
