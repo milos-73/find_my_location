@@ -34,6 +34,7 @@ MyMarkersList({Key? key, this.currentLat, this.currentLong, required this.mapCon
   late Box<MyMarkers> markersList;
   late Box<MyMarkersCategory> markersCategoryList;
   String? selectedCategory;
+  String? categoryTitle;
 
   const int maxFailedLoadAttempts = 3;
 
@@ -269,18 +270,20 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                             final latDms = converter.getDegreeFromDecimal(markers!.lat!);
                             final longDms = converter.getDegreeFromDecimal(markers.long!);
+                             print('KEY1: ${markers.markerCategoryKey}');
+                              //print('CATEGORY TITLE: ${markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle!}');
+                              //print('KEY TYPE1: ${markers.markerCategoryKey}'.runtimeType);
+
+                             (markers.markerCategoryKey != null) || (markers.markerCategoryKey != '000') ? categoryTitle =  markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle! : categoryTitle = 'Uncategorized';
 
 
-                             final categoryTitle = markers.markerCategoryKey != null || markers.markerCategoryKey != '' ?
-
-                             markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle
                              //markersCategoryList.get(int.parse('${markers.markerCategoryKey}'))?.markerCategoryTitle
-                              : '';
+
 
                             //final categoryTitle = markersCategoryList.get(18)?.markerCategoryTitle;
-                            print('Category: ${categoryTitle}');
-                            print('KEY: ${markers.markerCategoryKey}');
-                              print('KEY TYPE: ${markers.markerCategoryKey}'.runtimeType);
+                            // print('Category: ${categoryTitle}');
+                            // print('KEY: ${markers.markerCategoryKey}');
+                            //   print('KEY TYPE: ${markers.markerCategoryKey}'.runtimeType);
 
 
                             return Column(
@@ -450,7 +453,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                             child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
                                                                 Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10, right: 15),onPressed: (){
-                                                                  _showInterstitialAd();
+                                                                  //_showInterstitialAd();
                                                                   Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: markers.lat , longitude: markers.long, marker: markers, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                               ],
                                                             ),
@@ -484,7 +487,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                                   Padding(
                                                     padding: const EdgeInsets.only(bottom: 7),
-                                                    child: categoryTitle == '' ?
+                                                    child: categoryTitle == '000' ||  categoryTitle == null ?
                                                     Text('uncategorized', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,
                                                         shadows: [Shadow(color: Colors.black54.withOpacity(0.4),offset: const Offset(0,1),blurRadius: 0)]
                                                     )) : Text('${categoryTitle}', style: TextStyle(color: HexColor('#8C4332'),fontSize: 15,

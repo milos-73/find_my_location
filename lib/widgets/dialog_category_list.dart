@@ -115,7 +115,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                                       Expanded(
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
-                                          child: Text(categories?.markerCategoryTitle ?? '',
+                                          child: Text(categories?.markerCategoryTitle ?? 'No Title',
                                             softWrap: true,
                                             overflow: TextOverflow.fade,
                                             maxLines: 2,),
@@ -150,7 +150,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () {
-                    Navigator.pop(context, '');
+                    Navigator.pop(context, '000');
                   }, child: Text('Cancel')),
                   //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
                 ],),

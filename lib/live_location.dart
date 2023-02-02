@@ -221,7 +221,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     setState((){isLoading = true;});
     setState((){isAddressLoading = true;});
 
-
+    myMarkerCategoryKey = '000';
 
     _mapController = MapController();
     _mapController2 = MapController();
@@ -1048,14 +1048,14 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                     TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
                     TextFormField(decoration: const InputDecoration(hintText: 'Select your category',labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); });
                       setState(() {
-                        print('CONTROLLER: ${markerCategoryTitleController.text}');
-                        print('CATEGORY TITLE: ${markerCategoryTitle}');
-                      print('CATEGORY KEY: $markerCategoryKey');
-                      print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
-                      print( 'KEY FROM BOX: ${myCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
-                        print( 'KEY 19: ${myCategoryBox.get(19)?.markerCategoryTitle}');
-                      markerCategoryKey != null || markerCategoryKey != '' ? myMarkerCategoryKey = markerCategoryKey : markerCategoryKey = '';
-                      markerCategoryKey != null || markerCategoryKey != '' ? markerCategoryTitleController.text = myCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle! : '';
+                      //   print('CONTROLLER: ${markerCategoryTitleController.text}');
+                      //   print('CATEGORY TITLE: ${markerCategoryTitle}');
+                      // print('CATEGORY KEY: $markerCategoryKey');
+                      // print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
+                      // print( 'KEY FROM BOX: ${myCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
+                      //   print( 'KEY 19: ${myCategoryBox.get(19)?.markerCategoryTitle}');
+                      markerCategoryKey != null ? myMarkerCategoryKey = markerCategoryKey : myMarkerCategoryKey = '000';
+                      markerCategoryKey != null || markerCategoryKey != '000' ? markerCategoryTitleController.text = myCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle! : markerCategoryTitleController.text = 'Uncategorized';
                           //myMarkerCategoryKey != null ||  myMarkerCategoryKey != '' ? markerCategoryTitleController.text = myCategoryBox.get(int.parse('$markerCategoryKey'))!.markerCategoryTitle! : '';
 
                       print('CATEGORY KEY: $myMarkerCategoryKey');
@@ -1077,9 +1077,9 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                     }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
                     TextButton(onPressed: (){
-                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey);
+                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '');
                       print('KEY on SAVE: ${myMarkerCategoryKey}');
-                      _showInterstitialAd();
+                      //_showInterstitialAd();
                       addMyMarker(newMarker);
                       print('STREAM: $positionStreamStarted');
                       Navigator.of(ctx).pop();
