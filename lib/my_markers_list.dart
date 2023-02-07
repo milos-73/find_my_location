@@ -257,7 +257,12 @@ class _MyMarkersListState extends State<MyMarkersList> {
                       ///Remove ListView Top padding with MediaQuery.removePadding
                       return MediaQuery.removePadding(removeTop: true,
                       context: context,
-                      child: ListView.builder(
+
+
+
+                        child:  markerKeys.length > 0 ?
+
+                        ListView.builder(
 
 
 
@@ -525,19 +530,21 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                                   ),
                                 ),
-                                index == 0 && _isBannerAdReady
-                             ?
-                             Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 5),
-                            child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                            width: _bannerAd.size.width.toDouble(),
-                            height: _bannerAd.size.height.toDouble(),
-                            child: AdWidget(ad: _bannerAd),
-                            ),
-                            ),
-                            ) : index == 4 && _isBannerAdReady2
+                            //     index == 0 && _isBannerAdReady
+                            //  ?
+                            //  Padding(
+                            // padding: const EdgeInsets.only(top: 10, bottom: 5),
+                            // child: Align(
+                            // alignment: Alignment.center,
+                            // child: Container(
+                            // width: _bannerAd.size.width.toDouble(),
+                            // height: _bannerAd.size.height.toDouble(),
+                            // child: AdWidget(ad: _bannerAd),
+                            // ),
+                            // ),
+                            // )
+                            //         :
+                                index == 0 && _isBannerAdReady2
                               ?
 
                             Padding(
@@ -558,7 +565,12 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
 
 
-                          }),
+                          }) :
+
+                        Text('No location markers saved')
+
+
+                        ,
                     );
 
 
@@ -567,6 +579,19 @@ class _MyMarkersListState extends State<MyMarkersList> {
                   ),
                 ),
               ),
+              Container(height: 70, child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 5),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: _bannerAd.size.width.toDouble(),
+                      height: _bannerAd.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd),
+                    ),
+                  ),
+                )
+              ],),)
             ],
           )
         ,),),),
