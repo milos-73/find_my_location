@@ -12,6 +12,7 @@ import 'package:latlong_to_osgrid/latlong_to_osgrid.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'ad_helper.dart';
 import 'buttons.dart';
+import 'categories.dart';
 import 'edit_record.dart';
 import 'marker_details.dart';
 import 'markers_model.dart';
@@ -228,11 +229,19 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
 
               Padding(
-                padding: const EdgeInsets.only(top: 30, bottom: 5),
-                child: ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogFilter(); }); setState(() {
-                  markerCategoryTitle != null ?
-                  selectedCategory = markerCategoryTitle : null;
-                });}, child: Text('Filter by category')),
+                padding: const EdgeInsets.only(top: 30, bottom: 5, left: 15,right: 15),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogFilter(); }); setState(() {
+                      markerCategoryTitle != null ?
+                      selectedCategory = markerCategoryTitle : null;
+                    });}, child: Text('Filter by category')),
+
+                    ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () async {await Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories()));setState(() {
+
+                    }); }, child: Text('Category List'))
+                  ],
+                ),
               ),
 
 

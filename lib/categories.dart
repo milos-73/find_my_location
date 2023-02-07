@@ -94,7 +94,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                         height: 8,
                       ),
                       TextButton(
-                        child: Text("Add Data",style: TextStyle(color: Colors.white),),
+                        child: Text("Add Category",style: TextStyle(color: HexColor('#8C4332')),),
                         onPressed: () {
                           final String title = markerCategoryTitleController.text;
                           final String description = markerCategoryDescriptionController.text;
@@ -154,7 +154,7 @@ class _MarkerCategoriesState extends State<MarkerCategories> {
                         margin: const EdgeInsets.all(10),
                         color: Colors.white.withOpacity(0.5),
                         child: Column(children: [
-                          Text('${category.key}'),
+                          //Text('${category.key}'),
                           Padding(
                             padding: const EdgeInsets.only(top: 15,bottom: 15,left: 10,right: 10),
                             child: Text('${category.markerCategoryTitle}',style: TextStyle(fontSize: 20,color: HexColor('#8C4332'),fontWeight: FontWeight.w600)),
