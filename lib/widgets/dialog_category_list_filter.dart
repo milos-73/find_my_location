@@ -83,17 +83,17 @@ class _CategoryPickerDialogFilterState extends State<CategoryPickerDialogFilter>
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Radio(activeColor: Colors.green,
-                    value: 'Uncategorized',
+                    value: 'uncategorized',
                     groupValue: selectedRadio,
                     onChanged: (val) {
                       print(val);
                       setSelectedRadio(val!);
-                      Navigator.pop(context, 'uncategorized');
+                      Navigator.pop(context, '000');
                     }),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Text('Uncategorized',
+                    child: Text('uncategorized',
                       softWrap: true,
                       overflow: TextOverflow.fade,
                       maxLines: 1,),
@@ -171,7 +171,7 @@ Padding(
                     child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Radio(activeColor: Colors.green,
-                            value: categories?.markerCategoryTitle,
+                            value: categories?.key.toString(),
                             groupValue: selectedRadio,
                             onChanged: (val) {
                               print(val);
@@ -190,6 +190,7 @@ Padding(
                         //Text('${categories?.key!}'),
                         IconButton(onPressed: () {
                           //Provider.of<CategoryProvider>(context, listen: false).removeFromList(categories!);
+
                           myCategoryBox.delete(categories?.key);
                         },
                           icon: FaIcon(FontAwesomeIcons.trashCan, size: 15,),

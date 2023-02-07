@@ -1062,10 +1062,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                         //  print('CATEGORY KEY: $myMarkerCategoryKey');
                         }
 
-                        if (markerCategoryKey == null) {markerCategoryTitleController.text = 'Uncategorized';
+                        if (markerCategoryKey == null) {markerCategoryTitleController.text = 'uncategorized';
                           //print('My null CATEGORY TITLE: ${markerCategoryTitleController.text}');print('CATEGORY null KEY: $markerCategoryKey');
                         }
-                        if (markerCategoryKey == '000') {markerCategoryTitleController.text = 'Uncategorized';
+                        if (markerCategoryKey == '000') {markerCategoryTitleController.text = 'uncategorized';
                         //  print('My 000 CATEGORY TITLE: ${markerCategoryTitleController.text}');print('CATEGORY 000 KEY: $markerCategoryKey');
                         }
                         else {markerCategoryTitleController.text = myCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;
@@ -1091,10 +1091,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
 
                     TextButton(onPressed: (){
                       //print('My CATEGORY TITLE before Save: ${markerCategoryTitleController.text}');
-                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '');
-                      markerCategoryTitleController.clear();
-                      //print('KEY after SAVE: ${myMarkerCategoryKey}');
-                      //print('categoryTitle after SAVE: ${markerCategoryTitleController.text}');
+                      final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '000');
+                      //markerCategoryTitleController.clear();
+                      print('KEY after SAVE: ${myMarkerCategoryKey}');
+                      print('categoryTitle after SAVE: ${markerCategoryTitleController.text}');
 
                       markerCategoryTitleController.clear();
                       addMyMarker(newMarker);

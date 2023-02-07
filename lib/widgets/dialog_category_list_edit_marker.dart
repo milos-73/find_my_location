@@ -44,6 +44,7 @@ class _CategoryPickerDialogEditMarkerState extends State<CategoryPickerDialogEdi
     selectedRadio = '';
     myMarkersBox = Hive.box('myMarkersBox');
     myCategoryBox = Hive.box('myMarkersCategoryBox');
+    categoryKey = widget.marker.markerCategoryKey;
   }
 
   // Changes the selected value on 'onChanged' click on each radio button
@@ -131,7 +132,17 @@ class _CategoryPickerDialogEditMarkerState extends State<CategoryPickerDialogEdi
                                       //Text('${categories?.key!}'),
                                       IconButton(onPressed: () {
                                         //Provider.of<CategoryProvider>(context, listen: false).removeFromList(categories!);
+
+                                        final markerCategoryKeyUpdate = MyMarkers(dateTime: widget.marker.dateTime, name: widget.marker.name, description: widget.marker.description, lat: double.parse('${widget.marker.lat}') , long: double.parse('${widget.marker.long}'), altitude: double.parse('${widget.marker.altitude}'), accuracy: double.parse('${widget.marker.accuracy}'), street: widget.marker.street, city: widget.marker.city, county: widget.marker.county, state: widget.marker.state,zip: widget.marker.zip,  countryCode: widget.marker.countryCode, subLocality: widget.marker.subLocality, administrativeArea: widget.marker.administrativeArea, markerCategory: 'uncategorized',markerCategoryKey: '000');
+                                        myMarkersBox.put(widget.marker.key, markerCategoryKeyUpdate);
                                         myCategoryBox.delete(categories?.key);
+
+
+                                        //final markerCategoryKeyupdate = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '');
+                                        setState(() {
+                                          categoryKey = '000';
+                                        });
+
                                       },
                                         icon: FaIcon(FontAwesomeIcons.trashCan, size: 15,),
                                         padding: EdgeInsets.zero,
@@ -139,6 +150,8 @@ class _CategoryPickerDialogEditMarkerState extends State<CategoryPickerDialogEdi
                                       Padding(
                                         padding: const EdgeInsets.only(left: 10,right: 10),
                                         child: IconButton(onPressed: () async {String? newCategoryTitle = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: categories!, categoryKey: categories.key)));
+
+
                                           setState(() {
                                             editedCategoryTitle = newCategoryTitle;
                                           });
@@ -167,12 +180,13 @@ class _CategoryPickerDialogEditMarkerState extends State<CategoryPickerDialogEdi
                    //   Navigator.pop(context,);
                    // } else {
                    //   print('editedCategoryTitle: ${editedCategoryTitle}');
-                    print('edited CATEGORY title: $editedCategoryTitle');
-                    print('edited CATEGORY key: $categoryKey');
-                    print('original CATEGORY title: ${widget.marker.markerCategory}');
-                    print('original CATEGORY key: ${widget.marker.markerCategoryKey}');
-                    print('selected radio: ${widget.marker.markerCategoryKey}');
-                    Navigator.pop(context, widget.marker.markerCategoryKey);
+                   //  print('edited CATEGORY title: $editedCategoryTitle');
+                   //  print('edited CATEGORY key: $categoryKey');
+                   //  print('original CATEGORY title: ${widget.marker.markerCategory}');
+                   //  print('original CATEGORY key: ${widget.marker.markerCategoryKey}');
+                   //  print('selected radio: ${widget.marker.markerCategoryKey}');
+                    //Navigator.pop(context, widget.marker.markerCategoryKey);
+                    Navigator.pop(context, categoryKey);
                    //                      }
 
                     //Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: widget.markerIndex, marker: widget.marker, markerLat: widget.markerLat,markerLong: widget.markerLong, mapController: widget.mapController)));

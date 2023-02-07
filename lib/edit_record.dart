@@ -69,6 +69,7 @@ class _EditRecordState extends State<EditRecord> {
     myMarkersCategoryBox = Hive.box('myMarkersCategoryBox');
     _mapController3 = MapController();
     categoryTitle();
+    categoryKey();
     _createInterstitialAdCancel();
     _createInterstitialAdSave();
 
@@ -88,25 +89,41 @@ class _EditRecordState extends State<EditRecord> {
     setState((){subLocalityController.text = widget.marker.subLocality ?? '';});
     setState((){administrativeAreaController.text = widget.marker.administrativeArea ?? '';});
     setState((){countryCodeController.text = widget.marker.countryCode ?? '';});
-    setState((){markerCategoryController.text = myCategoryTitle ?? 'Uncategorized';});
+    setState((){markerCategoryController.text = myCategoryTitle ?? 'uncategorized';});
   }
 
 //TODO: put all to separate file
   String? categoryTitle(){
 
-    print('CATEGORY KEY to edit: ${widget.marker.markerCategoryKey}');
+    //print('CATEGORY KEY to edit: ${widget.marker.markerCategoryKey}');
 
 
-    if (widget.marker.markerCategoryKey == '000'){myCategoryTitle = 'Uncategorized';}
-    else if (widget.marker.markerCategoryKey == null){myCategoryTitle = 'Uncategorized';}
+    if (widget.marker.markerCategoryKey == '000'){myCategoryTitle = 'uncategorized';}
+    else if (widget.marker.markerCategoryKey == null){myCategoryTitle = 'uncategorized';}
     else{myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle!;}
 
 
 
-    // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'Uncategorized';
-    // print('CATEGORY TITLE: $myCategoryTitle');
+    // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'uncategorized';
+    print('CATEGORY TITLE: $myCategoryTitle');
 
     return myCategoryTitle;
+
+  }
+
+  //TODO: put all to separate file
+  String? categoryKey(){
+
+   myMarkerCategoryKey = myMarkersBox.get(widget.marker.key)?.markerCategoryKey;
+
+
+
+    // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'uncategorized';
+    // print('CATEGORY TITLE: $myCategoryTitle');
+
+   print('CATEGORY KEY: $myMarkerCategoryKey');
+
+    return myMarkerCategoryKey;
 
   }
 
@@ -194,7 +211,7 @@ class _EditRecordState extends State<EditRecord> {
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
-             // _showInterstitialAdCancel();
+              _showInterstitialAdCancel();
                Navigator.pop(context);
      }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
           ),
@@ -203,13 +220,13 @@ class _EditRecordState extends State<EditRecord> {
             padding: const EdgeInsets.only(right: 10),
             child: FloatingActionButton.extended(onPressed: () {
 
-              print('Category: ${myMarkerCategoryKey.runtimeType}');
-              print('KEY: ${myMarkerCategoryKey}');
+              //print('Category: ${myMarkerCategoryKey.runtimeType}');
+              //print('KEY: ${myMarkerCategoryKey}');
 
 
               final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory:markerCategoryController.text, markerCategoryKey: myMarkerCategoryKey);
               myMarkersBox.putAt(widget.index, newMarker);
-             // _showInterstitialAdSave();
+              _showInterstitialAdSave();
               Navigator.pop(context);
               }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),
@@ -302,13 +319,25 @@ class _EditRecordState extends State<EditRecord> {
                         // print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
                         //print( 'KEY FROM BOX: ${myMarkersCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
 
-                            if (markerCategoryKey == null) {myMarkerCategoryKey = '${widget.marker.markerCategoryKey}'; print('My null CATEGORY KEY: $myMarkerCategoryKey');print('CATEGORY null KEY: $markerCategoryKey');}
-                            else if (markerCategoryKey == '000') {myMarkerCategoryKey = '000'; print('My 000 CATEGORY KEY: $myMarkerCategoryKey'); print('CATEGORY 000 KEY: $markerCategoryKey');}
-                            else {myMarkerCategoryKey = markerCategoryKey;print('CATEGORY KEY: $myMarkerCategoryKey');}
+                            if (markerCategoryKey == null) {myMarkerCategoryKey = '${widget.marker.markerCategoryKey}';
+                              //print('My null CATEGORY KEY: $myMarkerCategoryKey');print('CATEGORY null KEY: $markerCategoryKey')
+                            ;}
+                            else if (markerCategoryKey == '000') {myMarkerCategoryKey = '000';
+                              //print('My 000 CATEGORY KEY: $myMarkerCategoryKey'); print('CATEGORY 000 KEY: $markerCategoryKey')
+                            ;}
+                            else {myMarkerCategoryKey = markerCategoryKey;
+                              //print('CATEGORY KEY: $myMarkerCategoryKey')
+                            ;}
 
-                            if (markerCategoryKey == null) {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))!.markerCategoryTitle!; print('My null CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY null KEY: $markerCategoryKey');}
-                            if (markerCategoryKey == '000') {markerCategoryController.text = 'Uncategorized'; print('My 000 CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY 000 KEY: $markerCategoryKey');}
-                            else {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;print('CATEGORY Title: ${myMarkersCategoryBox.get(int.parse(markerCategoryKey))!.markerCategoryTitle!}');}
+                            if (markerCategoryKey == null) {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))!.markerCategoryTitle!;
+                              //print('My null CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY null KEY: $markerCategoryKey')
+                            ;}
+                            if (markerCategoryKey == '000') {markerCategoryController.text = 'uncategorized';
+                              //print('My 000 CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY 000 KEY: $markerCategoryKey')
+                            ;}
+                            else {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;
+                              //print('CATEGORY Title: ${myMarkersCategoryBox.get(int.parse(markerCategoryKey))!.markerCategoryTitle!}')
+                            ;}
 
 
 
@@ -318,7 +347,7 @@ class _EditRecordState extends State<EditRecord> {
                         // else {myMarkerCategoryKey = '000';}
                         //
                         // if (markerCategoryKey != null || markerCategoryKey != '000'){markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;}
-                        // else{markerCategoryController.text = 'Uncategorized';}
+                        // else{markerCategoryController.text = 'uncategorized';}
 
                         // markerCategoryKey != null
                         //     ? myMarkerCategoryKey = markerCategoryKey
@@ -330,7 +359,7 @@ class _EditRecordState extends State<EditRecord> {
                         //     : markerCategoryKey != '000'
                         //     ? markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!
                         //
-                        //     : markerCategoryController.text = 'Uncategorized';
+                        //     : markerCategoryController.text = 'uncategorized';
 
 
                         //print('CATEGORY KEY: $myMarkerCategoryKey');

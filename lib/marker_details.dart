@@ -105,7 +105,7 @@ class _MarkerDetailsState extends State<MarkerDetails> {
         ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
         : categoryKey != null
         ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
-        : myCategoryTitle = 'Uncategorized';
+        : myCategoryTitle = 'uncategorized';
     print('CATEGORY TITLE: $myCategoryTitle');
 
     return myCategoryTitle;
@@ -167,7 +167,7 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                       children: [
                         FaIcon(FontAwesomeIcons.tag,size: 15,color: HexColor('#3B592D'),),
                         SizedBox(width: 7,),
-                        myCategoryTitle == 'Uncategorized' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
+                        myCategoryTitle == 'uncategorized' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
                             : myCategoryTitle == null ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
                         : Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
                       ],
@@ -371,7 +371,10 @@ SizedBox(height: 20,),
               ),
             ),
           ),
-          ),],children: [
+          ),
+
+
+                  ],children: [
             TileLayer(
             urlTemplate:
             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
