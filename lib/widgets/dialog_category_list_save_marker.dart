@@ -1,27 +1,29 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import '../categories.dart';
 import '../edit_category_record.dart';
+import '../edit_record.dart';
 import '../markers_category_model.dart';
 import '../markers_model.dart';
 
-class CategoryPickerDialog extends StatefulWidget {
+class CategoryPickerDialogSaveMarker extends StatefulWidget {
 
-  const CategoryPickerDialog({
+
+
+  CategoryPickerDialogSaveMarker({
     Key? key,
   }) : super(key: key);
 
 
   @override
-  State<CategoryPickerDialog> createState() => _CategoryPickerDialogState();
+  State<CategoryPickerDialogSaveMarker> createState() => _CategoryPickerDialogSaveMarkerState();
 }
 
-class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
+class _CategoryPickerDialogSaveMarkerState extends State<CategoryPickerDialogSaveMarker> {
 
 
   late Box<MyMarkers> myMarkersBox;
@@ -30,6 +32,7 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
   String? categoryTitle;
   String? categoryKey;
   String? selectedRadio;
+  String? editedCategoryTitle;
 
   @override
   void initState() {
@@ -131,7 +134,11 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                                         constraints: BoxConstraints(),color: Colors.red,),
                                       Padding(
                                         padding: const EdgeInsets.only(left: 10,right: 10),
-                                        child: IconButton(onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: categories!, categoryKey: categories.key,)));},
+                                        child: IconButton(onPressed: () async {String? newCategoryTitle = await Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategoryRecord(index: index, category: categories!, categoryKey: categories.key)));
+                                        setState(() {
+                                          editedCategoryTitle = newCategoryTitle;
+                                        });
+                                        },
                                           icon: FaIcon(FontAwesomeIcons.pencil, size: 15,),
                                           padding: EdgeInsets.zero,
                                           constraints: BoxConstraints(),color: HexColor('#3B592D'),),
@@ -150,7 +157,16 @@ class _CategoryPickerDialogState extends State<CategoryPickerDialog> {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () {
-                    Navigator.pop(context, '000');
+
+                    // if (editedCategoryTitle == widget.categoryTitle) {
+                    //   print('oldCategoryTitle: ${widget.categoryTitle}');
+                    Navigator.pop(context,'000');
+                    // } else {
+                    //   print('editedCategoryTitle: ${editedCategoryTitle}');
+                    //   Navigator.pop(context, editedCategoryTitle);
+                    //                      }
+
+                    //Navigator.push(context, MaterialPageRoute(builder: (context) => EditRecord(index: widget.markerIndex, marker: widget.marker, markerLat: widget.markerLat,markerLong: widget.markerLong, mapController: widget.mapController)));
                   }, child: Text('Cancel')),
                   //ElevatedButton(onPressed:() {Navigator.pop(context,selectedRadio);}, child: Text('Confirm'))
                 ],),

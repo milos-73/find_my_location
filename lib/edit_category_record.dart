@@ -18,10 +18,11 @@ import 'markers_category_model.dart';
 
 class EditCategoryRecord extends StatefulWidget {
   final int index;
-  final int categoryKey;
+  final int? categoryKey;
+  final String? originalCategoryTitle;
   final MyMarkersCategory category;
 
-  EditCategoryRecord({Key? key, required this.index, required this.category, required this.categoryKey}) : super(key: key);
+  EditCategoryRecord({Key? key, required this.index, required this.category, this.categoryKey, this.originalCategoryTitle,}) : super(key: key);
 
   @override
   State<EditCategoryRecord> createState() => _EditCategoryRecordState();
@@ -33,6 +34,8 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
 
   bool isLoading = false;
   late Box<MyMarkersCategory> myCategoryBox;
+  MyMarkersCategory? newCategory;
+  MyMarkersCategory? originalCategory;
 
   late BannerAd _bannerAd;
   bool _isBannerAdReady = false;
@@ -87,6 +90,10 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
           Padding(
             padding: const EdgeInsets.only(left: 45),
             child: FloatingActionButton.extended(onPressed: () {
+              final originalEditedCategory = MyMarkersCategory(markerCategoryTitle: categoryTitleController.text, markerCategoryDescription: categoryDescriptionController.text);
+              setState(() {
+                originalCategory = originalEditedCategory;
+              });
               //_showInterstitialAdCancel();
               Navigator.pop(context);
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.x), SizedBox(width: 5,),Text('Cancel')],),backgroundColor: Colors.red,splashColor: HexColor('#D99E6A'),heroTag: 'cancelButton',),
@@ -95,16 +102,20 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: FloatingActionButton.extended(onPressed: () {
-              final newCategory = MyMarkersCategory(markerCategoryTitle: categoryTitleController.text, markerCategoryDescription: categoryDescriptionController.text);
+              final newEditedCategory = MyMarkersCategory(markerCategoryTitle: categoryTitleController.text, markerCategoryDescription: categoryDescriptionController.text);
+              setState(() {
+                newCategory = newEditedCategory;
+              });
               //print('WIDGET EDIT CATEGORY KEY: ${widget.categoryKey}');
-              print('WIDGET NEW CATEGORY TITLE: ${newCategory.markerCategoryTitle}');
+              print('WIDGET NEW CATEGORY TITLE: ${newCategory?.markerCategoryTitle}');
 
              // _showInterstitialAdSave();
-              Provider.of<CategoryProvider>(context, listen: false).updateCategoryList(newCategory, widget.categoryKey);
-              myCategoryBox.putAt(widget.index, newCategory);
+              //Provider.of<CategoryProvider>(context, listen: false).updateCategoryList(newCategory, widget.categoryKey);
+              myCategoryBox.putAt(widget.index, newCategory!);
               //myCategoryBox.put(widget.categoryKey, newCategory);
-              Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(newCategory);
-              Navigator.pop(context);
+              //Provider.of<CategoryProvider>(context, listen: false).addToCategoryList(newCategory);
+              if (newCategory?.markerCategoryTitle == widget.originalCategoryTitle){Navigator.pop(context, widget.originalCategoryTitle);}else{
+              Navigator.pop(context, newEditedCategory.markerCategoryTitle);}
             }, label: Row(children: const [FaIcon(FontAwesomeIcons.floppyDisk), SizedBox(width: 5,),Text('Save')],),backgroundColor: HexColor('#0468BF'),splashColor: HexColor('#D99E6A'),heroTag: 'saveButton',),
           ),
 
@@ -126,7 +137,8 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
                 ),
               ),
             ),
-          Padding(
+
+            Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category Title', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller: categoryTitleController,),
           ),

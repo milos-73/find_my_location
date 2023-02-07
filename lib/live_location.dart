@@ -4,7 +4,8 @@ import 'dart:ui';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:find_me/marker_provider.dart';
-import 'package:find_me/widgets/dialog_category_list.dart';
+import 'package:find_me/widgets/dialog_category_list_edit_marker.dart';
+import 'package:find_me/widgets/dialog_category_list_save_marker.dart';
 import 'package:find_me/zoombuttons_plugin_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -795,6 +796,8 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                           setState((){isLoading = true;});
                                           setState((){isAddressLoading = true;});
                                           internetConnectivity().then((value) => setState((){isDeviceConnected = value;}));
+                                          markerCategoryTitleController.clear();
+                                          myMarkerCategoryKey = '000';
                                           geolocations.getCurrentPosition(context)
                                               .then((value) => setState((){currentLocation = value;}))
                                               .then((value) => Provider.of<LocationProvider>(context,listen: false).setLocation(currentLocation))
@@ -819,7 +822,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                               .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
                                               .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
                                               .then((value) => setState((){descriptionController.text = '';}))
-                                              .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? '';}))
+                                              .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? 'uncategorized';}))
                                               .then((value) => setState((){isLoading = false;}))
                                           ;},
 
@@ -995,7 +998,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                       }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
                                       TextButton(onPressed: (){
-                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, );
+                                          final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text, countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text,);
                                           addMyMarker(newMarker);
                                           setState(() => positionStreamStarted = true); _toggleListening();
                                           print('STREAM: $positionStreamStarted');
@@ -1046,19 +1049,29 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                     TextFormField(decoration: const InputDecoration(labelText: 'Postal Code',),controller:zipController),
                     TextFormField(decoration: const InputDecoration(labelText: 'Country',),controller:stateController),
                     TextFormField(decoration: const InputDecoration(labelText: 'Country Code',),controller:countryCodeController),
-                    TextFormField(decoration: const InputDecoration(hintText: 'Select your category',labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); });
+                    TextFormField(decoration: const InputDecoration(hintText: 'Select your category',labelText: 'Category',),controller:markerCategoryTitleController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogSaveMarker(); });
                       setState(() {
-                      //   print('CONTROLLER: ${markerCategoryTitleController.text}');
-                      //   print('CATEGORY TITLE: ${markerCategoryTitle}');
-                      // print('CATEGORY KEY: $markerCategoryKey');
-                      // print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
-                      // print( 'KEY FROM BOX: ${myCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
-                      //   print( 'KEY 19: ${myCategoryBox.get(19)?.markerCategoryTitle}');
-                      markerCategoryKey != null ? myMarkerCategoryKey = markerCategoryKey : myMarkerCategoryKey = '000';
-                      markerCategoryKey != null || markerCategoryKey != '000' ? markerCategoryTitleController.text = myCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle! : markerCategoryTitleController.text = 'Uncategorized';
-                          //myMarkerCategoryKey != null ||  myMarkerCategoryKey != '' ? markerCategoryTitleController.text = myCategoryBox.get(int.parse('$markerCategoryKey'))!.markerCategoryTitle! : '';
 
-                      print('CATEGORY KEY: $myMarkerCategoryKey');
+                        if (markerCategoryKey == null) {myMarkerCategoryKey = '000';
+                        //  print('My null CATEGORY KEY: $myMarkerCategoryKey');print('CATEGORY null KEY: $markerCategoryKey');
+                        }
+                        else if (markerCategoryKey == '000') {myMarkerCategoryKey = '000';
+                        //  print('My 000 CATEGORY KEY: $myMarkerCategoryKey'); print('CATEGORY 000 KEY: $markerCategoryKey');
+                        }
+                        else {myMarkerCategoryKey = markerCategoryKey;
+                        //  print('CATEGORY KEY: $myMarkerCategoryKey');
+                        }
+
+                        if (markerCategoryKey == null) {markerCategoryTitleController.text = 'Uncategorized';
+                          //print('My null CATEGORY TITLE: ${markerCategoryTitleController.text}');print('CATEGORY null KEY: $markerCategoryKey');
+                        }
+                        if (markerCategoryKey == '000') {markerCategoryTitleController.text = 'Uncategorized';
+                        //  print('My 000 CATEGORY TITLE: ${markerCategoryTitleController.text}');print('CATEGORY 000 KEY: $markerCategoryKey');
+                        }
+                        else {markerCategoryTitleController.text = myCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;
+                         // print('CATEGORY Title: ${myCategoryBox.get(int.parse(markerCategoryKey))!.markerCategoryTitle!}');
+                        }
+
                     });}),
                     TextFormField(decoration: const InputDecoration(labelText: 'Notes',),controller:descriptionController,minLines: 1,maxLines: 3,),
                   ],),
@@ -1072,16 +1085,21 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                   padding: const EdgeInsets.all(10.0),
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween ,children: [
                     TextButton(onPressed: (){
-                      print('STREAM: $positionStreamStarted');
+                      //print('STREAM: $positionStreamStarted');
                       Navigator.of(ctx).pop();
                     }, child: Container(color: Colors.red, padding: const EdgeInsets.all(14), child: Text('Cancel',style: TextStyle(color: Colors.white),),)),
 
                     TextButton(onPressed: (){
+                      //print('My CATEGORY TITLE before Save: ${markerCategoryTitleController.text}');
                       final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '');
-                      print('KEY on SAVE: ${myMarkerCategoryKey}');
-                      //_showInterstitialAd();
+                      markerCategoryTitleController.clear();
+                      //print('KEY after SAVE: ${myMarkerCategoryKey}');
+                      //print('categoryTitle after SAVE: ${markerCategoryTitleController.text}');
+
+                      markerCategoryTitleController.clear();
                       addMyMarker(newMarker);
-                      print('STREAM: $positionStreamStarted');
+                      _showInterstitialAd();
+                      //print('STREAM: $positionStreamStarted');
                       Navigator.of(ctx).pop();
                     }, child: Container(color: HexColor('#3B592D'), padding: const EdgeInsets.all(14), child: Text('SAVE',style: TextStyle(color: Colors.white),),)),
 

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:find_me/markers_category_model.dart';
 import 'package:find_me/markers_model.dart';
-import 'package:find_me/widgets/dialog_category_list.dart';
+import 'package:find_me/widgets/dialog_category_list_edit_marker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -94,8 +94,17 @@ class _EditRecordState extends State<EditRecord> {
 //TODO: put all to separate file
   String? categoryTitle(){
 
-    widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'Uncategorized';
-    print('CATEGORY TITLE: $myCategoryTitle');
+    print('CATEGORY KEY to edit: ${widget.marker.markerCategoryKey}');
+
+
+    if (widget.marker.markerCategoryKey == '000'){myCategoryTitle = 'Uncategorized';}
+    else if (widget.marker.markerCategoryKey == null){myCategoryTitle = 'Uncategorized';}
+    else{myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle!;}
+
+
+
+    // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'Uncategorized';
+    // print('CATEGORY TITLE: $myCategoryTitle');
 
     return myCategoryTitle;
 
@@ -286,13 +295,42 @@ class _EditRecordState extends State<EditRecord> {
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialog(); }); setState(() {
+                      child: TextFormField(decoration: InputDecoration(filled: true,fillColor: HexColor('#b1bdab').withOpacity(0.4),focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20),borderSide: BorderSide(color: HexColor('#D99E6A'))),border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),labelText: 'Category', labelStyle: TextStyle(color: HexColor('#8C4332'),fontSize: 20,fontWeight: FontWeight.w600),hintStyle: const TextStyle(color: Colors.white70)),
+                          controller:markerCategoryController, readOnly: true, onTap: () async {String? markerCategoryKey = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogEditMarker(markerIndex: widget.index, marker: widget.marker, mapController: widget.mapController,markerLat: widget.markerLat,markerLong: widget.markerLong  ); }); setState(() {
 
                         // print('CATEGORY KEY: $markerCategoryKey');
                         // print('CATEGORY KEY: $markerCategoryKey'.runtimeType);
                         //print( 'KEY FROM BOX: ${myMarkersCategoryBox.get(int.parse('$markerCategoryKey'))?.markerCategoryTitle}');
-                        markerCategoryKey != null  ? myMarkerCategoryKey = markerCategoryKey : markerCategoryKey = '000';
-                        markerCategoryKey != null || markerCategoryKey != '000' ? markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle! : markerCategoryController.text = 'Uncategorized';
+
+                            if (markerCategoryKey == null) {myMarkerCategoryKey = '${widget.marker.markerCategoryKey}'; print('My null CATEGORY KEY: $myMarkerCategoryKey');print('CATEGORY null KEY: $markerCategoryKey');}
+                            else if (markerCategoryKey == '000') {myMarkerCategoryKey = '000'; print('My 000 CATEGORY KEY: $myMarkerCategoryKey'); print('CATEGORY 000 KEY: $markerCategoryKey');}
+                            else {myMarkerCategoryKey = markerCategoryKey;print('CATEGORY KEY: $myMarkerCategoryKey');}
+
+                            if (markerCategoryKey == null) {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))!.markerCategoryTitle!; print('My null CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY null KEY: $markerCategoryKey');}
+                            if (markerCategoryKey == '000') {markerCategoryController.text = 'Uncategorized'; print('My 000 CATEGORY TITLE: ${markerCategoryController.text}');print('CATEGORY 000 KEY: $markerCategoryKey');}
+                            else {markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;print('CATEGORY Title: ${myMarkersCategoryBox.get(int.parse(markerCategoryKey))!.markerCategoryTitle!}');}
+
+
+
+
+
+                        //     if (markerCategoryKey != null || markerCategoryKey != '000'){myMarkerCategoryKey = markerCategoryKey;}
+                        // else {myMarkerCategoryKey = '000';}
+                        //
+                        // if (markerCategoryKey != null || markerCategoryKey != '000'){markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!;}
+                        // else{markerCategoryController.text = 'Uncategorized';}
+
+                        // markerCategoryKey != null
+                        //     ? myMarkerCategoryKey = markerCategoryKey
+                        //     : markerCategoryKey != '000'
+                        //     ? myMarkerCategoryKey = markerCategoryKey
+                        //     : myMarkerCategoryKey = '000';
+                        // markerCategoryKey != null
+                        //     ? markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey))!.markerCategoryTitle!
+                        //     : markerCategoryKey != '000'
+                        //     ? markerCategoryController.text = myMarkersCategoryBox.get(int.parse(markerCategoryKey!))!.markerCategoryTitle!
+                        //
+                        //     : markerCategoryController.text = 'Uncategorized';
 
 
                         //print('CATEGORY KEY: $myMarkerCategoryKey');

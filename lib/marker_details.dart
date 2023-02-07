@@ -101,7 +101,11 @@ class _MarkerDetailsState extends State<MarkerDetails> {
 
     print('CATEGORY Key: ${widget.marker.markerCategoryKey}');
     String? categoryKey = widget.marker.markerCategoryKey;
-    categoryKey != '000' ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'Uncategorized';
+    categoryKey != '000'
+        ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
+        : categoryKey != null
+        ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
+        : myCategoryTitle = 'Uncategorized';
     print('CATEGORY TITLE: $myCategoryTitle');
 
     return myCategoryTitle;
@@ -163,8 +167,9 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                       children: [
                         FaIcon(FontAwesomeIcons.tag,size: 15,color: HexColor('#3B592D'),),
                         SizedBox(width: 7,),
-                        myCategoryTitle == 'Uncategorized' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),):
-                        Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
+                        myCategoryTitle == 'Uncategorized' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
+                            : myCategoryTitle == null ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
+                        : Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
                       ],
                     )),
                     Padding(
