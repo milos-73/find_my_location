@@ -541,7 +541,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                     )),
 
                                                   ),
-                                                  Text('${markers.markerCategoryKey}')
+                                                  //Text('${markers.markerCategoryKey}')
                                                 ],
                                               )
 

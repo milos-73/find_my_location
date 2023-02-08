@@ -29,9 +29,7 @@
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>This app needs access to location when open.
-		The main purpose of this application is to find your current location in terms of latitude, longitude, address where available and position on map.
-		Without the location access the application will just not work as intended. None of this information is automatically shared with anybody, however you are free to send it to whoever might need it. </string>
+		<string>This app needs access to location when open. The main purpose of this application is to find your current location in terms of latitude, longitude, address where available and position on map. Without the location access the application will just not work as intended. None of this information is automatically shared with anybody, however you are free to send it to whoever might need it.</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 		<key>UILaunchStoryboardName</key>

@@ -78,10 +78,10 @@ dev_dependencies:
 flutter_native_splash:
   color: "#D99E6A"
   image: assets/launch_screen_icon.png
-  branding: assets/logo.png
+  branding: assets/logo_brand.png
   android_12:
     image: assets/launch_screen_icon_12.png
-    branding: assets/logo.png
+    branding: assets/logo_brand.png
 
 
 flutter_icons:
