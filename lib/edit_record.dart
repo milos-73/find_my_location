@@ -105,7 +105,7 @@ class _EditRecordState extends State<EditRecord> {
 
 
     // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'uncategorized';
-    print('CATEGORY TITLE: $myCategoryTitle');
+    //print('CATEGORY TITLE: $myCategoryTitle');
 
     return myCategoryTitle;
 
@@ -121,7 +121,7 @@ class _EditRecordState extends State<EditRecord> {
     // widget.marker.markerCategoryKey != null || widget.marker.markerCategoryKey != '000'  ? myCategoryTitle = myMarkersCategoryBox.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle! : myCategoryTitle = 'uncategorized';
     // print('CATEGORY TITLE: $myCategoryTitle');
 
-   print('CATEGORY KEY: $myMarkerCategoryKey');
+   //print('CATEGORY KEY: $myMarkerCategoryKey');
 
     return myMarkerCategoryKey;
 

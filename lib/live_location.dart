@@ -199,7 +199,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
     context.read<CategoryProvider>().addToCategoryList(MyMarkersCategory(markerCategoryTitle:'Show All',markerCategoryDescription: 'Show the whole category list'));
 
       for (var i = 0; i < myCategoryBox.length; i++) {
-      print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
+      //print('CATEGORY BOX: ${await category[i].markerCategoryTitle}');
       MyMarkersCategory? myCategoryItem = category[i];
 
       categoryItems.add(myCategoryItem);
@@ -260,7 +260,7 @@ class LiveLocationPageState extends State<LiveLocationPage> {
         .then((value) => setState((){subLocalityController.text = subLocality ?? '';}))
         .then((value) => setState((){administrativeAreaController.text = administrativeArea ?? '';}))
         .then((value) => setState((){countryCodeController.text = countryCode ?? '';}))
-        .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? '';}))
+        .then((value) => setState((){markerCategoryTitleController.text = markerCategoryTitle ?? 'uncategorized';}))
     ;
   }
 
@@ -543,7 +543,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                       //Text('My Location', softWrap: false, maxLines: 1,overflow: TextOverflow.fade,style: TextStyle(fontSize: 35, fontWeight: FontWeight.w600),),
                                     ),
                                     TextButton(onPressed: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude, currentLong: currentLocation?.longitude, mapController: _mapController,)));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => MyMarkersList(currentLat: currentLocation?.latitude ?? 0.0, currentLong: currentLocation?.longitude ?? 0.0, mapController: _mapController,)));
 
 
                                     }, child: Column(children: [FaIcon(FontAwesomeIcons.bookBookmark, color: HexColor('#8C4332'),size: 30,), Text('My List', style: TextStyle(color: HexColor('#0468BF'),height: 1.5))],)),
@@ -1093,10 +1093,15 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                       //print('My CATEGORY TITLE before Save: ${markerCategoryTitleController.text}');
                       final newMarker = MyMarkers(dateTime: DateTime.now(), name: nameController.text, description: descriptionController.text, lat: double.parse(latitudeController.text) , long: double.parse(longitudeController.text), altitude: double.parse(altitudeController.text), accuracy: double.parse(accuracyController.text), street: streetController.text, city: townController.text, county: countyController.text, state: stateController.text,zip: zipController.text,  countryCode: countryCodeController.text, subLocality: subLocalityController.text, administrativeArea: administrativeAreaController.text, markerCategory: markerCategoryTitleController.text,markerCategoryKey: myMarkerCategoryKey ?? '000');
                       //markerCategoryTitleController.clear();
-                      print('KEY after SAVE: ${myMarkerCategoryKey}');
-                      print('categoryTitle after SAVE: ${markerCategoryTitleController.text}');
+                      //print('KEY after SAVE: ${myMarkerCategoryKey}');
+                      //print('categoryTitle after SAVE: ${markerCategoryTitleController.text}');
 
                       markerCategoryTitleController.clear();
+                      setState(() {
+                        myMarkerCategoryKey = '000';
+                        markerCategoryTitleController.text = 'uncategorized';
+
+                      });
                       addMyMarker(newMarker);
                       _showInterstitialAd();
                       //print('STREAM: $positionStreamStarted');
@@ -1169,7 +1174,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           Text('Find, Send & Save', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           //Text('my current location', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           SizedBox(height: 5,),
-          Text('verzia 1.0.9', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          Text('verzia 1.2.6', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
           TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('mylocationnow.app'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Text('support@mylocationnow.app', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),

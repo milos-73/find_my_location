@@ -284,10 +284,10 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                             final latDms = converter.getDegreeFromDecimal(markers!.lat!);
                             final longDms = converter.getDegreeFromDecimal(markers.long!);
-                             print('KEY 10: ${markers.markerCategoryKey}');
-                              print('TITLE 10: ${markers.markerCategory}');
-                              print('CATEGORY TITLE 10: ${markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle!}');
-                              print('MARKER KEY: ${markers.key}');
+                             // print('KEY 10: ${markers.markerCategoryKey}');
+                             //  print('TITLE 10: ${markers.markerCategory}');
+                             //  print('CATEGORY TITLE 10: ${markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle!}');
+                              //print('MARKER KEY: ${markers.key}');
                              //print('KEY TYPE1: ${markers.markerCategoryKey}'.runtimeType);
 
 
@@ -300,16 +300,17 @@ class _MyMarkersListState extends State<MyMarkersList> {
                               // var kategoria = markersCategoryList.get(int.parse(markers.markerCategoryKey!))?.markerCategoryTitle!;
                               //
                               // print('KATEGORIA: $kategoria');
-                              print('categoryTitle: $categoryTitle');
+                              //print('categoryTitle: $categoryTitle');
 
                               if (categoryTitle == null) {
                                 final markerCategoryKeyUpdate = MyMarkers(dateTime: markers.dateTime, name: markers.name, description: markers.description, lat: double.parse('${markers.lat}') , long: double.parse('${markers.long}'), altitude: double.parse('${markers.altitude}'), accuracy: double.parse('${markers.accuracy}'), street: markers.street, city: markers.city, county: markers.county, state: markers.state,zip: markers.zip,  countryCode: markers.countryCode, subLocality: markers.subLocality, administrativeArea: markers.administrativeArea, markerCategory: 'uncategorized',markerCategoryKey: '000');
                                 markersList.put(markers.key, markerCategoryKeyUpdate);
                               }
 
-                              print('KEY 1: ${markers.markerCategoryKey}');
-                              print('TITLE 1: ${markers.markerCategory}');
-                              print('CATEGORY TITLE 1: ${markersList.get(markers.markerCategory)}');
+
+                              print('MARKER CATEGORY TITLE: ${categoryTitle}');
+                              // print('TITLE 1: ${markers.markerCategory}');
+                              // print('CATEGORY TITLE 1: ${markersList.get(markers.markerCategory)}');
 
 
 
@@ -496,8 +497,9 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                             child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
                                                                 Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10, right: 15),onPressed: (){
-                                                                  _showInterstitialAd();
-                                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: markers.lat , longitude: markers.long, marker: markers, latDms: latDms, longDms: longDms)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
+                                                                 // _showInterstitialAd();
+                                                                  print('MARKER CATEGORY TITLE2: ${categoryTitle}');
+                                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: markers.lat , longitude: markers.long, marker: markers, latDms: latDms, longDms: longDms, categoryTitle: categoryTitle)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                               ],
                                                             ),
                                                           ),

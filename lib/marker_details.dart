@@ -24,8 +24,9 @@ class MarkerDetails extends StatefulWidget {
   final MyMarkers marker;
   final List<num>? latDms;
   final List<num>? longDms;
+  final String? categoryTitle;
 
-    MarkerDetails({Key? key, this.latitude, this.longitude, required this.marker, this.latDms, this.longDms}) : super(key: key);
+    MarkerDetails({Key? key, this.latitude, this.longitude, required this.marker, this.latDms, this.longDms, this.categoryTitle}) : super(key: key);
 
   @override
   State<MarkerDetails> createState() => _MarkerDetailsState();
@@ -51,13 +52,15 @@ class _MarkerDetailsState extends State<MarkerDetails> {
 
     String? dmsLatitude;
 
-    print('LIST: ${latitideList}');
+    //print('LIST: ${latitideList}');
 
     if (latitideList![0] > 0){
       dmsLatitude = "${latitideList[0]}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${widget.longitude! < 0 ? 'S' : 'N'}";
     } else {
       dmsLatitude = "${latitideList[0].toString().substring(1)}° ${latitideList[1]}' ${latitideList[2].toString().substring(0,7)}\" ${widget.latitude! < 0 ? 'S' : 'N'}";
-    }print('LIST: ${latitideList}');
+    }
+    //print('LIST: ${latitideList}')
+    ;
     setState(() {
       latDmsLocation = dmsLatitude;
     });
@@ -92,6 +95,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
     markersCategoryList = Hive.box('myMarkersCategoryBox');
     categoryTitle();
     _loadBannerAd();
+    print('CATEGORY TITLE from iniState: ${widget.marker.markerCategory}');
+    print('CATEGORY TITLE from iniState a FUNCTION: ${widget.categoryTitle}');
 
    _mapController3 = MapController();
       }
@@ -99,14 +104,21 @@ class _MarkerDetailsState extends State<MarkerDetails> {
 //TODO: put all to separate file
   String? categoryTitle(){
 
-    print('CATEGORY Key: ${widget.marker.markerCategoryKey}');
+    //print('CATEGORY Key: ${widget.marker.markerCategoryKey}');
     String? categoryKey = widget.marker.markerCategoryKey;
-    categoryKey != '000'
-        ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
-        : categoryKey != null
-        ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
-        : myCategoryTitle = 'uncategorized';
-    print('CATEGORY TITLE: $myCategoryTitle');
+
+    if (categoryKey == ''){myCategoryTitle = 'uncategorized';}
+    else if (categoryKey != null){myCategoryTitle = 'uncategorized';}
+    if (categoryKey == '000'){myCategoryTitle = 'uncategorized';}
+    else{myCategoryTitle = widget.marker.markerCategory;}
+
+    // categoryKey != '000'
+    //     ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
+    //     : categoryKey != null
+    //     ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
+    //     : myCategoryTitle = 'uncategorized';
+    print('CATEGORY TITLE from FUNCTION: $myCategoryTitle');
+
 
     return myCategoryTitle;
 
@@ -169,7 +181,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
                         SizedBox(width: 7,),
                         myCategoryTitle == 'uncategorized' ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
                             : myCategoryTitle == null ? Text('uncategorized',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),)
-                        : Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
+                        :
+                        Text('${myCategoryTitle}',style: TextStyle(fontSize: 15, color: HexColor('#3B592D'),fontWeight: FontWeight.w400),),
                       ],
                     )),
                     Padding(
