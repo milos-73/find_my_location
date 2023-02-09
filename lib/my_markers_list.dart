@@ -234,7 +234,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                   children: [
                     ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#3B592D') ),onPressed: () async {String? markerCategoryTitle = await showDialog(context: context, builder: (BuildContext context) { return CategoryPickerDialogFilter(); }); setState(() {
                       markerCategoryTitle != null ?
-                      selectedCategory = markerCategoryTitle : null;
+                      selectedCategory = markerCategoryTitle : selectedCategory = '000';
                     });}, child: Text('Filter by category')),
 
                     ElevatedButton(style: ElevatedButton.styleFrom(foregroundColor: HexColor('#f0d8c3'), backgroundColor: HexColor('#8C4332') ),onPressed: () async {await Navigator.push(context, MaterialPageRoute(builder: (context) => const MarkerCategories()));setState(() {
@@ -256,12 +256,9 @@ class _MyMarkersListState extends State<MyMarkersList> {
 
                     List<int> markerKeys;
 
-                      if (selectedCategory == '') { markerKeys = myMarkers.keys.cast<int>().toList();} else if (selectedCategory == '000') {
-                      markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategoryKey == '000' || myMarkers.get(item)?.markerCategory == '').toList();} else {
-
-                      markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategoryKey == selectedCategory).toList();}
-
-
+                      if (selectedCategory == '') { markerKeys = myMarkers.keys.cast<int>().toList();}
+                      else if (selectedCategory == '000') {markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategoryKey == '000' || myMarkers.get(item)?.markerCategory == '' || myMarkers.get(item)?.markerCategory == null).toList();}
+                      else { markerKeys = myMarkers.keys.cast<int>().where((item) => myMarkers.get(item)?.markerCategoryKey == selectedCategory).toList();}
 
                       ///Remove ListView Top padding with MediaQuery.removePadding
                       return MediaQuery.removePadding(removeTop: true,
@@ -497,7 +494,7 @@ class _MyMarkersListState extends State<MyMarkersList> {
                                                             child: Column(mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
                                                                 Container(padding: EdgeInsets.all(0.0), width: 40,child: IconButton(highlightColor: Colors.blue, padding: EdgeInsets.only(bottom: 10, right: 15),onPressed: (){
-                                                                 // _showInterstitialAd();
+                                                                 _showInterstitialAd();
                                                                   print('MARKER CATEGORY TITLE2: ${categoryTitle}');
                                                                   Navigator.push(context, MaterialPageRoute(builder: (context) => MarkerDetails(latitude: markers.lat , longitude: markers.long, marker: markers, latDms: latDms, longDms: longDms, categoryTitle: categoryTitle)));}, icon: FaIcon(FontAwesomeIcons.circleInfo,size: 30, color: HexColor('#592d3b'),))),
                                                               ],

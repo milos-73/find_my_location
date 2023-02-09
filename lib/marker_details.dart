@@ -95,8 +95,8 @@ class _MarkerDetailsState extends State<MarkerDetails> {
     markersCategoryList = Hive.box('myMarkersCategoryBox');
     categoryTitle();
     _loadBannerAd();
-    print('CATEGORY TITLE from iniState: ${widget.marker.markerCategory}');
-    print('CATEGORY TITLE from iniState a FUNCTION: ${widget.categoryTitle}');
+    //print('CATEGORY TITLE from iniState: ${widget.marker.markerCategory}');
+    //print('CATEGORY TITLE from iniState a FUNCTION: ${widget.categoryTitle}');
 
    _mapController3 = MapController();
       }
@@ -117,7 +117,7 @@ class _MarkerDetailsState extends State<MarkerDetails> {
     //     : categoryKey != null
     //     ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
     //     : myCategoryTitle = 'uncategorized';
-    print('CATEGORY TITLE from FUNCTION: $myCategoryTitle');
+    //print('CATEGORY TITLE from FUNCTION: $myCategoryTitle');
 
 
     return myCategoryTitle;
