@@ -1,4 +1,4 @@
-package com.example.find_me
+package sk.pivosalus.findme
 
 import io.flutter.embedding.android.FlutterActivity
 

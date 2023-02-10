@@ -850,9 +850,10 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
                                           '${currentStreet ?? ''}\n'
                                           '${currentPostalCode ?? ''} ${currentTown ?? ''}\n'
                                           '${currentCounty ?? ''}'
-                                          '${currentState ?? ''}'
-
+                                          '${currentState ?? ''}\n\n'
+                                      'Sent from My Location Now app at https://mylocationnow.app'
                                           ;
+
                                       await Share.share(locationUrl);
 
 
@@ -1174,7 +1175,7 @@ markerAddress.getCountryCode(displayValue).then((value) => countryCode = value).
           Text('Find, Send & Save', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           //Text('my current location', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w400),),
           SizedBox(height: 5,),
-          Text('verzia 1.2.6', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
+          Text('verzia 1.2.8', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),
           SizedBox(height: 20,),
           TextButton(onPressed: () => setState(() {_launched = _launchInBrowser(_url);}), child: const Text('mylocationnow.app'),style: TextButton.styleFrom(minimumSize: Size.zero, padding: EdgeInsets.zero,tapTargetSize: MaterialTapTargetSize.shrinkWrap ),),
           Text('support@mylocationnow.app', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),),

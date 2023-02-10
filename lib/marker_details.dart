@@ -110,7 +110,10 @@ class _MarkerDetailsState extends State<MarkerDetails> {
     if (categoryKey == ''){myCategoryTitle = 'uncategorized';}
     else if (categoryKey != null){myCategoryTitle = 'uncategorized';}
     if (categoryKey == '000'){myCategoryTitle = 'uncategorized';}
-    else{myCategoryTitle = widget.marker.markerCategory;}
+    else{myCategoryTitle = myCategoryTitle =  markersCategoryList.get(int.parse(categoryKey!))?.markerCategoryTitle;;}
+    //else{myCategoryTitle = widget.marker.markerCategory;}
+
+
 
     // categoryKey != '000'
     //     ? myCategoryTitle = markersCategoryList.get(int.parse(widget.marker.markerCategoryKey!))?.markerCategoryTitle
