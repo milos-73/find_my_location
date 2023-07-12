@@ -2,6 +2,7 @@ import 'package:find_me/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatelessWidget {
   static const String route = '/';
@@ -58,9 +59,13 @@ class HomePage extends StatelessWidget {
                   zoom: 5,
                 ),
                 nonRotatedChildren: [
-                  AttributionWidget.defaultWidget(
-                    source: 'OpenStreetMap contributors',
-                    onSourceTapped: () {},
+                  RichAttributionWidget(attributions: [
+                    TextSourceAttribution(
+                      'OpenStreetMap contributors',
+                      onTap: () {launchUrl(Uri.parse('https://openstreetmap.org/copyright'));},
+                    )
+                  ],
+
                   ),
                 ],
                 children: [

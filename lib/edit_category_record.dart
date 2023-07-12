@@ -123,7 +123,7 @@ class _EditCategoryRecordState extends State<EditCategoryRecord> {
       ),
       body: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center,
-          children: [Text('Edit category item'.toUpperCase(),style: TextStyle(fontSize: 25,fontWeight: FontWeight.w500,color: HexColor('#3B592D')),),
+          children: [Text('Edit category'.toUpperCase(),style: TextStyle(fontSize: 25,fontWeight: FontWeight.w500,color: HexColor('#3B592D')),),
 
             ///TO-DO Presunúť do samostatného súboru
             Padding(
